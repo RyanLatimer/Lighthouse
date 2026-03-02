@@ -1,37 +1,62 @@
 <% if user_signed_in? && current_event %>
   <nav class="fixed bottom-0 left-0 right-0 z-50 bg-gray-950 border-t border-gray-800 md:hidden safe-area-bottom">
-    <div class="flex items-center justify-around h-16 px-2">
-      <%# Scout %>
-      <%= link_to new_scouting_entry_path, class: "flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg transition #{request.path == new_scouting_entry_path ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}" do %>
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="flex items-center justify-around h-16 px-1">
+      <%# Match Scout %>
+      <%= link_to new_scouting_entry_path, class: "flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg transition #{request.path == new_scouting_entry_path ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
         </svg>
-        <span class="text-xs font-medium">Scout</span>
+        <span class="text-[10px] font-medium">Scout</span>
       <% end %>
 
-      <%# Teams %>
-      <%= link_to teams_path, class: "flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg transition #{request.path.include?('teams') ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}" do %>
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+      <%# Pit Scout %>
+      <%= link_to pit_scouting_entries_path, class: "flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg transition #{request.path.include?('pit_scouting') ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
         </svg>
-        <span class="text-xs font-medium">Teams</span>
+        <span class="text-[10px] font-medium">Pit</span>
       <% end %>
 
       <%# Dashboard %>
-      <%= link_to root_path, class: "flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg transition #{request.path == '/' ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}" do %>
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <%= link_to root_path, class: "flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg transition #{request.path == '/' ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
         </svg>
-        <span class="text-xs font-medium">Dashboard</span>
+        <span class="text-[10px] font-medium">Home</span>
       <% end %>
 
-      <%# Pick List %>
-      <%= link_to pick_lists_path, class: "flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg transition #{request.path.include?('pick_list') ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}" do %>
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+      <%# Teams %>
+      <%= link_to teams_path, class: "flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg transition #{request.path.include?('teams') ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
-        <span class="text-xs font-medium">Pick List</span>
+        <span class="text-[10px] font-medium">Teams</span>
       <% end %>
+
+      <%# More (Picks/Predict/Simulate/Reports/Exports) %>
+      <details class="relative" id="mobile-more-menu">
+        <summary class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg transition text-gray-500 hover:text-gray-300 cursor-pointer list-none">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+          </svg>
+          <span class="text-[10px] font-medium">More</span>
+        </summary>
+        <div class="absolute bottom-full right-0 mb-2 w-48 bg-gray-900 border border-gray-800 rounded-xl shadow-xl overflow-hidden">
+          <%= link_to "Predictions", predictions_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition" %>
+          <%= link_to "Simulator", new_match_simulator_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition" %>
+          <%= link_to "Compare", team_comparison_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition" %>
+          <%= link_to "Pick Lists", pick_lists_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition" %>
+          <%= link_to "Reports", reports_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition" %>
+          <%= link_to "Entries", scouting_entries_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition" %>
+          <% if current_user.has_role?(:admin) || current_user.has_role?(:lead) %>
+            <div class="border-t border-gray-800">
+              <%= link_to "Export CSV", exports_csv_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition" %>
+              <%= link_to "Export Excel", exports_excel_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition" %>
+              <%= link_to "Export JSON", exports_json_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition" %>
+            </div>
+          <% end %>
+        </div>
+      </details>
     </div>
   </nav>
 <% end %>

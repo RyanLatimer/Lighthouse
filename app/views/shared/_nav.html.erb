@@ -11,10 +11,13 @@
         <span class="text-lg font-bold text-white tracking-tight hidden sm:block">ScoutRail</span>
       <% end %>
 
-      <%# Current Event Selector %>
+      <%# Current Event + Org %>
       <% if user_signed_in? && current_event %>
         <div class="hidden sm:flex items-center gap-2 text-sm">
-          <span class="text-gray-400">Event:</span>
+          <% if current_organization %>
+            <span class="text-gray-500 truncate max-w-24"><%= current_organization.name %></span>
+            <span class="text-gray-700">/</span>
+          <% end %>
           <span class="text-emerald-400 font-semibold truncate max-w-48"><%= current_event.name %></span>
           <%= link_to "Change", events_path, class: "text-xs text-gray-500 hover:text-gray-300 transition" %>
         </div>
@@ -24,11 +27,16 @@
       <% if user_signed_in? %>
         <div class="flex items-center gap-3">
           <%# Desktop nav links %>
-          <div class="hidden md:flex items-center gap-1">
-            <%= link_to "Scout", new_scouting_entry_path, class: "px-3 py-1.5 text-sm rounded-md transition #{request.path.include?('scouting_entries') ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-400 hover:text-white hover:bg-gray-800'}" if current_event %>
-            <%= link_to "Teams", teams_path, class: "px-3 py-1.5 text-sm rounded-md transition #{request.path.include?('teams') ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-400 hover:text-white hover:bg-gray-800'}" if current_event %>
-            <%= link_to "Entries", scouting_entries_path, class: "px-3 py-1.5 text-sm rounded-md transition #{request.path == scouting_entries_path ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-400 hover:text-white hover:bg-gray-800'}" if current_event %>
-            <%= link_to "Pick List", pick_lists_path, class: "px-3 py-1.5 text-sm rounded-md transition #{request.path.include?('pick_list') ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-400 hover:text-white hover:bg-gray-800'}" if current_event %>
+          <div class="hidden lg:flex items-center gap-1">
+            <% if current_event %>
+              <%= link_to "Scout", new_scouting_entry_path, class: "px-2.5 py-1.5 text-sm rounded-md transition #{request.path.include?('scouting_entries') ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-400 hover:text-white hover:bg-gray-800'}" %>
+              <%= link_to "Pit", pit_scouting_entries_path, class: "px-2.5 py-1.5 text-sm rounded-md transition #{request.path.include?('pit_scouting') ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-400 hover:text-white hover:bg-gray-800'}" %>
+              <%= link_to "Teams", teams_path, class: "px-2.5 py-1.5 text-sm rounded-md transition #{request.path.include?('teams') ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-400 hover:text-white hover:bg-gray-800'}" %>
+              <%= link_to "Compare", team_comparison_path, class: "px-2.5 py-1.5 text-sm rounded-md transition #{request.path.include?('comparison') ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-400 hover:text-white hover:bg-gray-800'}" %>
+              <%= link_to "Predict", predictions_path, class: "px-2.5 py-1.5 text-sm rounded-md transition #{request.path.include?('prediction') ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-400 hover:text-white hover:bg-gray-800'}" %>
+              <%= link_to "Simulate", new_match_simulator_path, class: "px-2.5 py-1.5 text-sm rounded-md transition #{request.path.include?('simulator') ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-400 hover:text-white hover:bg-gray-800'}" %>
+              <%= link_to "Picks", pick_lists_path, class: "px-2.5 py-1.5 text-sm rounded-md transition #{request.path.include?('pick_list') ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-400 hover:text-white hover:bg-gray-800'}" %>
+            <% end %>
           </div>
 
           <%# Role badge + user %>

@@ -29,6 +29,18 @@
     <%# Top navigation %>
     <%= render "shared/nav" %>
 
+    <%# Offline / sync indicator %>
+    <div data-controller="connectivity">
+      <div data-connectivity-target="banner" class="hidden fixed top-14 left-0 right-0 z-40 bg-amber-600/90 backdrop-blur-sm text-white text-xs text-center py-1.5 px-4 flex items-center justify-center gap-3">
+        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728M5.636 5.636a9 9 0 000 12.728" />
+        </svg>
+        <span data-connectivity-target="status">You are offline</span>
+        <span data-connectivity-target="queueCount" class="hidden bg-white/20 px-1.5 py-0.5 rounded-full text-[10px] font-bold"></span>
+        <button data-action="connectivity#retrySync" class="ml-2 underline hover:no-underline text-white/80 hover:text-white">Retry</button>
+      </div>
+    </div>
+
     <%# Flash messages %>
     <main class="pt-16 pb-20 md:pb-6 min-h-screen">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

@@ -6,12 +6,23 @@ class ScoutingEntry < ApplicationRecord
   belongs_to :match, optional: true
   belongs_to :frc_team
   belongs_to :event
+  belongs_to :organization, optional: true
 
   # Enums
   enum :status, { submitted: 0, flagged: 1, rejected: 2 }
 
   # Validations
   validates :client_uuid, uniqueness: true, allow_nil: true
+
+  # Callbacks
+  after_create_commit -> {
+    broadcast_prepend_to(
+      "scouting_entries_event_#{event_id}",
+      target: "scouting_entries",
+      partial: "scouting_entries/scouting_entry",
+      locals: { scouting_entry: self }
+    )
+  }
 
   # --- Computed methods reading from JSONB data column ---
 
@@ -33,10 +44,7 @@ class ScoutingEntry < ApplicationRecord
     (total_fuel_made.to_f / total * 100).round(1)
   end
 
-  # Total points for this entry:
-  #   fuel_made * FUEL_POINT_VALUE
-  #   + auton_climb bonus (10 pts if true)
-  #   + endgame climb (L1=10, L2=20, L3=30)
+  # Total points for this entry
   def total_points
     points = total_fuel_made * FUEL_POINT_VALUE
 
@@ -60,6 +68,7 @@ class ScoutingEntry < ApplicationRecord
       match_id: params[:match_id],
       frc_team_id: params[:frc_team_id],
       event_id: params[:event_id],
+      organization_id: params[:organization_id],
       data: params[:data] || {},
       notes: params[:notes],
       photo_url: params[:photo_url],

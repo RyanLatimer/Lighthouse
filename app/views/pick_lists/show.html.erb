@@ -16,6 +16,14 @@
 
   <p class="text-sm text-gray-500 mb-4">By <%= @pick_list.user.full_name %> &middot; Updated <%= time_ago_in_words(@pick_list.updated_at) %> ago</p>
 
+  <%# Tier Legend %>
+  <div class="flex items-center gap-4 mb-4 text-xs text-gray-500">
+    <span class="flex items-center gap-1"><span class="w-2 h-2 bg-amber-400 rounded-full"></span> Tier 1 (Top 8)</span>
+    <span class="flex items-center gap-1"><span class="w-2 h-2 bg-emerald-400 rounded-full"></span> Tier 2 (9-16)</span>
+    <span class="flex items-center gap-1"><span class="w-2 h-2 bg-blue-400 rounded-full"></span> Tier 3 (17-24)</span>
+    <span class="flex items-center gap-1"><span class="w-2 h-2 bg-gray-500 rounded-full"></span> Tier 4 (25+)</span>
+  </div>
+
   <%# Drag-and-drop sortable list %>
   <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden"
        data-controller="sortable"
@@ -25,9 +33,17 @@
       <% entries = @pick_list.entries || [] %>
       <% if entries.any? %>
         <% teams = FrcTeam.where(id: entries).index_by(&:id) %>
+        <% summaries = TeamEventSummary.where(event: current_event, frc_team_id: entries).index_by(&:frc_team_id) %>
         <% entries.each_with_index do |team_id, idx| %>
           <% team = teams[team_id.to_i] %>
           <% next unless team %>
+          <% summary = summaries[team.id] %>
+          <% tier_color = case idx
+                          when 0..7 then "amber"
+                          when 8..15 then "emerald"
+                          when 16..23 then "blue"
+                          else "gray"
+                          end %>
           <div class="flex items-center gap-3 px-4 py-3 hover:bg-gray-800/50 transition cursor-grab active:cursor-grabbing"
                data-sortable-target="item"
                data-sortable-id="<%= team.id %>"
@@ -38,15 +54,33 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
               </svg>
             </div>
-            <%# Rank number %>
-            <span class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center text-sm font-bold text-gray-400 shrink-0">
+            <%# Rank number with tier color %>
+            <span class="w-8 h-8 bg-<%= tier_color %>-500/20 border border-<%= tier_color %>-500/30 rounded-lg flex items-center justify-center text-sm font-bold text-<%= tier_color %>-400 shrink-0">
               <%= idx + 1 %>
             </span>
             <%# Team info %>
             <div class="flex-1 min-w-0">
-              <span class="font-bold text-emerald-400"><%= team.team_number %></span>
-              <span class="text-gray-400 text-sm ml-1"><%= team.nickname %></span>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-emerald-400"><%= team.team_number %></span>
+                <span class="text-gray-400 text-sm truncate"><%= team.nickname %></span>
+              </div>
+              <% if summary %>
+                <div class="flex items-center gap-3 mt-0.5">
+                  <span class="text-xs text-gray-500"><%= summary.avg_total_points.to_f.round(1) %> avg pts</span>
+                  <span class="text-xs text-gray-600">&middot;</span>
+                  <span class="text-xs text-gray-500"><%= summary.fuel_accuracy_pct.to_f.round(0) %>% acc</span>
+                  <span class="text-xs text-gray-600">&middot;</span>
+                  <span class="text-xs text-gray-500"><%= summary.matches_scouted %> matches</span>
+                </div>
+              <% end %>
             </div>
+            <%# Avg Points Badge %>
+            <% if summary %>
+              <div class="text-right shrink-0 hidden sm:block">
+                <p class="text-sm font-mono font-bold text-white"><%= summary.avg_total_points.to_f.round(1) %></p>
+                <p class="text-[10px] text-gray-600">avg pts</p>
+              </div>
+            <% end %>
             <%# View link %>
             <%= link_to team_path(team), class: "text-gray-600 hover:text-gray-400 transition shrink-0" do %>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

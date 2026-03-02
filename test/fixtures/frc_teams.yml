@@ -1,0 +1,36 @@
+# FRC Teams
+team_254:
+  team_number: 254
+  nickname: "The Cheesy Poofs"
+  city: "San Jose"
+  state_prov: "CA"
+  country: "USA"
+  website: "https://www.team254.com"
+  rookie_year: 1999
+
+team_1678:
+  team_number: 1678
+  nickname: "Citrus Circuits"
+  city: "Davis"
+  state_prov: "CA"
+  country: "USA"
+  website: "https://www.citruscircuits.org"
+  rookie_year: 2005
+
+team_4414:
+  team_number: 4414
+  nickname: "HighTide"
+  city: "Ventura"
+  state_prov: "CA"
+  country: "USA"
+  website: "https://www.hightide4414.com"
+  rookie_year: 2012
+
+team_118:
+  team_number: 118
+  nickname: "Robonauts"
+  city: "Houston"
+  state_prov: "TX"
+  country: "USA"
+  website: "https://www.118robonauts.org"
+  rookie_year: 1997

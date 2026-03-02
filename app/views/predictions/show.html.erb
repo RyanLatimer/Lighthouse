@@ -1,0 +1,92 @@
+<% content_for(:title) { "#{@match.display_name} Prediction - ScoutRail" } %>
+
+<div class="max-w-4xl mx-auto">
+  <div class="flex items-center gap-2 mb-6">
+    <%= link_to predictions_path, class: "text-gray-500 hover:text-gray-300 transition" do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    <% end %>
+    <h1 class="text-2xl font-bold text-white"><%= @match.display_name %> Prediction</h1>
+  </div>
+
+  <% if @prediction %>
+    <% # Score Cards %>
+    <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="bg-gray-900 border border-red-500/30 rounded-xl p-4 text-center">
+        <p class="text-xs text-red-400 uppercase tracking-wider mb-1">Red Alliance</p>
+        <p class="text-4xl font-black text-red-400"><%= @prediction.red_score.round(1) %></p>
+        <p class="text-sm text-red-400/70 mt-1"><%= @prediction.red_win_probability.round(1) %>% win</p>
+      </div>
+      <div class="flex items-center justify-center">
+        <span class="text-2xl font-black text-gray-600">VS</span>
+      </div>
+      <div class="bg-gray-900 border border-blue-500/30 rounded-xl p-4 text-center">
+        <p class="text-xs text-blue-400 uppercase tracking-wider mb-1">Blue Alliance</p>
+        <p class="text-4xl font-black text-blue-400"><%= @prediction.blue_score.round(1) %></p>
+        <p class="text-sm text-blue-400/70 mt-1"><%= @prediction.blue_win_probability.round(1) %>% win</p>
+      </div>
+    </div>
+
+    <% # Win probability bar %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-6">
+      <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Win Probability</h3>
+      <div class="flex items-center gap-3">
+        <span class="text-sm font-bold text-red-400 w-16 text-right"><%= @prediction.red_win_probability.round(1) %>%</span>
+        <div class="flex-1 h-6 bg-gray-800 rounded-full overflow-hidden flex">
+          <div class="h-full bg-gradient-to-r from-red-600 to-red-500 rounded-l-full" style="width: <%= @prediction.red_win_probability %>%"></div>
+          <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-r-full" style="width: <%= @prediction.blue_win_probability %>%"></div>
+        </div>
+        <span class="text-sm font-bold text-blue-400 w-16"><%= @prediction.blue_win_probability.round(1) %>%</span>
+      </div>
+      <div class="text-center mt-4 pt-4 border-t border-gray-800">
+        <p class="text-xs text-gray-500">Predicted Margin of Victory</p>
+        <p class="text-2xl font-bold text-<%= @prediction.winner %>-400 mt-1"><%= @prediction.margin_of_victory %> pts</p>
+      </div>
+    </div>
+
+    <% # Team breakdown %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+        <h3 class="text-xs text-red-400 uppercase tracking-wider mb-3">Red Alliance</h3>
+        <div class="space-y-2">
+          <% @red_summaries.each do |summary| %>
+            <div class="flex items-center justify-between bg-gray-800 rounded-lg px-3 py-2">
+              <div>
+                <%= link_to team_path(summary.frc_team), class: "hover:text-red-300 transition" do %>
+                  <span class="font-bold text-red-400"><%= summary.frc_team.team_number %></span>
+                  <span class="text-gray-500 text-xs ml-1"><%= summary.frc_team.nickname %></span>
+                <% end %>
+              </div>
+              <span class="font-mono text-sm text-white"><%= summary.avg_total_points.to_f.round(1) %> pts</span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+        <h3 class="text-xs text-blue-400 uppercase tracking-wider mb-3">Blue Alliance</h3>
+        <div class="space-y-2">
+          <% @blue_summaries.each do |summary| %>
+            <div class="flex items-center justify-between bg-gray-800 rounded-lg px-3 py-2">
+              <div>
+                <%= link_to team_path(summary.frc_team), class: "hover:text-blue-300 transition" do %>
+                  <span class="font-bold text-blue-400"><%= summary.frc_team.team_number %></span>
+                  <span class="text-gray-500 text-xs ml-1"><%= summary.frc_team.nickname %></span>
+                <% end %>
+              </div>
+              <span class="font-mono text-sm text-white"><%= summary.avg_total_points.to_f.round(1) %> pts</span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="text-center py-16 bg-gray-900 border border-gray-800 rounded-xl">
+      <p class="text-gray-500">No prediction available for this match yet.</p>
+      <% if current_user.has_role?(:admin) || current_user.has_role?(:lead) %>
+        <%= button_to "Generate Predictions", generate_predictions_path, method: :post,
+              class: "mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

@@ -2,10 +2,18 @@
 
 puts "Seeding database..."
 
+# --- Default Organization ---
+org = Organization.find_or_create_by!(slug: "default") do |o|
+  o.name = "Default Organization"
+  o.team_number = 1234
+end
+puts "  Organization: #{org.name} (slug: #{org.slug})"
+
 # --- Game Configuration for 2026 REBUILT ---
 game_config = GameConfig.find_or_create_by!(year: 2026) do |gc|
   gc.game_name = "REBUILT presented by Haas"
   gc.active = true
+  gc.organization = org
   gc.config = {
     year: 2026,
     game_name: "REBUILT presented by Haas",
@@ -56,7 +64,12 @@ admin = User.find_or_create_by!(email: "admin@scoutrail.com") do |u|
   u.team_number = 1234
 end
 admin.add_role(:admin) unless admin.has_role?(:admin)
-puts "  Admin user: #{admin.email} (role: admin)"
+
+# Ensure admin has a membership in the default organization
+Membership.find_or_create_by!(user: admin, organization: org) do |m|
+  m.role = :owner
+end
+puts "  Admin user: #{admin.email} (role: admin, org membership: owner)"
 
 # --- Scout User ---
 scout = User.find_or_create_by!(email: "scout@scoutrail.com") do |u|
@@ -67,12 +80,19 @@ scout = User.find_or_create_by!(email: "scout@scoutrail.com") do |u|
   u.team_number = 1234
 end
 scout.add_role(:scout) unless scout.has_role?(:scout)
-puts "  Scout user: #{scout.email} (role: scout)"
+
+# Ensure scout has a membership in the default organization
+Membership.find_or_create_by!(user: scout, organization: org) do |m|
+  m.role = :scout
+end
+puts "  Scout user: #{scout.email} (role: scout, org membership: scout)"
 
 # --- Summary ---
 puts ""
 puts "Seed complete!"
+puts "  Organizations: #{Organization.count}"
 puts "  Game configs: #{GameConfig.count}"
 puts "  Users: #{User.count}"
+puts "  Memberships: #{Membership.count}"
 puts "  Admin users: #{User.with_role(:admin).count}"
 puts "  Scout users: #{User.with_role(:scout).count}"

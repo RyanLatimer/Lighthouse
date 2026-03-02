@@ -1,0 +1,39 @@
+# Match Alliances (3 teams per alliance, 2 alliances per match)
+
+# Match qm1: Red alliance = 254, 4414, 118; Blue alliance = 1678 (+ 2 placeholders from existing teams)
+qm1_red_1:
+  match: qm1
+  frc_team: team_254
+  alliance_color: "red"
+  station: 1
+
+qm1_red_2:
+  match: qm1
+  frc_team: team_4414
+  alliance_color: "red"
+  station: 2
+
+qm1_red_3:
+  match: qm1
+  frc_team: team_118
+  alliance_color: "red"
+  station: 3
+
+qm1_blue_1:
+  match: qm1
+  frc_team: team_1678
+  alliance_color: "blue"
+  station: 1
+
+# Match qm2: swap sides
+qm2_red_1:
+  match: qm2
+  frc_team: team_1678
+  alliance_color: "red"
+  station: 1
+
+qm2_blue_1:
+  match: qm2
+  frc_team: team_254
+  alliance_color: "blue"
+  station: 1

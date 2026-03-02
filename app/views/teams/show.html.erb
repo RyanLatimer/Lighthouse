@@ -102,6 +102,85 @@
     </div>
   <% end %>
 
+  <%# Pit Scouting Data %>
+  <% if @pit_entry %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-6 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-white">Pit Scouting</h3>
+        <%= link_to "View Full", pit_scouting_entry_path(@pit_entry), class: "text-sm text-emerald-400 hover:text-emerald-300 transition" %>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <div class="bg-gray-800 rounded-lg p-3 text-center">
+          <p class="text-sm font-bold text-white"><%= @pit_entry.drivetrain %></p>
+          <p class="text-xs text-gray-500 mt-1">Drivetrain</p>
+        </div>
+        <% if @pit_entry.robot_weight %>
+          <div class="bg-gray-800 rounded-lg p-3 text-center">
+            <p class="text-sm font-bold text-white"><%= @pit_entry.robot_weight %> lbs</p>
+            <p class="text-xs text-gray-500 mt-1">Weight</p>
+          </div>
+        <% end %>
+        <% if @pit_entry.robot_width && @pit_entry.robot_length %>
+          <div class="bg-gray-800 rounded-lg p-3 text-center">
+            <p class="text-sm font-bold text-white"><%= @pit_entry.robot_width %>&times;<%= @pit_entry.robot_length %>"</p>
+            <p class="text-xs text-gray-500 mt-1">W &times; L</p>
+          </div>
+        <% end %>
+        <% if @pit_entry.robot_height %>
+          <div class="bg-gray-800 rounded-lg p-3 text-center">
+            <p class="text-sm font-bold text-white"><%= @pit_entry.robot_height %>"</p>
+            <p class="text-xs text-gray-500 mt-1">Height</p>
+          </div>
+        <% end %>
+      </div>
+
+      <% if @pit_entry.mechanisms.any? %>
+        <div class="mb-3">
+          <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Mechanisms</p>
+          <div class="flex flex-wrap gap-1.5">
+            <% @pit_entry.mechanisms.each do |mech| %>
+              <span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-xs rounded-md border border-emerald-500/20"><%= mech %></span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <% if @pit_entry.auto_capabilities.any? %>
+        <div class="mb-3">
+          <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Auto Capabilities</p>
+          <div class="flex flex-wrap gap-1.5">
+            <% @pit_entry.auto_capabilities.each do |cap| %>
+              <span class="px-2 py-1 bg-blue-500/10 text-blue-400 text-xs rounded-md border border-blue-500/20"><%= cap %></span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <% if @pit_entry.strengths.present? || @pit_entry.weaknesses.present? %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+          <% if @pit_entry.strengths.present? %>
+            <div class="bg-gray-800 rounded-lg p-3">
+              <p class="text-xs text-emerald-400 uppercase tracking-wider mb-1">Strengths</p>
+              <p class="text-sm text-gray-300"><%= @pit_entry.strengths %></p>
+            </div>
+          <% end %>
+          <% if @pit_entry.weaknesses.present? %>
+            <div class="bg-gray-800 rounded-lg p-3">
+              <p class="text-xs text-amber-400 uppercase tracking-wider mb-1">Weaknesses</p>
+              <p class="text-sm text-gray-300"><%= @pit_entry.weaknesses %></p>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-gray-900 border border-gray-800 border-dashed rounded-xl p-6 mb-6 text-center">
+      <p class="text-gray-500 text-sm mb-2">No pit scouting data for this team yet.</p>
+      <%= link_to "Scout This Team's Pit", new_pit_scouting_entry_path(frc_team_id: @team.id), class: "text-sm text-emerald-400 hover:text-emerald-300 transition" %>
+    </div>
+  <% end %>
+
   <%# Points Over Matches Chart %>
   <% if @entries.any? %>
     <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-6 mb-6">

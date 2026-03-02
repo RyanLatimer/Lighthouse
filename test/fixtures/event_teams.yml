@@ -1,0 +1,16 @@
+# Event-Team associations
+event_team_254:
+  event: championship
+  frc_team: team_254
+
+event_team_1678:
+  event: championship
+  frc_team: team_1678
+
+event_team_4414:
+  event: championship
+  frc_team: team_4414
+
+event_team_118:
+  event: championship
+  frc_team: team_118

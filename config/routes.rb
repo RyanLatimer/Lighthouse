@@ -3,6 +3,14 @@ Rails.application.routes.draw do
 
   root "dashboard#index"
 
+  # Organizations
+  resources :organizations, only: %i[show new create edit update] do
+    member do
+      post :switch
+      post :invite
+    end
+  end
+
   resources :events do
     member do
       post :select
@@ -16,7 +24,12 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :pit_scouting_entries
+
   resources :teams, only: [ :index, :show ]
+
+  # Team comparison with query params: /compare?teams=1,2,3
+  resource :team_comparison, only: [ :show ], controller: "team_comparisons"
 
   resources :pick_lists
 
@@ -28,9 +41,26 @@ Rails.application.routes.draw do
 
   resource :match_simulator, only: [ :new, :create ], controller: "match_simulator"
 
+  # Predictions
+  resources :predictions, only: [ :index, :show ] do
+    collection do
+      post :generate
+    end
+  end
+
+  # Custom Reports
+  resources :reports do
+    member do
+      post :generate
+    end
+  end
+
+  # Exports
   scope :exports, controller: :exports do
     get :csv, as: :exports_csv
     get :pdf, as: :exports_pdf
+    get :excel, as: :exports_excel
+    get :json, as: :exports_json
   end
 
   namespace :api do
@@ -38,6 +68,18 @@ Rails.application.routes.draw do
       resources :scouting_entries, only: [ :create ] do
         collection do
           post :bulk_sync
+        end
+      end
+
+      resources :pit_scouting_entries, only: [ :create ] do
+        collection do
+          post :bulk_sync
+        end
+      end
+
+      resources :exports, only: [] do
+        collection do
+          get :scouting_data
         end
       end
     end

@@ -1,0 +1,19 @@
+# frozen_string_literal: true
+
+class RefreshPredictionsJob < ApplicationJob
+  queue_as :default
+  retry_on StandardError, wait: :polynomially_longer, attempts: 3
+
+  # Regenerates all match predictions for an event using
+  # blended scouting + Statbotics EPA data.
+  def perform(event_id, organization_id = nil)
+    event = Event.find_by(id: event_id)
+    return unless event
+
+    organization = Organization.find_by(id: organization_id)
+    service = PredictionService.new(event, organization)
+    count = service.generate_all!
+
+    Rails.logger.info("[RefreshPredictionsJob] Generated #{count} predictions for event #{event.name}")
+  end
+end

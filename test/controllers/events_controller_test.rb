@@ -1,0 +1,143 @@
+require "test_helper"
+
+class EventsControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @user = users(:admin_user)
+    @event = events(:championship)
+    sign_in_as(@user)
+  end
+
+  # --- Index ---
+
+  test "should get index" do
+    get events_path
+    assert_response :success
+  end
+
+  test "scout can get index" do
+    sign_out :user
+    sign_in_as(users(:scout_user))
+
+    get events_path
+    assert_response :success
+  end
+
+  # --- Show ---
+
+  test "should get show" do
+    get event_path(@event)
+    assert_response :success
+  end
+
+  test "scout can get show" do
+    sign_out :user
+    sign_in_as(users(:scout_user))
+
+    get event_path(@event)
+    assert_response :success
+  end
+
+  # --- Select ---
+
+  test "should select event and set session" do
+    post select_event_path(@event)
+    assert_redirected_to root_path
+  end
+
+  test "scout can select event" do
+    sign_out :user
+    sign_in_as(users(:scout_user))
+
+    post select_event_path(@event)
+    assert_redirected_to root_path
+  end
+
+  # --- New ---
+
+  test "admin should get new" do
+    get new_event_path
+    assert_response :success
+  end
+
+  test "lead should get new" do
+    sign_out :user
+    sign_in_as(users(:lead_user))
+
+    get new_event_path
+    assert_response :success
+  end
+
+  test "scout should not get new" do
+    sign_out :user
+    sign_in_as(users(:scout_user))
+
+    get new_event_path
+    assert_response :redirect
+  end
+
+  # --- Create ---
+
+  test "admin should create event" do
+    assert_difference("Event.count", 1) do
+      post events_path, params: {
+        event: {
+          name: "Test Regional",
+          tba_key: "2026testcreate",
+          year: 2026,
+          start_date: "2026-03-01",
+          end_date: "2026-03-03",
+          event_type: 0
+        }
+      }
+    end
+    assert_redirected_to event_path(Event.last)
+  end
+
+  test "lead should create event" do
+    sign_out :user
+    sign_in_as(users(:lead_user))
+
+    assert_difference("Event.count", 1) do
+      post events_path, params: {
+        event: {
+          name: "Lead Regional",
+          tba_key: "2026leadtest",
+          year: 2026,
+          start_date: "2026-03-01",
+          end_date: "2026-03-03",
+          event_type: 0
+        }
+      }
+    end
+    assert_redirected_to event_path(Event.last)
+  end
+
+  test "scout should not create event" do
+    sign_out :user
+    sign_in_as(users(:scout_user))
+
+    assert_no_difference("Event.count") do
+      post events_path, params: {
+        event: {
+          name: "Scout Regional",
+          tba_key: "2026scouttest",
+          year: 2026,
+          start_date: "2026-03-01",
+          end_date: "2026-03-03",
+          event_type: 0
+        }
+      }
+    end
+    # Pundit redirects unauthorized
+    assert_response :redirect
+  end
+
+  # --- Authentication ---
+
+  test "unauthenticated user is redirected from index" do
+    sign_out :user
+
+    get events_path
+    assert_redirected_to new_user_session_path
+  end
+end

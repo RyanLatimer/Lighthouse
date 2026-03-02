@@ -1,0 +1,15 @@
+# Memberships (user <-> organization with role)
+admin_membership:
+  user: admin_user
+  organization: team_254
+  role: 3
+
+lead_membership:
+  user: lead_user
+  organization: team_254
+  role: 2
+
+scout_membership:
+  user: scout_user
+  organization: team_254
+  role: 0

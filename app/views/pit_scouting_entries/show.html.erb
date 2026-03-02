@@ -1,0 +1,112 @@
+<% content_for(:title) { "Pit Scout ##{@pit_scouting_entry.frc_team.team_number} - ScoutRail" } %>
+
+<div class="max-w-3xl mx-auto">
+  <div class="flex items-center gap-2 mb-6">
+    <%= link_to pit_scouting_entries_path, class: "text-gray-500 hover:text-gray-300 transition" do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    <% end %>
+    <h1 class="text-2xl font-bold text-white">
+      Pit Scout
+      <span class="text-emerald-400">#<%= @pit_scouting_entry.frc_team.team_number %></span>
+    </h1>
+    <div class="ml-auto flex gap-2">
+      <%= link_to "Edit", edit_pit_scouting_entry_path(@pit_scouting_entry), class: "px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition" %>
+    </div>
+  </div>
+
+  <% # Team info %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-4">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div>
+        <span class="text-xs text-gray-500 uppercase tracking-wider">Team</span>
+        <p class="text-lg font-bold text-emerald-400 mt-1"><%= @pit_scouting_entry.frc_team.team_number %></p>
+        <p class="text-xs text-gray-400"><%= @pit_scouting_entry.frc_team.nickname %></p>
+      </div>
+      <div>
+        <span class="text-xs text-gray-500 uppercase tracking-wider">Drivetrain</span>
+        <p class="text-lg font-bold text-white mt-1"><%= @pit_scouting_entry.drivetrain %></p>
+      </div>
+      <div>
+        <span class="text-xs text-gray-500 uppercase tracking-wider">Scout</span>
+        <p class="text-lg font-bold text-white mt-1"><%= @pit_scouting_entry.user.full_name %></p>
+      </div>
+      <div>
+        <span class="text-xs text-gray-500 uppercase tracking-wider">Scouted</span>
+        <p class="text-sm text-gray-300 mt-1"><%= @pit_scouting_entry.created_at.strftime("%b %d, %Y") %></p>
+      </div>
+    </div>
+  </div>
+
+  <% # Robot specs %>
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+    <% [
+      ["Width", @pit_scouting_entry.robot_width, "in"],
+      ["Length", @pit_scouting_entry.robot_length, "in"],
+      ["Height", @pit_scouting_entry.robot_height, "in"],
+      ["Weight", @pit_scouting_entry.robot_weight, "lbs"]
+    ].each do |label, value, unit| %>
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
+        <p class="text-2xl font-bold text-white"><%= value || "—" %></p>
+        <p class="text-xs text-gray-500 mt-1"><%= label %> <%= "(#{unit})" if value %></p>
+      </div>
+    <% end %>
+  </div>
+
+  <% # Mechanisms %>
+  <% if @pit_scouting_entry.mechanisms.any? %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 mb-4">
+      <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Mechanisms</h3>
+      <div class="flex flex-wrap gap-2">
+        <% @pit_scouting_entry.mechanisms.each do |mech| %>
+          <span class="px-3 py-1.5 bg-blue-500/20 text-blue-400 text-sm rounded-lg border border-blue-500/30"><%= mech %></span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% # Auto capabilities %>
+  <% if @pit_scouting_entry.auto_capabilities.any? %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 mb-4">
+      <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Auto Capabilities</h3>
+      <div class="flex flex-wrap gap-2">
+        <% @pit_scouting_entry.auto_capabilities.each do |cap| %>
+          <span class="px-3 py-1.5 bg-amber-500/20 text-amber-400 text-sm rounded-lg border border-amber-500/30"><%= cap %></span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% # Strengths & Weaknesses %>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+      <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-2">Strengths</h3>
+      <p class="text-sm text-gray-300"><%= @pit_scouting_entry.strengths.presence || "Not recorded" %></p>
+    </div>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+      <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-2">Weaknesses</h3>
+      <p class="text-sm text-gray-300"><%= @pit_scouting_entry.weaknesses.presence || "Not recorded" %></p>
+    </div>
+  </div>
+
+  <% # Notes %>
+  <% if @pit_scouting_entry.notes.present? %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 mb-4">
+      <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-2">Notes</h3>
+      <p class="text-sm text-gray-300 whitespace-pre-wrap"><%= @pit_scouting_entry.notes %></p>
+    </div>
+  <% end %>
+
+  <% # Photos %>
+  <% if @pit_scouting_entry.photos.attached? %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+      <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Photos</h3>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <% @pit_scouting_entry.photos.each do |photo| %>
+          <%= image_tag photo, class: "rounded-lg w-full h-40 object-cover" %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

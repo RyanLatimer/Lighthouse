@@ -1,11 +1,24 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# Users (Devise-authenticated)
+admin_user:
+  email: "admin@example.com"
+  encrypted_password: "<%= Devise::Encryptor.digest(User, 'password123') %>"
+  first_name: "Admin"
+  last_name: "User"
+  team_number: 254
+  api_token: "admin_api_token_0123456789abcdef0123456789abcdef"
 
-# This model initially had no columns defined. If you add columns to the
-# model remove the "{}" from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
-two: {}
-# column: value
+lead_user:
+  email: "lead@example.com"
+  encrypted_password: "<%= Devise::Encryptor.digest(User, 'password123') %>"
+  first_name: "Lead"
+  last_name: "User"
+  team_number: 254
+  api_token: "lead_api_token_0123456789abcdef01234567890abcdef"
+
+scout_user:
+  email: "scout@example.com"
+  encrypted_password: "<%= Devise::Encryptor.digest(User, 'password123') %>"
+  first_name: "Scout"
+  last_name: "User"
+  team_number: 254
+  api_token: "scout_api_token_0123456789abcdef0123456789abcdef"
