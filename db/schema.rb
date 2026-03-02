@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_02_192708) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_02_210800) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -281,6 +281,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_02_192708) do
     t.index ["user_id"], name: "index_simulation_results_on_user_id"
   end
 
+  create_table "statbotics_caches", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.jsonb "data", default: {}, null: false
+    t.float "epa_mean"
+    t.float "epa_sd"
+    t.bigint "event_id", null: false
+    t.bigint "frc_team_id", null: false
+    t.datetime "last_synced_at", null: false
+    t.integer "losses", default: 0
+    t.integer "qual_losses", default: 0
+    t.integer "qual_num_teams"
+    t.integer "qual_rank"
+    t.integer "qual_wins", default: 0
+    t.integer "ties", default: 0
+    t.datetime "updated_at", null: false
+    t.float "winrate"
+    t.integer "wins", default: 0
+    t.index ["epa_mean"], name: "index_statbotics_caches_on_epa_mean"
+    t.index ["event_id", "frc_team_id"], name: "index_statbotics_caches_on_event_id_and_frc_team_id", unique: true
+    t.index ["event_id"], name: "index_statbotics_caches_on_event_id"
+    t.index ["frc_team_id"], name: "index_statbotics_caches_on_frc_team_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "api_token"
     t.string "avatar_url"
@@ -344,4 +367,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_02_192708) do
   add_foreign_key "simulation_results", "events"
   add_foreign_key "simulation_results", "organizations"
   add_foreign_key "simulation_results", "users"
+  add_foreign_key "statbotics_caches", "events"
+  add_foreign_key "statbotics_caches", "frc_teams"
 end

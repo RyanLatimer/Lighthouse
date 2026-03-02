@@ -47,7 +47,7 @@
         <tbody>
           <% sorted_teams = @teams.sort_by { |t|
             scouted = @summaries[t.id]&.avg_total_points.to_f || 0
-            epa = @statbotics_epa.dig(t.id, :epa_mean) || 0
+            epa = @statbotics_epa[t.id]&.epa_mean.to_f || 0
             -(scouted > 0 ? scouted : epa)
           } %>
           <% sorted_teams.each_with_index do |team, idx| %>

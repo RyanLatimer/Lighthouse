@@ -2,7 +2,7 @@
 
 class StatboticsClient
   BASE_URL = "https://api.statbotics.io/v3"
-  CACHE_TTL = 10.minutes
+  CACHE_TTL = 1.hour
 
   def initialize
     @conn = build_connection
@@ -12,6 +12,12 @@ class StatboticsClient
   # Returns EPA data for a team in a given year.
   def team_year(team_number, year)
     cached_get("statbotics:team_year:#{team_number}:#{year}", "/team_year/#{team_number}/#{year}")
+  end
+
+  # GET /team_events?event={event_key}
+  # Returns EPA + record for ALL teams at an event in a single request.
+  def team_events(event_key)
+    cached_get("statbotics:team_events:#{event_key}", "/team_events", event: event_key)
   end
 
   # GET /event/{event_key}
@@ -32,7 +38,7 @@ class StatboticsClient
     Faraday.new(url: BASE_URL) do |f|
       f.headers["Accept"] = "application/json"
       f.request :retry, max: 3, interval: 0.5, backoff_factor: 2,
-                        exceptions: [Faraday::TimeoutError, Faraday::ConnectionFailed]
+                        exceptions: [ Faraday::TimeoutError, Faraday::ConnectionFailed ]
       f.response :json, parser_options: { symbolize_names: false }
       f.adapter Faraday.default_adapter
     end
