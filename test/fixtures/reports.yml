@@ -1,0 +1,19 @@
+# Reports
+team_summary_report:
+  name: "Championship Team Summary"
+  config:
+    metrics:
+      - "avg_total_points"
+      - "fuel_accuracy_pct"
+      - "avg_climb_points"
+    filters:
+      min_matches: 1
+    group_by: "team"
+    sort_by: "avg_total_points"
+    sort_dir: "desc"
+    chart_type: "table"
+  cached_data: {}
+  event: championship
+  user: admin_user
+  organization: team_254
+  last_generated_at: "2026-04-15 12:00:00"

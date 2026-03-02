@@ -1,0 +1,13 @@
+# Predictions
+prediction_qm1:
+  match: qm1
+  event: championship
+  organization: team_254
+  red_score: 85.5
+  blue_score: 72.3
+  red_win_probability: 68.2
+  blue_win_probability: 31.8
+  actual_red_score:
+  actual_blue_score:
+  details: '{"model_version": "v2.1", "confidence": 0.72, "key_factors": ["254_climb_consistency", "1678_auton_weakness"]}'
+  source: "scouting"

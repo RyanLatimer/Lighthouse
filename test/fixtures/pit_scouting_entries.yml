@@ -1,0 +1,46 @@
+# Pit Scouting Entries
+pit_254:
+  user: scout_user
+  event: championship
+  frc_team: team_254
+  organization: team_254
+  data:
+    drivetrain: "swerve"
+    robot_weight: 120
+    robot_width: 28
+    robot_length: 30
+    robot_height: 42
+    mechanisms:
+      - "shooter"
+      - "intake"
+      - "climber"
+    auto_capabilities:
+      - "4-ball"
+    strengths: "Fast cycle time, reliable climber"
+    weaknesses: "Occasional intake jams"
+  notes: "Very well-built robot, clean wiring."
+  status: 0
+  client_uuid: "pit-entry-uuid-0001"
+
+pit_1678:
+  user: lead_user
+  event: championship
+  frc_team: team_1678
+  organization: team_254
+  data:
+    drivetrain: "swerve"
+    robot_weight: 118
+    robot_width: 27
+    robot_length: 29
+    robot_height: 40
+    mechanisms:
+      - "shooter"
+      - "intake"
+      - "climber"
+    auto_capabilities:
+      - "3-ball"
+    strengths: "Consistent autonomous, great defense"
+    weaknesses: "Slower cycle time"
+  notes: "Solid build quality."
+  status: 0
+  client_uuid: "pit-entry-uuid-0002"

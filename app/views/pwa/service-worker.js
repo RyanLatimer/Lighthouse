@@ -1,4 +1,4 @@
-const CACHE_VERSION = "scoutrail-v1"
+const CACHE_VERSION = "scoutrail-v2"
 
 const PRECACHE_URLS = [
   "/",
@@ -6,8 +6,9 @@ const PRECACHE_URLS = [
 ]
 
 const DB_NAME = "scoutrail"
-const DB_VERSION = 1
-const STORE_NAME = "offline_entries"
+const DB_VERSION = 2
+const SCOUTING_STORE = "offline_entries"
+const PIT_STORE = "offline_pit_entries"
 
 // --- Install: precache core shell ---
 
@@ -134,15 +135,24 @@ function offlineFallback() {
 
 self.addEventListener("sync", (event) => {
   if (event.tag === "sync-scouting-entries") {
-    event.waitUntil(syncOfflineEntries())
+    event.waitUntil(syncOfflineEntries(SCOUTING_STORE, "/api/v1/scouting_entries/bulk_sync"))
+  }
+  if (event.tag === "sync-pit-scouting-entries") {
+    event.waitUntil(syncOfflineEntries(PIT_STORE, "/api/v1/pit_scouting_entries/bulk_sync"))
   }
 })
 
-async function syncOfflineEntries() {
+async function syncOfflineEntries(storeName, syncUrl) {
   try {
     const db = await openDB()
-    const tx = db.transaction(STORE_NAME, "readonly")
-    const store = tx.objectStore(STORE_NAME)
+
+    if (!db.objectStoreNames.contains(storeName)) {
+      db.close()
+      return
+    }
+
+    const tx = db.transaction(storeName, "readonly")
+    const store = tx.objectStore(storeName)
 
     const entries = await new Promise((resolve, reject) => {
       const request = store.getAll()
@@ -154,7 +164,7 @@ async function syncOfflineEntries() {
 
     if (entries.length === 0) return
 
-    const response = await fetch("/api/v1/scouting_entries/bulk_sync", {
+    const response = await fetch(syncUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -172,8 +182,8 @@ async function syncOfflineEntries() {
 
     if (syncedUuids.length > 0) {
       const deleteDb = await openDB()
-      const deleteTx = deleteDb.transaction(STORE_NAME, "readwrite")
-      const deleteStore = deleteTx.objectStore(STORE_NAME)
+      const deleteTx = deleteDb.transaction(storeName, "readwrite")
+      const deleteStore = deleteTx.objectStore(storeName)
 
       for (const uuid of syncedUuids) {
         deleteStore.delete(uuid)
@@ -190,7 +200,7 @@ async function syncOfflineEntries() {
     // Notify any open clients
     const clients = await self.clients.matchAll()
     for (const client of clients) {
-      client.postMessage({ type: "sync-complete", count: syncedUuids.length })
+      client.postMessage({ type: "sync-complete", store: storeName, count: syncedUuids.length })
     }
   } catch (error) {
     console.error("[ScoutRail SW] Background sync failed:", error)
@@ -202,8 +212,11 @@ function openDB() {
     const request = indexedDB.open(DB_NAME, DB_VERSION)
     request.onupgradeneeded = (event) => {
       const db = event.target.result
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: "client_uuid" })
+      if (!db.objectStoreNames.contains(SCOUTING_STORE)) {
+        db.createObjectStore(SCOUTING_STORE, { keyPath: "client_uuid" })
+      }
+      if (!db.objectStoreNames.contains(PIT_STORE)) {
+        db.createObjectStore(PIT_STORE, { keyPath: "client_uuid" })
       }
     }
     request.onsuccess = () => resolve(request.result)

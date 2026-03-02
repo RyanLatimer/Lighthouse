@@ -1,6 +1,8 @@
 class GameConfig < ApplicationRecord
+  belongs_to :organization, optional: true
+
   # Validations
-  validates :year, presence: true, uniqueness: true
+  validates :year, presence: true
   validates :game_name, presence: true
 
   # Scopes

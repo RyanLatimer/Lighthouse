@@ -1,0 +1,16 @@
+# Matches
+qm1:
+  event: championship
+  comp_level: "qm"
+  match_number: 1
+  set_number: 1
+  tba_key: "2026cmp_qm1"
+  scheduled_time: "2026-04-15 10:00:00"
+
+qm2:
+  event: championship
+  comp_level: "qm"
+  match_number: 2
+  set_number: 1
+  tba_key: "2026cmp_qm2"
+  scheduled_time: "2026-04-15 10:10:00"

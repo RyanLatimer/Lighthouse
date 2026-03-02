@@ -5,13 +5,14 @@ class MatchSimulatorController < ApplicationController
     authorize :match_simulator, :new?
 
     @teams = FrcTeam.at_event(current_event).order(:team_number)
+    @saved_simulations = SimulationResult.where(event: current_event).order(created_at: :desc).limit(10)
   end
 
   def create
     authorize :match_simulator, :create?
 
-    red_team_ids = params[:red_team_ids] || []
-    blue_team_ids = params[:blue_team_ids] || []
+    red_team_ids = params[:red_team_ids]&.reject(&:blank?) || []
+    blue_team_ids = params[:blue_team_ids]&.reject(&:blank?) || []
 
     @red_teams = FrcTeam.where(id: red_team_ids)
     @blue_teams = FrcTeam.where(id: blue_team_ids)
@@ -19,8 +20,30 @@ class MatchSimulatorController < ApplicationController
     @red_summaries = TeamEventSummary.where(event: current_event, frc_team_id: red_team_ids)
     @blue_summaries = TeamEventSummary.where(event: current_event, frc_team_id: blue_team_ids)
 
-    @red_score = @red_summaries.sum(:avg_total_points)
-    @blue_score = @blue_summaries.sum(:avg_total_points)
+    # Use Monte Carlo simulation instead of simple sum
+    iterations = (params[:iterations] || 1000).to_i.clamp(100, 5000)
+    simulator = MatchSimulatorService.new(current_event)
+    @simulation = simulator.simulate(@red_teams.to_a, @blue_teams.to_a)
+
+    @red_score = @simulation[:red_avg]
+    @blue_score = @simulation[:blue_avg]
+    @red_win_pct = @simulation[:red_win_pct]
+    @blue_win_pct = @simulation[:blue_win_pct]
+    @margin = @simulation[:margin_of_victory]
+
+    # Save simulation if requested
+    if params[:save_simulation] == "1"
+      SimulationResult.create(
+        user: current_user,
+        event: current_event,
+        organization: current_organization,
+        name: params[:simulation_name].presence || "Simulation #{Time.current.strftime('%H:%M')}",
+        red_team_ids: red_team_ids.map(&:to_i),
+        blue_team_ids: blue_team_ids.map(&:to_i),
+        results: @simulation,
+        iterations: iterations
+      )
+    end
 
     @teams = FrcTeam.at_event(current_event).order(:team_number)
 

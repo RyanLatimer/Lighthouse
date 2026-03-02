@@ -1,0 +1,79 @@
+<% content_for(:title) { "#{@report.name} - ScoutRail" } %>
+
+<div class="max-w-6xl mx-auto">
+  <div class="flex items-center gap-2 mb-6">
+    <%= link_to reports_path, class: "text-gray-500 hover:text-gray-300 transition" do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    <% end %>
+    <h1 class="text-2xl font-bold text-white flex-1"><%= @report.name %></h1>
+    <div class="flex items-center gap-2">
+      <%= button_to "Regenerate", generate_report_path(@report), method: :post, class: "px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-lg transition" %>
+      <%= link_to "Edit", edit_report_path(@report), class: "px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition" %>
+    </div>
+  </div>
+
+  <% if @report_data && @report_data[:teams]&.any? %>
+    <% # Chart view %>
+    <% if @report.chart_type == "bar" && @report.metrics.first %>
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-6 mb-6">
+        <% chart_data = @report_data[:teams].first(20).each_with_object({}) do |team, hash|
+          hash["##{team[:team_number]}"] = team[@report.metrics.first]
+        end %>
+        <%= bar_chart chart_data,
+                      colors: ["#10b981"],
+                      library: {
+                        scales: {
+                          x: { ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" } },
+                          y: { ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" } }
+                        },
+                        plugins: { legend: { display: false } }
+                      } %>
+      </div>
+    <% end %>
+
+    <% # Table view %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-gray-500 text-xs uppercase tracking-wider border-b border-gray-800">
+              <th class="px-4 py-3 text-left">#</th>
+              <th class="px-4 py-3 text-left">Team</th>
+              <% @report.metrics.each do |metric| %>
+                <th class="px-4 py-3 text-right"><%= metric.humanize %></th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-800/50">
+            <% @report_data[:teams].each do |team| %>
+              <tr class="hover:bg-gray-800/50 transition">
+                <td class="px-4 py-3 text-gray-400 font-mono"><%= team[:rank] %></td>
+                <td class="px-4 py-3">
+                  <span class="font-bold text-emerald-400"><%= team[:team_number] %></span>
+                  <span class="text-gray-500 text-xs ml-1"><%= team[:nickname] %></span>
+                </td>
+                <% @report.metrics.each do |metric| %>
+                  <td class="px-4 py-3 text-right font-mono text-white"><%= team[metric]&.is_a?(Numeric) ? team[metric].round(2) : team[metric] %></td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mt-4 text-xs text-gray-600 text-right">
+      <% if @report.last_generated_at %>
+        Last generated <%= time_ago_in_words(@report.last_generated_at) %> ago
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-16 bg-gray-900 border border-gray-800 rounded-xl">
+      <p class="text-gray-500">No data available. Generate the report to see results.</p>
+      <%= button_to "Generate Report", generate_report_path(@report), method: :post,
+            class: "mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition" %>
+    </div>
+  <% end %>
+</div>

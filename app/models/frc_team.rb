@@ -5,6 +5,8 @@ class FrcTeam < ApplicationRecord
   has_many :match_alliances, dependent: :destroy
   has_many :matches, through: :match_alliances
   has_many :scouting_entries, dependent: :destroy
+  has_many :pit_scouting_entries, dependent: :destroy
+  has_many :predictions, through: :matches
 
   # Validations
   validates :team_number, presence: true, uniqueness: true

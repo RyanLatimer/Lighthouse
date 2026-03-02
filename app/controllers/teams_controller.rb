@@ -11,7 +11,7 @@ class TeamsController < ApplicationController
 
   def show
     @team = FrcTeam.find(params[:id])
-    authorize @team, policy_class: TeamPolicy
+    authorize @team, policy_class: FrcTeamPolicy
 
     @entries = ScoutingEntry.where(event: current_event, frc_team: @team)
                             .includes(:match, :user)
@@ -19,5 +19,6 @@ class TeamsController < ApplicationController
 
     @summary = TeamEventSummary.find_by(event: current_event, frc_team: @team)
     @matches = @team.matches.where(event: current_event).ordered
+    @pit_entry = PitScoutingEntry.find_by(event: current_event, frc_team: @team)
   end
 end

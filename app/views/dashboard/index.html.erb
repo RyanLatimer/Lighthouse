@@ -73,6 +73,114 @@
     </div>
   </div>
 
+  <%# Pit Scouting Progress + Quick Links %>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+    <%# Pit Scouting Progress %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm font-semibold text-white uppercase tracking-wider">Pit Scouting Progress</h2>
+        <%= link_to "View All", pit_scouting_entries_path, class: "text-xs text-emerald-400 hover:text-emerald-300 transition" %>
+      </div>
+      <% pit_pct = @total_teams_at_event > 0 ? (@pit_scouted_count.to_f / @total_teams_at_event * 100).round(0) : 0 %>
+      <div class="flex items-end gap-3 mb-3">
+        <p class="text-4xl font-bold text-white"><%= @pit_scouted_count %></p>
+        <p class="text-sm text-gray-500 pb-1">/ <%= @total_teams_at_event %> teams</p>
+      </div>
+      <div class="w-full h-3 bg-gray-800 rounded-full overflow-hidden mb-2">
+        <div class="h-full rounded-full transition-all duration-500 <%= pit_pct == 100 ? 'bg-emerald-500' : 'bg-amber-500' %>" style="width: <%= pit_pct %>%"></div>
+      </div>
+      <p class="text-xs text-gray-500"><%= pit_pct %>% complete &middot; <%= @total_teams_at_event - @pit_scouted_count %> remaining</p>
+    </div>
+
+    <%# Quick Links %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-5">
+      <h2 class="text-sm font-semibold text-white uppercase tracking-wider mb-3">Quick Actions</h2>
+      <div class="grid grid-cols-2 gap-2">
+        <%= link_to new_scouting_entry_path, class: "flex items-center gap-2 px-3 py-2.5 bg-gray-800 hover:bg-gray-700 rounded-lg transition group" do %>
+          <div class="w-7 h-7 bg-emerald-500/20 rounded-md flex items-center justify-center shrink-0">
+            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+          </div>
+          <span class="text-sm text-gray-300 group-hover:text-white transition">Scout Match</span>
+        <% end %>
+        <%= link_to new_pit_scouting_entry_path, class: "flex items-center gap-2 px-3 py-2.5 bg-gray-800 hover:bg-gray-700 rounded-lg transition group" do %>
+          <div class="w-7 h-7 bg-blue-500/20 rounded-md flex items-center justify-center shrink-0">
+            <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+          </div>
+          <span class="text-sm text-gray-300 group-hover:text-white transition">Pit Scout</span>
+        <% end %>
+        <%= link_to new_match_simulator_path, class: "flex items-center gap-2 px-3 py-2.5 bg-gray-800 hover:bg-gray-700 rounded-lg transition group" do %>
+          <div class="w-7 h-7 bg-purple-500/20 rounded-md flex items-center justify-center shrink-0">
+            <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <span class="text-sm text-gray-300 group-hover:text-white transition">Simulate</span>
+        <% end %>
+        <%= link_to predictions_path, class: "flex items-center gap-2 px-3 py-2.5 bg-gray-800 hover:bg-gray-700 rounded-lg transition group" do %>
+          <div class="w-7 h-7 bg-amber-500/20 rounded-md flex items-center justify-center shrink-0">
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+          </div>
+          <span class="text-sm text-gray-300 group-hover:text-white transition">Predictions (<%= @predictions_count %>)</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%# Scout Activity (Last 7 Days) %>
+  <% if @scout_activity.any? %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-6 mb-6">
+      <h2 class="text-lg font-semibold text-white mb-4">Scout Activity <span class="text-sm text-gray-500 font-normal">(Last 7 Days)</span></h2>
+      <div class="space-y-2">
+        <% @scout_activity.sort_by { |_, count| -count }.first(8).each do |user_id, count| %>
+          <% scout = @top_scouts[user_id] %>
+          <% next unless scout %>
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
+              <span class="text-xs font-bold text-emerald-400"><%= scout.first_name[0] %><%= scout.last_name[0] %></span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-white truncate"><%= scout.full_name %></p>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-24 h-2 bg-gray-800 rounded-full overflow-hidden">
+                <% max_count = @scout_activity.values.max %>
+                <div class="h-full bg-emerald-500 rounded-full" style="width: <%= (count.to_f / max_count * 100).round(0) %>%"></div>
+              </div>
+              <span class="text-sm font-mono text-gray-400 w-8 text-right"><%= count %></span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Scoring Distribution %>
+  <% if @scoring_data.any? %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-6 mb-6">
+      <h2 class="text-lg font-semibold text-white mb-4">Scoring Distribution</h2>
+      <% bins = Hash.new(0)
+         @scoring_data.each { |score| bins["#{(score / 10).to_i * 10}-#{(score / 10).to_i * 10 + 9}"] += 1 }
+         sorted_bins = bins.sort_by { |range, _| range.split("-").first.to_i }.to_h %>
+      <%= column_chart sorted_bins,
+                       colors: ["#10b981"],
+                       xtitle: "Points Range",
+                       ytitle: "Teams",
+                       library: {
+                         scales: {
+                           x: { ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" } },
+                           y: { ticks: { color: "#9ca3af", stepSize: 1 }, grid: { color: "#1f2937" }, beginAtZero: true }
+                         },
+                         plugins: { legend: { display: false } }
+                       } %>
+    </div>
+  <% end %>
+
   <%# Top Teams Chart %>
   <div class="scout-card p-4 sm:p-6 mb-6">
     <h2 class="text-lg font-semibold text-white mb-4">Top 10 Teams by Avg Points</h2>

@@ -10,9 +10,37 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_02_012107) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_02_192708) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.bigint "record_id", null: false
+    t.string "record_type", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.string "content_type"
+    t.datetime "created_at", null: false
+    t.string "filename", null: false
+    t.string "key", null: false
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
 
   create_table "data_conflicts", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -20,6 +48,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_02_012107) do
     t.string "field_name", null: false
     t.bigint "frc_team_id", null: false
     t.bigint "match_id", null: false
+    t.bigint "organization_id"
     t.string "resolution_value"
     t.boolean "resolved", default: false, null: false
     t.bigint "resolved_by_id"
@@ -29,6 +58,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_02_012107) do
     t.index ["event_id"], name: "index_data_conflicts_on_event_id"
     t.index ["frc_team_id"], name: "index_data_conflicts_on_frc_team_id"
     t.index ["match_id"], name: "index_data_conflicts_on_match_id"
+    t.index ["organization_id"], name: "index_data_conflicts_on_organization_id"
     t.index ["resolved_by_id"], name: "index_data_conflicts_on_resolved_by_id"
   end
 
@@ -49,12 +79,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_02_012107) do
     t.date "end_date"
     t.integer "event_type"
     t.string "name"
+    t.bigint "organization_id"
     t.date "start_date"
     t.string "state_prov"
     t.string "tba_key"
     t.datetime "updated_at", null: false
     t.integer "week"
     t.integer "year"
+    t.index ["organization_id"], name: "index_events_on_organization_id"
     t.index ["tba_key"], name: "index_events_on_tba_key", unique: true
   end
 
@@ -76,9 +108,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_02_012107) do
     t.jsonb "config", default: {}, null: false
     t.datetime "created_at", null: false
     t.string "game_name", null: false
+    t.bigint "organization_id"
     t.datetime "updated_at", null: false
     t.integer "year", null: false
     t.index ["active"], name: "index_game_configs_on_active"
+    t.index ["organization_id"], name: "index_game_configs_on_organization_id"
     t.index ["year"], name: "index_game_configs_on_year", unique: true
   end
 
@@ -108,15 +142,94 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_02_012107) do
     t.index ["tba_key"], name: "index_matches_on_tba_key", unique: true
   end
 
+  create_table "memberships", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "organization_id", null: false
+    t.integer "role", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["organization_id"], name: "index_memberships_on_organization_id"
+    t.index ["user_id", "organization_id"], name: "index_memberships_on_user_id_and_organization_id", unique: true
+    t.index ["user_id"], name: "index_memberships_on_user_id"
+  end
+
+  create_table "organizations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.jsonb "settings", default: {}, null: false
+    t.string "slug", null: false
+    t.integer "team_number"
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_organizations_on_slug", unique: true
+    t.index ["team_number"], name: "index_organizations_on_team_number"
+  end
+
   create_table "pick_lists", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.jsonb "entries"
     t.bigint "event_id", null: false
     t.string "name"
+    t.bigint "organization_id"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["event_id"], name: "index_pick_lists_on_event_id"
+    t.index ["organization_id"], name: "index_pick_lists_on_organization_id"
     t.index ["user_id"], name: "index_pick_lists_on_user_id"
+  end
+
+  create_table "pit_scouting_entries", force: :cascade do |t|
+    t.string "client_uuid"
+    t.datetime "created_at", null: false
+    t.jsonb "data", default: {}, null: false
+    t.bigint "event_id", null: false
+    t.bigint "frc_team_id", null: false
+    t.text "notes"
+    t.bigint "organization_id"
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["client_uuid"], name: "index_pit_scouting_entries_on_client_uuid", unique: true
+    t.index ["data"], name: "index_pit_scouting_entries_on_data", using: :gin
+    t.index ["event_id", "frc_team_id", "user_id"], name: "idx_pit_scouting_entries_unique", unique: true
+    t.index ["event_id"], name: "index_pit_scouting_entries_on_event_id"
+    t.index ["frc_team_id"], name: "index_pit_scouting_entries_on_frc_team_id"
+    t.index ["organization_id"], name: "index_pit_scouting_entries_on_organization_id"
+    t.index ["user_id"], name: "index_pit_scouting_entries_on_user_id"
+  end
+
+  create_table "predictions", force: :cascade do |t|
+    t.integer "actual_blue_score"
+    t.integer "actual_red_score"
+    t.float "blue_score"
+    t.float "blue_win_probability"
+    t.datetime "created_at", null: false
+    t.jsonb "details", default: {}, null: false
+    t.bigint "event_id", null: false
+    t.bigint "match_id", null: false
+    t.bigint "organization_id"
+    t.float "red_score"
+    t.float "red_win_probability"
+    t.string "source"
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_predictions_on_event_id"
+    t.index ["match_id", "organization_id", "source"], name: "idx_predictions_unique", unique: true
+    t.index ["match_id"], name: "index_predictions_on_match_id"
+    t.index ["organization_id"], name: "index_predictions_on_organization_id"
+  end
+
+  create_table "reports", force: :cascade do |t|
+    t.jsonb "cached_data", default: {}
+    t.jsonb "config", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.bigint "event_id", null: false
+    t.datetime "last_generated_at"
+    t.string "name", null: false
+    t.bigint "organization_id"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["event_id"], name: "index_reports_on_event_id"
+    t.index ["organization_id"], name: "index_reports_on_organization_id"
+    t.index ["user_id"], name: "index_reports_on_user_id"
   end
 
   create_table "roles", force: :cascade do |t|
@@ -137,6 +250,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_02_012107) do
     t.bigint "frc_team_id", null: false
     t.bigint "match_id"
     t.text "notes"
+    t.bigint "organization_id"
     t.string "photo_url"
     t.integer "status", default: 0, null: false
     t.datetime "updated_at", null: false
@@ -147,10 +261,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_02_012107) do
     t.index ["event_id"], name: "index_scouting_entries_on_event_id"
     t.index ["frc_team_id"], name: "index_scouting_entries_on_frc_team_id"
     t.index ["match_id"], name: "index_scouting_entries_on_match_id"
+    t.index ["organization_id"], name: "index_scouting_entries_on_organization_id"
     t.index ["user_id"], name: "index_scouting_entries_on_user_id"
   end
 
+  create_table "simulation_results", force: :cascade do |t|
+    t.jsonb "blue_team_ids", default: [], null: false
+    t.datetime "created_at", null: false
+    t.bigint "event_id", null: false
+    t.integer "iterations", default: 1000
+    t.string "name"
+    t.bigint "organization_id"
+    t.jsonb "red_team_ids", default: [], null: false
+    t.jsonb "results", default: {}, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["event_id"], name: "index_simulation_results_on_event_id"
+    t.index ["organization_id"], name: "index_simulation_results_on_organization_id"
+    t.index ["user_id"], name: "index_simulation_results_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
+    t.string "api_token"
     t.string "avatar_url"
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
@@ -162,6 +294,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_02_012107) do
     t.string "reset_password_token"
     t.integer "team_number"
     t.datetime "updated_at", null: false
+    t.index ["api_token"], name: "index_users_on_api_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -174,19 +307,41 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_02_012107) do
     t.index ["user_id"], name: "index_users_roles_on_user_id"
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "data_conflicts", "events"
   add_foreign_key "data_conflicts", "frc_teams"
   add_foreign_key "data_conflicts", "matches"
+  add_foreign_key "data_conflicts", "organizations"
   add_foreign_key "data_conflicts", "users", column: "resolved_by_id"
   add_foreign_key "event_teams", "events"
   add_foreign_key "event_teams", "frc_teams"
+  add_foreign_key "events", "organizations"
+  add_foreign_key "game_configs", "organizations"
   add_foreign_key "match_alliances", "frc_teams"
   add_foreign_key "match_alliances", "matches"
   add_foreign_key "matches", "events"
+  add_foreign_key "memberships", "organizations"
+  add_foreign_key "memberships", "users"
   add_foreign_key "pick_lists", "events"
+  add_foreign_key "pick_lists", "organizations"
   add_foreign_key "pick_lists", "users"
+  add_foreign_key "pit_scouting_entries", "events"
+  add_foreign_key "pit_scouting_entries", "frc_teams"
+  add_foreign_key "pit_scouting_entries", "organizations"
+  add_foreign_key "pit_scouting_entries", "users"
+  add_foreign_key "predictions", "events"
+  add_foreign_key "predictions", "matches"
+  add_foreign_key "predictions", "organizations"
+  add_foreign_key "reports", "events"
+  add_foreign_key "reports", "organizations"
+  add_foreign_key "reports", "users"
   add_foreign_key "scouting_entries", "events"
   add_foreign_key "scouting_entries", "frc_teams"
   add_foreign_key "scouting_entries", "matches"
+  add_foreign_key "scouting_entries", "organizations"
   add_foreign_key "scouting_entries", "users"
+  add_foreign_key "simulation_results", "events"
+  add_foreign_key "simulation_results", "organizations"
+  add_foreign_key "simulation_results", "users"
 end

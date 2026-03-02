@@ -10,14 +10,33 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   before_action :authenticate_user!
+  before_action :set_current_organization
 
   after_action :pundit_verify, unless: :skip_pundit?
 
-  helper_method :current_event
+  helper_method :current_event, :current_organization
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   private
+
+  # Returns the currently selected organization from the session, or the user's first org.
+  def current_organization
+    return @current_organization if defined?(@current_organization)
+
+    if session[:current_organization_id].present?
+      @current_organization = current_user&.organizations&.find_by(id: session[:current_organization_id])
+    end
+
+    @current_organization ||= current_user&.organizations&.first
+    @current_organization
+  end
+
+  def set_current_organization
+    return unless current_user
+
+    Current.organization = current_organization
+  end
 
   # Returns the currently selected event from the session, or nil.
   def current_event

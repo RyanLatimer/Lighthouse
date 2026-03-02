@@ -1,0 +1,63 @@
+<% content_for(:title) { "#{@organization.name} - ScoutRail" } %>
+
+<div class="max-w-3xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-white"><%= @organization.name %></h1>
+      <% if @organization.team_number %>
+        <p class="text-sm text-gray-400 mt-1">Team <%= @organization.team_number %></p>
+      <% end %>
+    </div>
+    <% if current_user.admin_of?(@organization) %>
+      <%= link_to "Edit", edit_organization_path(@organization), class: "px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition" %>
+    <% end %>
+  </div>
+
+  <% # Members %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden mb-6">
+    <div class="px-4 sm:px-6 py-4 border-b border-gray-800">
+      <h2 class="text-lg font-semibold text-white">Members (<%= @members.count %>)</h2>
+    </div>
+    <div class="divide-y divide-gray-800/50">
+      <% @members.each do |membership| %>
+        <div class="flex items-center justify-between px-4 sm:px-6 py-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
+              <span class="text-sm font-bold text-gray-400"><%= membership.user.first_name[0] %><%= membership.user.last_name[0] %></span>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-white"><%= membership.user.full_name %></p>
+              <p class="text-xs text-gray-500"><%= membership.user.email %></p>
+            </div>
+          </div>
+          <span class="text-xs font-medium px-2 py-0.5 rounded-full
+            <%= case membership.role
+                when 'owner' then 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                when 'admin' then 'bg-red-500/20 text-red-400 border border-red-500/30'
+                when 'lead' then 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                when 'analyst' then 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                else 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                end %>">
+            <%= membership.role.capitalize %>
+          </span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <% # Invite form %>
+  <% if current_user.lead_of?(@organization) %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+      <h3 class="text-sm font-semibold text-white mb-4">Invite Member</h3>
+      <%= form_with url: invite_organization_path(@organization), method: :post, class: "flex flex-col sm:flex-row gap-3" do |f| %>
+        <div class="flex-1">
+          <%= email_field_tag :email, nil, class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition", placeholder: "user@example.com", required: true %>
+        </div>
+        <div>
+          <%= select_tag :role, options_for_select([["Scout", "scout"], ["Analyst", "analyst"], ["Lead", "lead"], ["Admin", "admin"]]), class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition" %>
+        </div>
+        <button type="submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition whitespace-nowrap">Invite</button>
+      <% end %>
+    </div>
+  <% end %>
+</div>

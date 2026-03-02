@@ -1,0 +1,121 @@
+<%= form_with(model: pit_scouting_entry, class: "space-y-4") do |f| %>
+  <% if pit_scouting_entry.errors.any? %>
+    <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+      <h3 class="text-sm font-semibold text-red-400 mb-2"><%= pluralize(pit_scouting_entry.errors.count, "error") %> prevented this entry from being saved:</h3>
+      <ul class="text-sm text-red-400/80 list-disc list-inside space-y-1">
+        <% pit_scouting_entry.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= f.hidden_field :client_uuid, value: pit_scouting_entry.client_uuid || SecureRandom.uuid %>
+
+  <% # Team selector %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+    <%= f.label :frc_team_id, "Team", class: "block text-sm font-medium text-gray-300 mb-1" %>
+    <%= f.select :frc_team_id,
+          options_from_collection_for_select(@teams, :id, ->(t) { "#{t.team_number} - #{t.nickname}" }, pit_scouting_entry.frc_team_id || params[:frc_team_id]),
+          { prompt: "Select team..." },
+          class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition" %>
+  </div>
+
+  <% # Robot Specs %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+    <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Robot Specifications</h3>
+    <div class="grid grid-cols-2 gap-3">
+      <% %w[robot_width robot_length robot_height robot_weight].each do |field| %>
+        <div>
+          <%= label_tag "pit_scouting_entry[data][#{field}]", field.humanize, class: "block text-sm font-medium text-gray-300 mb-1" %>
+          <%= number_field_tag "pit_scouting_entry[data][#{field}]",
+                pit_scouting_entry.data&.dig(field),
+                step: "0.1",
+                class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition",
+                placeholder: field.include?("weight") ? "lbs" : "inches" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <% # Drivetrain %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+    <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Drivetrain</h3>
+    <%= select_tag "pit_scouting_entry[data][drivetrain]",
+          options_for_select(
+            [["Swerve", "Swerve"], ["Tank", "Tank"], ["Mecanum", "Mecanum"], ["H-Drive", "H-Drive"], ["Other", "Other"]],
+            pit_scouting_entry.data&.dig("drivetrain")
+          ),
+          prompt: "Select drivetrain...",
+          class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition" %>
+  </div>
+
+  <% # Mechanisms %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+    <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Mechanisms (select all that apply)</h3>
+    <div class="flex flex-wrap gap-2">
+      <% %w[Intake Shooter Climber Arm Elevator Turret Conveyor Hopper].each do |mech| %>
+        <% checked = (pit_scouting_entry.data&.dig("mechanisms") || []).include?(mech) %>
+        <label class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition
+          <%= checked ? 'bg-blue-500/20 border-blue-500/30 text-blue-400' : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600' %>">
+          <%= check_box_tag "pit_scouting_entry[data][mechanisms][]", mech, checked, class: "hidden" %>
+          <span class="text-sm font-medium"><%= mech %></span>
+        </label>
+      <% end %>
+    </div>
+  </div>
+
+  <% # Auto capabilities %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+    <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Auto Capabilities</h3>
+    <div class="flex flex-wrap gap-2">
+      <% %w[Leave Scoring Climbing Multi-piece].each do |cap| %>
+        <% checked = (pit_scouting_entry.data&.dig("auto_capabilities") || []).include?(cap) %>
+        <label class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition
+          <%= checked ? 'bg-amber-500/20 border-amber-500/30 text-amber-400' : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600' %>">
+          <%= check_box_tag "pit_scouting_entry[data][auto_capabilities][]", cap, checked, class: "hidden" %>
+          <span class="text-sm font-medium"><%= cap %></span>
+        </label>
+      <% end %>
+    </div>
+  </div>
+
+  <% # Strengths / Weaknesses %>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+      <%= label_tag "pit_scouting_entry[data][strengths]", "Strengths", class: "block text-xs text-gray-500 uppercase tracking-wider mb-2" %>
+      <%= text_area_tag "pit_scouting_entry[data][strengths]",
+            pit_scouting_entry.data&.dig("strengths"),
+            rows: 3,
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition resize-none",
+            placeholder: "What does this robot do well?" %>
+    </div>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+      <%= label_tag "pit_scouting_entry[data][weaknesses]", "Weaknesses", class: "block text-xs text-gray-500 uppercase tracking-wider mb-2" %>
+      <%= text_area_tag "pit_scouting_entry[data][weaknesses]",
+            pit_scouting_entry.data&.dig("weaknesses"),
+            rows: 3,
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition resize-none",
+            placeholder: "Any limitations or issues?" %>
+    </div>
+  </div>
+
+  <% # Notes %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+    <%= f.label :notes, class: "block text-xs text-gray-500 uppercase tracking-wider mb-2" %>
+    <%= f.text_area :notes, rows: 3, class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition resize-none", placeholder: "Additional observations..." %>
+  </div>
+
+  <% # Photo upload %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+    <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Photos</h3>
+    <%= f.file_field :photos, multiple: true, accept: "image/*", capture: "environment",
+          class: "w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 file:cursor-pointer" %>
+  </div>
+
+  <% # Submit %>
+  <div class="pb-4">
+    <%= f.submit pit_scouting_entry.persisted? ? "Update Entry" : "Submit Pit Scout",
+                 class: "w-full py-4 text-lg font-bold bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-xl transition-all active:scale-[0.98] cursor-pointer shadow-lg shadow-emerald-500/20" %>
+  </div>
+<% end %>

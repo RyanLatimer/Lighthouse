@@ -1,13 +1,12 @@
 module Api
   module V1
     class ScoutingEntriesController < ActionController::API
-      # TODO: Add API token authentication (e.g., authenticate_with_http_token or a JWT strategy).
-      # For now, skip authentication to allow offline PWA sync.
-
-      skip_forgery_protection
+      include ApiAuthenticatable
 
       def create
-        entry = ScoutingEntry.from_offline_data(entry_params)
+        entry = ScoutingEntry.from_offline_data(
+          entry_params.merge(user_id: current_api_user.id)
+        )
 
         if entry.client_uuid.present?
           existing = ScoutingEntry.find_by(client_uuid: entry.client_uuid)
@@ -30,10 +29,10 @@ module Api
 
         entries_data.each do |entry_data|
           permitted = entry_data.permit(
-            :user_id, :match_id, :frc_team_id, :event_id,
+            :match_id, :frc_team_id, :event_id, :organization_id,
             :notes, :photo_url, :client_uuid, :status,
             data: {}
-          )
+          ).merge(user_id: current_api_user.id)
 
           existing = ScoutingEntry.find_by(client_uuid: permitted[:client_uuid]) if permitted[:client_uuid].present?
 
@@ -41,7 +40,6 @@ module Api
             results << { client_uuid: permitted[:client_uuid], status: "existing", id: existing.id }
           else
             entry = ScoutingEntry.from_offline_data(permitted)
-
             if entry.save
               results << { client_uuid: permitted[:client_uuid], status: "created", id: entry.id }
             else
@@ -57,7 +55,7 @@ module Api
 
       def entry_params
         params.require(:scouting_entry).permit(
-          :user_id, :match_id, :frc_team_id, :event_id,
+          :match_id, :frc_team_id, :event_id, :organization_id,
           :notes, :photo_url, :client_uuid, :status,
           data: {}
         )

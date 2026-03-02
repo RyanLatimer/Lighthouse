@@ -1,0 +1,13 @@
+# Events
+championship:
+  name: "FIRST Championship"
+  tba_key: "2026cmp"
+  start_date: "2026-04-15"
+  end_date: "2026-04-19"
+  city: "Houston"
+  state_prov: "TX"
+  country: "USA"
+  event_type: 3
+  year: 2026
+  week: 8
+  organization: team_254

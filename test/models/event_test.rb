@@ -1,0 +1,131 @@
+require "test_helper"
+
+class EventTest < ActiveSupport::TestCase
+  # --- Validations ---
+
+  test "valid event from fixtures" do
+    assert events(:championship).valid?
+  end
+
+  test "requires unique tba_key" do
+    duplicate = Event.new(
+      name: "Duplicate",
+      tba_key: "2026cmp",
+      year: 2026,
+      organization: organizations(:team_254)
+    )
+    assert_not duplicate.valid?
+    assert_includes duplicate.errors[:tba_key], "has already been taken"
+  end
+
+  test "allows nil tba_key" do
+    event = Event.new(name: "No TBA Key", year: 2026)
+    event.valid?
+    assert_empty event.errors[:tba_key]
+  end
+
+  # --- Associations ---
+
+  test "belongs to organization (optional)" do
+    event = events(:championship)
+    assert_equal organizations(:team_254), event.organization
+  end
+
+  test "has many matches" do
+    event = events(:championship)
+    assert_respond_to event, :matches
+    assert_includes event.matches, matches(:qm1)
+    assert_includes event.matches, matches(:qm2)
+  end
+
+  test "has many event_teams" do
+    event = events(:championship)
+    assert_respond_to event, :event_teams
+    assert_equal 4, event.event_teams.count
+  end
+
+  test "has many frc_teams through event_teams" do
+    event = events(:championship)
+    assert_respond_to event, :frc_teams
+    assert_includes event.frc_teams, frc_teams(:team_254)
+    assert_includes event.frc_teams, frc_teams(:team_1678)
+  end
+
+  test "has many scouting_entries" do
+    event = events(:championship)
+    assert_respond_to event, :scouting_entries
+    assert_equal 4, event.scouting_entries.count
+  end
+
+  test "has many pit_scouting_entries" do
+    event = events(:championship)
+    assert_respond_to event, :pit_scouting_entries
+    assert_equal 2, event.pit_scouting_entries.count
+  end
+
+  test "has many predictions" do
+    event = events(:championship)
+    assert_respond_to event, :predictions
+    assert_includes event.predictions, predictions(:prediction_qm1)
+  end
+
+  test "has many reports" do
+    event = events(:championship)
+    assert_respond_to event, :reports
+    assert_includes event.reports, reports(:team_summary_report)
+  end
+
+  test "has many simulation_results" do
+    event = events(:championship)
+    assert_respond_to event, :simulation_results
+    assert_includes event.simulation_results, simulation_results(:sim_254_vs_1678)
+  end
+
+  # --- Scopes ---
+
+  test "current_year returns events for the current year" do
+    # Championship fixture is year 2026
+    travel_to Date.new(2026, 6, 1) do
+      assert_includes Event.current_year, events(:championship)
+    end
+  end
+
+  test "current_year excludes events from other years" do
+    travel_to Date.new(2025, 6, 1) do
+      assert_not_includes Event.current_year, events(:championship)
+    end
+  end
+
+  test "active returns events happening today" do
+    # Championship: 2026-04-15 to 2026-04-19
+    travel_to Date.new(2026, 4, 17) do
+      assert_includes Event.active, events(:championship)
+    end
+  end
+
+  test "active excludes events not happening today" do
+    travel_to Date.new(2026, 5, 1) do
+      assert_not_includes Event.active, events(:championship)
+    end
+  end
+
+  test "for_organization returns events for a specific org" do
+    org = organizations(:team_254)
+    assert_includes Event.for_organization(org), events(:championship)
+  end
+
+  test "for_organization excludes events from other orgs" do
+    org = organizations(:team_1678)
+    assert_not_includes Event.for_organization(org), events(:championship)
+  end
+
+  # --- Dependent destroy ---
+
+  test "destroying event destroys dependent matches" do
+    event = Event.create!(name: "Temp Destroy Event", tba_key: "2026destroy", year: 2026)
+    match = Match.create!(event: event, comp_level: "qm", match_number: 1, set_number: 1)
+    match_id = match.id
+    event.destroy
+    assert_nil Match.find_by(id: match_id)
+  end
+end

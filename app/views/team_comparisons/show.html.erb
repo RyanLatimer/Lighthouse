@@ -1,0 +1,133 @@
+<% content_for(:title) { "Compare Teams - ScoutRail" } %>
+
+<div class="max-w-6xl mx-auto">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-white">Team Comparison</h1>
+    <p class="text-sm text-gray-400 mt-1">Compare performance at <%= current_event.name %></p>
+  </div>
+
+  <% # Team selector %>
+  <%= form_with url: team_comparison_path, method: :get, class: "mb-6", data: { turbo_action: "replace" } do |f| %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+      <label class="block text-xs text-gray-500 uppercase tracking-wider mb-2">Select teams to compare (up to 6)</label>
+      <div class="flex flex-wrap gap-2 mb-3">
+        <% @all_teams.each do |team| %>
+          <% selected = @teams.include?(team) %>
+          <label class="flex items-center gap-1 px-3 py-1.5 rounded-lg border cursor-pointer transition text-sm
+            <%= selected ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400' : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600' %>">
+            <input type="checkbox" name="team_ids[]" value="<%= team.id %>" <%= 'checked' if selected %> class="hidden" onchange="this.form.submit()">
+            <span class="font-bold"><%= team.team_number %></span>
+          </label>
+        <% end %>
+      </div>
+      <input type="hidden" name="teams" id="compare_teams_field">
+      <noscript>
+        <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition">Compare</button>
+      </noscript>
+    </div>
+  <% end %>
+
+  <% if @teams.any? %>
+    <% # Side-by-side stat cards %>
+    <div class="grid grid-cols-<%= [@teams.size, 6].min %> gap-3 mb-6">
+      <% @teams.each do |team| %>
+        <% summary = @summaries[team.id] %>
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+          <div class="text-center mb-3">
+            <%= link_to team_path(team), class: "hover:text-emerald-400 transition" do %>
+              <p class="text-xl font-bold text-emerald-400"><%= team.team_number %></p>
+              <p class="text-xs text-gray-500 truncate"><%= team.nickname %></p>
+            <% end %>
+          </div>
+          <% if summary %>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="text-gray-500">Avg Pts</span>
+                <span class="font-mono font-bold text-white"><%= summary.avg_total_points.to_f.round(1) %></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-500">Accuracy</span>
+                <span class="font-mono text-amber-400"><%= summary.fuel_accuracy_pct.to_f.round(0) %>%</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-500">Climb</span>
+                <span class="font-mono text-blue-400"><%= summary.avg_climb_points.to_f.round(1) %></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-500">Std Dev</span>
+                <span class="font-mono text-gray-400"><%= summary.stddev_total_points.to_f.round(1) %></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-500">Scouted</span>
+                <span class="font-mono text-gray-400"><%= summary.matches_scouted %></span>
+              </div>
+            </div>
+          <% else %>
+            <p class="text-center text-gray-600 text-xs">No data</p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <% # Performance over time chart %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-6 mb-6">
+      <h3 class="text-lg font-semibold text-white mb-4">Points Over Matches</h3>
+      <% chart_data = @teams.map do |team|
+        entries = @entries_by_team[team.id] || []
+        {
+          name: "##{team.team_number}",
+          data: entries.each_with_object({}) do |entry, hash|
+            label = entry.match&.display_name || "Entry #{entry.id}"
+            hash[label] = entry.total_points
+          end
+        }
+      end %>
+      <%= line_chart chart_data,
+                     colors: ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"],
+                     library: {
+                       scales: {
+                         x: { ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" } },
+                         y: { ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" }, beginAtZero: true }
+                       },
+                       plugins: { legend: { labels: { color: "#d1d5db" } } }
+                     } %>
+    </div>
+
+    <% # Pit scouting comparison %>
+    <% pit_entries = @teams.select { |t| @pit_data[t.id].present? } %>
+    <% if pit_entries.any? %>
+      <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden mb-6">
+        <div class="px-4 sm:px-6 py-4 border-b border-gray-800">
+          <h3 class="text-lg font-semibold text-white">Pit Scouting Comparison</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-gray-500 text-xs uppercase tracking-wider border-b border-gray-800">
+                <th class="px-4 py-3 text-left">Attribute</th>
+                <% @teams.each do |team| %>
+                  <th class="px-4 py-3 text-center"><%= team.team_number %></th>
+                <% end %>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-800/50">
+              <% %w[drivetrain robot_width robot_length robot_height robot_weight].each do |attr| %>
+                <tr class="hover:bg-gray-800/50">
+                  <td class="px-4 py-3 text-gray-400"><%= attr.humanize %></td>
+                  <% @teams.each do |team| %>
+                    <% pit = @pit_data[team.id] %>
+                    <td class="px-4 py-3 text-center font-mono text-white"><%= pit&.data&.dig(attr) || "—" %></td>
+                  <% end %>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="text-center py-16 bg-gray-900 border border-gray-800 rounded-xl">
+      <p class="text-gray-500">Select teams above to start comparing.</p>
+    </div>
+  <% end %>
+</div>

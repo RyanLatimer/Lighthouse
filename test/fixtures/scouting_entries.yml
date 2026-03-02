@@ -1,0 +1,76 @@
+# Scouting Entries
+entry_qm1_254:
+  user: admin_user
+  match: qm1
+  frc_team: team_254
+  event: championship
+  organization: team_254
+  data:
+    auton_fuel_made: 5
+    auton_fuel_missed: 1
+    teleop_fuel_made: 12
+    teleop_fuel_missed: 3
+    endgame_fuel_made: 0
+    endgame_fuel_missed: 0
+    endgame_climb: "L3"
+    auton_climb: true
+  notes: "Strong autonomous routine, consistent scoring."
+  status: 0
+  client_uuid: "scout-entry-uuid-0001"
+
+entry_qm1_1678:
+  user: lead_user
+  match: qm1
+  frc_team: team_1678
+  event: championship
+  organization: team_254
+  data:
+    auton_fuel_made: 3
+    auton_fuel_missed: 2
+    teleop_fuel_made: 10
+    teleop_fuel_missed: 4
+    endgame_fuel_made: 0
+    endgame_fuel_missed: 0
+    endgame_climb: "L2"
+    auton_climb: false
+  notes: "Good teleop, needs work on endgame."
+  status: 0
+  client_uuid: "scout-entry-uuid-0002"
+
+entry_qm2_254:
+  user: scout_user
+  match: qm2
+  frc_team: team_254
+  event: championship
+  organization: team_254
+  data:
+    auton_fuel_made: 6
+    auton_fuel_missed: 0
+    teleop_fuel_made: 14
+    teleop_fuel_missed: 2
+    endgame_fuel_made: 0
+    endgame_fuel_missed: 0
+    endgame_climb: "L3"
+    auton_climb: true
+  notes: "Best match of the day."
+  status: 0
+  client_uuid: "scout-entry-uuid-0003"
+
+entry_qm2_1678:
+  user: admin_user
+  match: qm2
+  frc_team: team_1678
+  event: championship
+  organization: team_254
+  data:
+    auton_fuel_made: 4
+    auton_fuel_missed: 1
+    teleop_fuel_made: 11
+    teleop_fuel_missed: 3
+    endgame_fuel_made: 0
+    endgame_fuel_missed: 0
+    endgame_climb: "L2"
+    auton_climb: true
+  notes: "Improved from qm1."
+  status: 0
+  client_uuid: "scout-entry-uuid-0004"

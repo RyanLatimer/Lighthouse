@@ -4,54 +4,79 @@
       <%# Dashboard (Home - first position) %>
       <% dashboard_active = request.path == '/' %>
       <%= link_to root_path,
-        class: "flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg transition-all duration-150 relative #{dashboard_active ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}",
+        class: "flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg transition-all duration-150 relative #{dashboard_active ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}",
         "aria-label": "Dashboard",
         "aria-current": (dashboard_active ? "page" : nil) do %>
         <% if dashboard_active %><span class="absolute -top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-emerald-400 rounded-full"></span><% end %>
-        <svg class="w-6 h-6" fill="<%= dashboard_active ? 'currentColor' : 'none' %>" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-5 h-5" fill="<%= dashboard_active ? 'currentColor' : 'none' %>" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
         </svg>
-        <span class="text-xs font-medium">Dashboard</span>
+        <span class="text-[10px] font-medium">Home</span>
       <% end %>
 
       <%# Scout %>
       <% scout_active = request.path == new_scouting_entry_path %>
       <%= link_to new_scouting_entry_path,
-        class: "flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg transition-all duration-150 relative #{scout_active ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}",
+        class: "flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg transition-all duration-150 relative #{scout_active ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}",
         "aria-label": "Scout a match",
         "aria-current": (scout_active ? "page" : nil) do %>
         <% if scout_active %><span class="absolute -top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-emerald-400 rounded-full"></span><% end %>
-        <svg class="w-6 h-6" fill="<%= scout_active ? 'currentColor' : 'none' %>" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-5 h-5" fill="<%= scout_active ? 'currentColor' : 'none' %>" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
         </svg>
-        <span class="text-xs font-medium">Scout</span>
+        <span class="text-[10px] font-medium">Scout</span>
+      <% end %>
+
+      <%# Pit Scout %>
+      <% pit_active = request.path.include?('pit_scouting') %>
+      <%= link_to pit_scouting_entries_path,
+        class: "flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg transition-all duration-150 relative #{pit_active ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}",
+        "aria-label": "Pit scouting",
+        "aria-current": (pit_active ? "page" : nil) do %>
+        <% if pit_active %><span class="absolute -top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-emerald-400 rounded-full"></span><% end %>
+        <svg class="w-5 h-5" fill="<%= pit_active ? 'currentColor' : 'none' %>" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+        <span class="text-[10px] font-medium">Pit</span>
       <% end %>
 
       <%# Teams %>
       <% teams_active = request.path.include?('teams') %>
       <%= link_to teams_path,
-        class: "flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg transition-all duration-150 relative #{teams_active ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}",
+        class: "flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg transition-all duration-150 relative #{teams_active ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}",
         "aria-label": "Team rankings",
         "aria-current": (teams_active ? "page" : nil) do %>
         <% if teams_active %><span class="absolute -top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-emerald-400 rounded-full"></span><% end %>
-        <svg class="w-6 h-6" fill="<%= teams_active ? 'currentColor' : 'none' %>" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-5 h-5" fill="<%= teams_active ? 'currentColor' : 'none' %>" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
-        <span class="text-xs font-medium">Teams</span>
+        <span class="text-[10px] font-medium">Teams</span>
       <% end %>
 
-      <%# Entries %>
-      <% entries_active = request.path == scouting_entries_path || request.path.match?(/scouting_entries\/\d+$/) %>
-      <%= link_to scouting_entries_path,
-        class: "flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg transition-all duration-150 relative #{entries_active ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}",
-        "aria-label": "Scouting entries",
-        "aria-current": (entries_active ? "page" : nil) do %>
-        <% if entries_active %><span class="absolute -top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-emerald-400 rounded-full"></span><% end %>
-        <svg class="w-6 h-6" fill="<%= entries_active ? 'currentColor' : 'none' %>" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-        <span class="text-xs font-medium">Entries</span>
-      <% end %>
+      <%# More (Picks/Predict/Simulate/Reports/Exports) %>
+      <details class="relative" id="mobile-more-menu">
+        <summary class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg transition-all duration-150 text-gray-500 hover:text-gray-300 cursor-pointer list-none" aria-label="More options">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+          </svg>
+          <span class="text-[10px] font-medium">More</span>
+        </summary>
+        <div class="absolute bottom-full right-0 mb-2 w-48 bg-gray-900 border border-gray-800 rounded-xl shadow-xl overflow-hidden">
+          <%= link_to "Predictions", predictions_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
+          <%= link_to "Simulator", new_match_simulator_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
+          <%= link_to "Compare", team_comparison_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
+          <%= link_to "Pick Lists", pick_lists_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
+          <%= link_to "Reports", reports_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
+          <%= link_to "Entries", scouting_entries_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
+          <% if current_user.has_role?(:admin) || current_user.has_role?(:lead) %>
+            <div class="border-t border-gray-800">
+              <%= link_to "Export CSV", exports_csv_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
+              <%= link_to "Export Excel", exports_excel_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
+              <%= link_to "Export JSON", exports_json_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
+            </div>
+          <% end %>
+        </div>
+      </details>
     </div>
   </nav>
 <% end %>

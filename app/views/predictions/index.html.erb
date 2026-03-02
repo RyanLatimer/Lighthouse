@@ -1,0 +1,98 @@
+<% content_for(:title) { "Match Predictions - ScoutRail" } %>
+
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-white">Match Predictions</h1>
+    <p class="text-sm text-gray-400 mt-1">AI-powered predictions for <%= current_event.name %></p>
+  </div>
+  <div class="flex items-center gap-2">
+    <% if @accuracy %>
+      <span class="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 text-sm rounded-lg border border-emerald-500/30">
+        <%= @accuracy %>% accuracy
+      </span>
+    <% end %>
+    <% if current_user.has_role?(:admin) || current_user.has_role?(:lead) %>
+      <%= button_to "Generate Predictions", generate_predictions_path, method: :post,
+            class: "px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition" %>
+    <% end %>
+  </div>
+</div>
+
+<div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-gray-500 text-xs uppercase tracking-wider border-b border-gray-800">
+          <th class="px-4 py-3 text-left">Match</th>
+          <th class="px-4 py-3 text-center">Red Alliance</th>
+          <th class="px-4 py-3 text-center">Prediction</th>
+          <th class="px-4 py-3 text-center">Blue Alliance</th>
+          <th class="px-4 py-3 text-center hidden sm:table-cell">Confidence</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-800/50">
+        <% @matches.each do |match| %>
+          <% prediction = @predictions[match.id] %>
+          <% red_teams = match.match_alliances.select { |ma| ma.alliance_color == "red" }.sort_by(&:station) %>
+          <% blue_teams = match.match_alliances.select { |ma| ma.alliance_color == "blue" }.sort_by(&:station) %>
+          <tr class="hover:bg-gray-800/50 transition">
+            <td class="px-4 py-3">
+              <%= link_to prediction_path(match), class: "font-semibold text-white hover:text-emerald-400 transition" do %>
+                <%= match.display_name %>
+              <% end %>
+              <p class="text-xs text-gray-600"><%= match.scheduled_time&.strftime("%b %d %l:%M %p") || "TBD" %></p>
+            </td>
+            <td class="px-4 py-3 text-center">
+              <div class="flex justify-center gap-1">
+                <% red_teams.each do |ma| %>
+                  <span class="text-xs font-mono px-1.5 py-0.5 rounded bg-red-500/20 text-red-400"><%= ma.frc_team.team_number %></span>
+                <% end %>
+              </div>
+              <% if prediction %>
+                <p class="text-lg font-bold text-red-400 mt-1"><%= prediction.red_score.round(1) %></p>
+              <% end %>
+            </td>
+            <td class="px-4 py-3 text-center">
+              <% if prediction %>
+                <% winner = prediction.red_win_probability.to_f > 50 ? "red" : "blue" %>
+                <div class="flex items-center justify-center gap-1">
+                  <div class="w-12 h-2 bg-gray-800 rounded-full overflow-hidden flex">
+                    <div class="h-full bg-red-500 rounded-l-full" style="width: <%= prediction.red_win_probability %>%"></div>
+                    <div class="h-full bg-blue-500 rounded-r-full" style="width: <%= prediction.blue_win_probability %>%"></div>
+                  </div>
+                </div>
+                <p class="text-xs text-<%= winner %>-400 font-bold mt-1"><%= winner == "red" ? prediction.red_win_probability : prediction.blue_win_probability %>%</p>
+              <% else %>
+                <span class="text-xs text-gray-600">No prediction</span>
+              <% end %>
+            </td>
+            <td class="px-4 py-3 text-center">
+              <div class="flex justify-center gap-1">
+                <% blue_teams.each do |ma| %>
+                  <span class="text-xs font-mono px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400"><%= ma.frc_team.team_number %></span>
+                <% end %>
+              </div>
+              <% if prediction %>
+                <p class="text-lg font-bold text-blue-400 mt-1"><%= prediction.blue_score.round(1) %></p>
+              <% end %>
+            </td>
+            <td class="px-4 py-3 text-center hidden sm:table-cell">
+              <% if prediction %>
+                <% conf = [prediction.red_win_probability, prediction.blue_win_probability].max %>
+                <span class="text-xs font-mono <%= conf > 70 ? 'text-emerald-400' : conf > 55 ? 'text-amber-400' : 'text-gray-500' %>">
+                  <%= conf.round(0) %>%
+                </span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if @matches.empty? %>
+    <div class="text-center py-16">
+      <p class="text-gray-500">No matches found. Sync from TBA to import matches.</p>
+    </div>
+  <% end %>
+</div>
