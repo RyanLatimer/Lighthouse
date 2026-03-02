@@ -83,24 +83,24 @@
     @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full;
   }
   .badge-emerald {
-    @apply badge bg-emerald-500/10 text-emerald-400 border border-emerald-500/30;
+    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30;
   }
   .badge-amber {
-    @apply badge bg-amber-500/10 text-amber-400 border border-amber-500/30;
+    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30;
   }
   .badge-red {
-    @apply badge bg-red-500/10 text-red-400 border border-red-500/30;
+    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-red-500/10 text-red-400 border border-red-500/30;
   }
   .badge-blue {
-    @apply badge bg-blue-500/10 text-blue-400 border border-blue-500/30;
+    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30;
   }
   .badge-gray {
-    @apply badge bg-gray-500/10 text-gray-400 border border-gray-500/30;
+    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-gray-500/10 text-gray-400 border border-gray-500/30;
   }
 
   /* Stat cards */
   .stat-card {
-    @apply scout-card p-4 transition-all duration-200 hover:border-gray-700 hover:shadow-lg hover:shadow-emerald-500/5 group;
+    @apply bg-gray-900 border border-gray-800 rounded-xl p-4 transition-all duration-200 hover:border-gray-700 hover:shadow-lg hover:shadow-emerald-500/5;
   }
   .stat-card-icon {
     @apply w-8 h-8 rounded-lg flex items-center justify-center transition-transform duration-200 group-hover:scale-110;
@@ -111,10 +111,10 @@
     @apply px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950;
   }
   .nav-link-active {
-    @apply nav-link bg-emerald-500/20 text-emerald-400;
+    @apply px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 bg-emerald-500/20 text-emerald-400;
   }
   .nav-link-inactive {
-    @apply nav-link text-gray-400 hover:text-white hover:bg-gray-800;
+    @apply px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 text-gray-400 hover:text-white hover:bg-gray-800;
   }
 
   /* Table improvements */

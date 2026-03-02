@@ -27,19 +27,19 @@
   <%# Summary Stats %>
   <% if @summary %>
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-      <div class="stat-card text-center">
+      <div class="stat-card group text-center">
         <p class="text-3xl font-bold text-emerald-400 font-mono"><%= @summary.avg_total_points.to_f.round(1) %></p>
         <p class="text-xs text-gray-400 mt-1 font-medium">Avg Points</p>
       </div>
-      <div class="stat-card text-center">
+      <div class="stat-card group text-center">
         <p class="text-3xl font-bold text-amber-400 font-mono"><%= @summary.fuel_accuracy_pct.to_f.round(1) %>%</p>
         <p class="text-xs text-gray-400 mt-1 font-medium">Accuracy</p>
       </div>
-      <div class="stat-card text-center">
+      <div class="stat-card group text-center">
         <p class="text-3xl font-bold text-blue-400 font-mono"><%= @summary.avg_climb_points.to_f.round(1) %></p>
         <p class="text-xs text-gray-400 mt-1 font-medium">Avg Climb Pts</p>
       </div>
-      <div class="stat-card text-center">
+      <div class="stat-card group text-center">
         <p class="text-3xl font-bold text-white font-mono"><%= @summary.matches_scouted %></p>
         <p class="text-xs text-gray-400 mt-1 font-medium">Matches Scouted</p>
       </div>
