@@ -132,6 +132,39 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_response :redirect
   end
 
+  # --- Destroy ---
+
+  test "admin should destroy event" do
+    event = Event.create!(name: "Deletable Event", tba_key: "2026deleteme", year: 2026, event_type: 0)
+
+    assert_difference("Event.count", -1) do
+      delete event_path(event)
+    end
+    assert_redirected_to events_path
+  end
+
+  test "lead should destroy event" do
+    sign_out :user
+    sign_in_as(users(:lead_user))
+
+    event = Event.create!(name: "Lead Deletable", tba_key: "2026leaddel", year: 2026, event_type: 0)
+
+    assert_difference("Event.count", -1) do
+      delete event_path(event)
+    end
+    assert_redirected_to events_path
+  end
+
+  test "scout should not destroy event" do
+    sign_out :user
+    sign_in_as(users(:scout_user))
+
+    assert_no_difference("Event.count") do
+      delete event_path(@event)
+    end
+    assert_response :redirect
+  end
+
   # --- Authentication ---
 
   test "unauthenticated user is redirected from index" do

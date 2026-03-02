@@ -18,7 +18,7 @@
     <%= link_to pick_list_path(pick_list), class: "block scout-card-hover p-5 group", "aria-label": "#{pick_list.name} - #{pick_list.entries&.length || 0} teams" do %>
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="font-semibold text-white group-hover:text-emerald-400 transition-colors duration-150"><%= pick_list.name %></h3>
+          <h3 class="font-semibold text-white group-hover:text-orange-400 transition-colors duration-150"><%= pick_list.name %></h3>
           <p class="text-sm text-gray-500 mt-1">
             By <%= pick_list.user.full_name %>
             &middot; <%= pick_list.entries&.length || 0 %> teams

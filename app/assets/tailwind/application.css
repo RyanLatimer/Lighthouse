@@ -29,13 +29,13 @@
 
   /* Selection colors */
   ::selection {
-    background: theme(--color-emerald-500 / 30%);
-    color: theme(--color-emerald-100);
+    background: theme(--color-orange-500 / 30%);
+    color: theme(--color-orange-100);
   }
 
   /* Smooth focus transitions globally */
   *:focus-visible {
-    outline: 2px solid theme(--color-emerald-500);
+    outline: 2px solid theme(--color-orange-500);
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -56,34 +56,34 @@
     @apply bg-gray-900 border border-gray-800 rounded-xl;
   }
   .scout-card-hover {
-    @apply bg-gray-900 border border-gray-800 rounded-xl transition-all duration-200 hover:border-gray-700 hover:shadow-lg hover:shadow-emerald-500/5;
+    @apply bg-gray-900 border border-gray-800 rounded-xl transition-all duration-200 hover:border-gray-700 hover:shadow-lg hover:shadow-orange-500/5;
   }
 
   /* Buttons */
   .btn-primary {
-    @apply inline-flex items-center justify-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-all duration-150 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950;
+    @apply inline-flex items-center justify-center px-4 py-2 bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-sm font-medium rounded-lg transition-all duration-150 shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-4 py-2 bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-gray-300 hover:text-white text-sm font-medium rounded-lg border border-gray-700 hover:border-gray-600 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950;
+    @apply inline-flex items-center justify-center px-4 py-2 bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-gray-300 hover:text-white text-sm font-medium rounded-lg border border-gray-700 hover:border-gray-600 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950;
   }
   .btn-danger {
     @apply inline-flex items-center justify-center px-4 py-2 bg-red-600/20 hover:bg-red-600/30 active:bg-red-600/40 text-red-400 hover:text-red-300 text-sm font-medium rounded-lg border border-red-500/30 hover:border-red-500/50 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950;
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center px-3 py-1.5 text-gray-400 hover:text-white hover:bg-gray-800 text-sm font-medium rounded-lg transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950;
+    @apply inline-flex items-center justify-center px-3 py-1.5 text-gray-400 hover:text-white hover:bg-gray-800 text-sm font-medium rounded-lg transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950;
   }
 
   /* Form inputs */
   .input-field {
-    @apply w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-150;
+    @apply w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-150;
   }
 
   /* Badges */
   .badge {
     @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full;
   }
-  .badge-emerald {
-    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30;
+  .badge-orange {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/30;
   }
   .badge-amber {
     @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30;
@@ -100,7 +100,7 @@
 
   /* Stat cards */
   .stat-card {
-    @apply bg-gray-900 border border-gray-800 rounded-xl p-4 transition-all duration-200 hover:border-gray-700 hover:shadow-lg hover:shadow-emerald-500/5;
+    @apply bg-gray-900 border border-gray-800 rounded-xl p-4 transition-all duration-200 hover:border-gray-700 hover:shadow-lg hover:shadow-orange-500/5;
   }
   .stat-card-icon {
     @apply w-8 h-8 rounded-lg flex items-center justify-center transition-transform duration-200 group-hover:scale-110;
@@ -108,13 +108,13 @@
 
   /* Nav links */
   .nav-link {
-    @apply px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950;
+    @apply px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950;
   }
   .nav-link-active {
-    @apply px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 bg-emerald-500/20 text-emerald-400;
+    @apply px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 bg-orange-500/20 text-orange-400;
   }
   .nav-link-inactive {
-    @apply px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 text-gray-400 hover:text-white hover:bg-gray-800;
+    @apply px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 text-gray-400 hover:text-white hover:bg-gray-800;
   }
 
   /* Table improvements */
@@ -133,14 +133,14 @@
 
   /* Back link */
   .back-link {
-    @apply inline-flex items-center gap-1 text-gray-400 hover:text-white text-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 rounded-lg;
+    @apply inline-flex items-center gap-1 text-gray-400 hover:text-white text-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 rounded-lg;
   }
 
   /* Turbo progress bar */
   .turbo-progress-bar {
-    background: linear-gradient(to right, theme(--color-emerald-400), theme(--color-emerald-500));
+    background: linear-gradient(to right, theme(--color-orange-400), theme(--color-orange-500));
     height: 3px;
-    box-shadow: 0 0 10px theme(--color-emerald-500 / 50%), 0 0 5px theme(--color-emerald-500 / 30%);
+    box-shadow: 0 0 10px theme(--color-orange-500 / 50%), 0 0 5px theme(--color-orange-500 / 30%);
   }
 
   /* Safe area bottom for iPhone notch */
@@ -222,10 +222,10 @@
 
 @keyframes pulse-ring {
   0% {
-    box-shadow: 0 0 0 0 theme(--color-emerald-500 / 40%);
+    box-shadow: 0 0 0 0 theme(--color-orange-500 / 40%);
   }
   100% {
-    box-shadow: 0 0 0 12px theme(--color-emerald-500 / 0%);
+    box-shadow: 0 0 0 12px theme(--color-orange-500 / 0%);
   }
 }
 

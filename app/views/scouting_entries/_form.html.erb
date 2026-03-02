@@ -50,7 +50,7 @@
   <div class="scout-card p-3 mb-4" aria-live="polite" aria-atomic="true">
     <div class="grid grid-cols-4 gap-2 text-center">
       <div>
-        <p class="text-xl font-bold text-emerald-400 font-mono" data-scouting-target="totalMade">0</p>
+        <p class="text-xl font-bold text-orange-400 font-mono" data-scouting-target="totalMade">0</p>
         <p class="text-[11px] text-gray-400 font-medium">Total Made</p>
       </div>
       <div>
@@ -73,7 +73,7 @@
     <div class="flex rounded-xl bg-gray-800/80 p-1 gap-1" role="tablist" aria-label="Match phases">
       <button type="button" role="tab"
               id="tab-auton"
-              class="flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 bg-emerald-500/15 text-emerald-400 shadow-sm"
+              class="flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 bg-orange-500/15 text-orange-400 shadow-sm"
               data-action="click->scouting#switchTab"
               data-tab-button
               data-tab="auton"
@@ -106,9 +106,9 @@
 
   <%# ===== AUTON PANEL ===== %>
   <div data-scouting-target="tabContent" data-tab-panel="auton" id="panel-auton" role="tabpanel" aria-labelledby="tab-auton">
-    <div class="scout-card p-4 border-l-4 border-l-emerald-500/50">
+    <div class="scout-card p-4 border-l-4 border-l-orange-500/50">
       <div class="flex items-center justify-center gap-2 mb-4">
-        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
         <h3 class="text-xs text-gray-400 uppercase tracking-wider font-medium">Autonomous Period</h3>
@@ -117,7 +117,7 @@
       <%# Score display %>
       <div class="grid grid-cols-2 gap-3 mb-4 text-center">
         <div class="bg-gray-800 rounded-lg p-3">
-          <p class="text-3xl font-bold text-emerald-400 font-mono" data-scouting-target="autonMade">0</p>
+          <p class="text-3xl font-bold text-orange-400 font-mono" data-scouting-target="autonMade">0</p>
           <p class="text-xs text-gray-400">Made</p>
         </div>
         <div class="bg-gray-800 rounded-lg p-3">
@@ -129,7 +129,7 @@
       <%# HUGE MAKE / MISS buttons %>
       <div class="grid grid-cols-2 gap-3 mb-3">
         <button type="button"
-                class="h-20 w-full text-4xl font-black rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20 transition-all duration-150 active:scale-95 select-none"
+                class="h-20 w-full text-4xl font-black rounded-xl bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white shadow-lg shadow-orange-500/20 transition-all duration-150 active:scale-95 select-none"
                 data-action="click->scouting#incrementMade"
                 data-phase="auton"
                 aria-label="Score made fuel in autonomous">
@@ -182,7 +182,7 @@
       </div>
 
       <%# Auton Climb Toggle %>
-      <div class="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-3 cursor-pointer transition-all duration-150 hover:bg-gray-750"
+      <div class="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-3 cursor-pointer transition-all duration-150 hover:bg-gray-700/50"
            data-action="click->scouting#toggleAutonClimb"
            data-scouting-target="autonClimb"
            role="switch"
@@ -210,7 +210,7 @@
       <%# Score display %>
       <div class="grid grid-cols-2 gap-3 mb-4 text-center">
         <div class="bg-gray-800 rounded-lg p-3">
-          <p class="text-3xl font-bold text-emerald-400 font-mono" data-scouting-target="teleopMade">0</p>
+          <p class="text-3xl font-bold text-orange-400 font-mono" data-scouting-target="teleopMade">0</p>
           <p class="text-xs text-gray-400">Made</p>
         </div>
         <div class="bg-gray-800 rounded-lg p-3">
@@ -222,7 +222,7 @@
       <%# HUGE MAKE / MISS buttons %>
       <div class="grid grid-cols-2 gap-3 mb-3">
         <button type="button"
-                class="h-20 w-full text-4xl font-black rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20 transition-all duration-150 active:scale-95 select-none"
+                class="h-20 w-full text-4xl font-black rounded-xl bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white shadow-lg shadow-orange-500/20 transition-all duration-150 active:scale-95 select-none"
                 data-action="click->scouting#incrementMade"
                 data-phase="teleop"
                 aria-label="Score made fuel in teleop">
@@ -260,7 +260,7 @@
           <span class="text-xs font-mono text-amber-400 font-semibold" data-scouting-target="teleopAccuracy">0.0%</span>
         </div>
         <div class="w-full h-2 bg-gray-700 rounded-full overflow-hidden" role="progressbar" aria-label="Teleop accuracy">
-          <div class="h-full bg-gradient-to-r from-amber-500 to-emerald-500 rounded-full transition-all duration-300"
+          <div class="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-300"
                data-scouting-target="accuracyBar"
                style="width: 0%"></div>
         </div>
@@ -281,7 +281,7 @@
       <%# Score display %>
       <div class="grid grid-cols-2 gap-3 mb-4 text-center">
         <div class="bg-gray-800 rounded-lg p-3">
-          <p class="text-3xl font-bold text-emerald-400 font-mono" data-scouting-target="endgameMade">0</p>
+          <p class="text-3xl font-bold text-orange-400 font-mono" data-scouting-target="endgameMade">0</p>
           <p class="text-xs text-gray-400">Made</p>
         </div>
         <div class="bg-gray-800 rounded-lg p-3">
@@ -293,7 +293,7 @@
       <%# HUGE MAKE / MISS buttons %>
       <div class="grid grid-cols-2 gap-3 mb-3">
         <button type="button"
-                class="h-20 w-full text-4xl font-black rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20 transition-all duration-150 active:scale-95 select-none"
+                class="h-20 w-full text-4xl font-black rounded-xl bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white shadow-lg shadow-orange-500/20 transition-all duration-150 active:scale-95 select-none"
                 data-action="click->scouting#incrementMade"
                 data-phase="endgame"
                 aria-label="Score made fuel in endgame">
@@ -331,14 +331,14 @@
           <% is_selected = level == (scouting_entry.data&.dig('endgame_climb') || 'None') %>
           <button type="button"
                   class="py-4 rounded-xl border-2 text-center transition-all duration-200 active:scale-95 select-none
-                         <%= is_selected ? 'ring-2 ring-emerald-400 bg-emerald-500/15 border-emerald-500 shadow-lg shadow-emerald-500/10 scale-[1.02]' : 'bg-gray-800 border-gray-700 hover:border-gray-600 hover:bg-gray-750' %>"
+                         <%= is_selected ? 'ring-2 ring-orange-400 bg-orange-500/15 border-orange-500 shadow-lg shadow-orange-500/10 scale-[1.02]' : 'bg-gray-800 border-gray-700 hover:border-gray-600 hover:bg-gray-700/50' %>"
                   data-action="click->scouting#selectClimb"
                   data-climb-card
                   data-level="<%= level %>"
                   role="radio"
                   aria-checked="<%= is_selected %>"
                   aria-label="<%= level %> climb - <%= points %> points">
-            <p class="text-lg font-bold <%= is_selected ? 'text-emerald-400' : 'text-gray-300' %>"><%= level %></p>
+            <p class="text-lg font-bold <%= is_selected ? 'text-orange-400' : 'text-gray-300' %>"><%= level %></p>
             <p class="text-xs text-gray-500"><%= points %> pts</p>
           </button>
         <% end %>
@@ -357,6 +357,6 @@
   <%# ===== SUBMIT ===== %>
   <div class="mt-4 pb-4">
     <%= f.submit scouting_entry.persisted? ? "Update Entry" : "Submit Entry",
-                 class: "w-full py-4 text-lg font-bold bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-xl transition-all duration-150 active:scale-[0.98] cursor-pointer shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950" %>
+                 class: "w-full py-4 text-lg font-bold bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white rounded-xl transition-all duration-150 active:scale-[0.98] cursor-pointer shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950" %>
   </div>
 <% end %>

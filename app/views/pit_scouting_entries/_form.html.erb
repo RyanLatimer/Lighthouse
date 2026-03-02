@@ -18,7 +18,7 @@
     <%= f.select :frc_team_id,
           options_from_collection_for_select(@teams, :id, ->(t) { "#{t.team_number} - #{t.nickname}" }, pit_scouting_entry.frc_team_id || params[:frc_team_id]),
           { prompt: "Select team..." },
-          class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition" %>
+          class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" %>
   </div>
 
   <% # Robot Specs %>
@@ -31,7 +31,7 @@
           <%= number_field_tag "pit_scouting_entry[data][#{field}]",
                 pit_scouting_entry.data&.dig(field),
                 step: "0.1",
-                class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition",
+                class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition",
                 placeholder: field.include?("weight") ? "lbs" : "inches" %>
         </div>
       <% end %>
@@ -47,7 +47,7 @@
             pit_scouting_entry.data&.dig("drivetrain")
           ),
           prompt: "Select drivetrain...",
-          class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition" %>
+          class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" %>
   </div>
 
   <% # Mechanisms %>
@@ -57,7 +57,8 @@
       <% %w[Intake Shooter Climber Arm Elevator Turret Conveyor Hopper].each do |mech| %>
         <% checked = (pit_scouting_entry.data&.dig("mechanisms") || []).include?(mech) %>
         <label class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition
-          <%= checked ? 'bg-blue-500/20 border-blue-500/30 text-blue-400' : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600' %>">
+          bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600
+          has-[:checked]:bg-blue-500/20 has-[:checked]:border-blue-500/30 has-[:checked]:text-blue-400">
           <%= check_box_tag "pit_scouting_entry[data][mechanisms][]", mech, checked, class: "hidden" %>
           <span class="text-sm font-medium"><%= mech %></span>
         </label>
@@ -72,7 +73,8 @@
       <% %w[Leave Scoring Climbing Multi-piece].each do |cap| %>
         <% checked = (pit_scouting_entry.data&.dig("auto_capabilities") || []).include?(cap) %>
         <label class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition
-          <%= checked ? 'bg-amber-500/20 border-amber-500/30 text-amber-400' : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600' %>">
+          bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600
+          has-[:checked]:bg-amber-500/20 has-[:checked]:border-amber-500/30 has-[:checked]:text-amber-400">
           <%= check_box_tag "pit_scouting_entry[data][auto_capabilities][]", cap, checked, class: "hidden" %>
           <span class="text-sm font-medium"><%= cap %></span>
         </label>
@@ -87,7 +89,7 @@
       <%= text_area_tag "pit_scouting_entry[data][strengths]",
             pit_scouting_entry.data&.dig("strengths"),
             rows: 3,
-            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition resize-none",
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none",
             placeholder: "What does this robot do well?" %>
     </div>
     <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
@@ -95,7 +97,7 @@
       <%= text_area_tag "pit_scouting_entry[data][weaknesses]",
             pit_scouting_entry.data&.dig("weaknesses"),
             rows: 3,
-            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition resize-none",
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none",
             placeholder: "Any limitations or issues?" %>
     </div>
   </div>
@@ -103,19 +105,19 @@
   <% # Notes %>
   <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
     <%= f.label :notes, class: "block text-xs text-gray-500 uppercase tracking-wider mb-2" %>
-    <%= f.text_area :notes, rows: 3, class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition resize-none", placeholder: "Additional observations..." %>
+    <%= f.text_area :notes, rows: 3, class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none", placeholder: "Additional observations..." %>
   </div>
 
   <% # Photo upload %>
   <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
     <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Photos</h3>
     <%= f.file_field :photos, multiple: true, accept: "image/*", capture: "environment",
-          class: "w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 file:cursor-pointer" %>
+          class: "w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-600 file:text-white hover:file:bg-orange-500 file:cursor-pointer" %>
   </div>
 
   <% # Submit %>
   <div class="pb-4">
     <%= f.submit pit_scouting_entry.persisted? ? "Update Entry" : "Submit Pit Scout",
-                 class: "w-full py-4 text-lg font-bold bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-xl transition-all active:scale-[0.98] cursor-pointer shadow-lg shadow-emerald-500/20" %>
+                 class: "w-full py-4 text-lg font-bold bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white rounded-xl transition-all active:scale-[0.98] cursor-pointer shadow-lg shadow-orange-500/20" %>
   </div>
 <% end %>

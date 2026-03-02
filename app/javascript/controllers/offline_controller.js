@@ -126,7 +126,7 @@ export default class extends Controller {
     if (count === 0) return
 
     const banner = document.createElement("div")
-    banner.className = "fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white px-6 py-3 rounded-lg shadow-lg font-medium"
+    banner.className = "fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-orange-600 text-white px-6 py-3 rounded-lg shadow-lg font-medium"
     banner.textContent = `Synced ${count} offline ${count === 1 ? "entry" : "entries"} successfully.`
     document.body.appendChild(banner)
 

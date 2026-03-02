@@ -41,13 +41,13 @@ export default class extends Controller {
   // --- Private ---
 
   #activate(tab) {
-    tab.classList.add("border-emerald-400", "text-emerald-400")
+    tab.classList.add("border-orange-400", "text-orange-400")
     tab.classList.remove("border-transparent", "text-gray-400")
     tab.setAttribute("aria-selected", "true")
   }
 
   #deactivate(tab) {
-    tab.classList.remove("border-emerald-400", "text-emerald-400")
+    tab.classList.remove("border-orange-400", "text-orange-400")
     tab.classList.add("border-transparent", "text-gray-400")
     tab.setAttribute("aria-selected", "false")
   }

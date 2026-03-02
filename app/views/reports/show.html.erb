@@ -22,7 +22,7 @@
           hash["##{team[:team_number]}"] = team[@report.metrics.first]
         end %>
         <%= bar_chart chart_data,
-                      colors: ["#10b981"],
+                      colors: ["#f97316"],
                       library: {
                         scales: {
                           x: { ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" } },
@@ -51,7 +51,7 @@
               <tr class="hover:bg-gray-800/50 transition">
                 <td class="px-4 py-3 text-gray-400 font-mono"><%= team[:rank] %></td>
                 <td class="px-4 py-3">
-                  <span class="font-bold text-emerald-400"><%= team[:team_number] %></span>
+                  <span class="font-bold text-orange-400"><%= team[:team_number] %></span>
                   <span class="text-gray-500 text-xs ml-1"><%= team[:nickname] %></span>
                 </td>
                 <% @report.metrics.each do |metric| %>
@@ -73,7 +73,7 @@
     <div class="text-center py-16 bg-gray-900 border border-gray-800 rounded-xl">
       <p class="text-gray-500">No data available. Generate the report to see results.</p>
       <%= button_to "Generate Report", generate_report_path(@report), method: :post,
-            class: "mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition" %>
+            class: "mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white text-sm font-medium rounded-lg transition" %>
     </div>
   <% end %>
 </div>

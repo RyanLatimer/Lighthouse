@@ -2,7 +2,7 @@
   <div class="w-full max-w-md animate-fade-in">
     <%# Branding %>
     <div class="text-center mb-8">
-      <div class="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/20">
+      <div class="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/20">
         <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
         </svg>
@@ -32,13 +32,13 @@
 
         <% if devise_mapping.rememberable? %>
           <div class="flex items-center gap-2">
-            <%= f.check_box :remember_me, class: "w-4 h-4 rounded bg-gray-800 border-gray-700 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-gray-900" %>
+            <%= f.check_box :remember_me, class: "w-4 h-4 rounded bg-gray-800 border-gray-700 text-orange-500 focus:ring-orange-500 focus:ring-offset-gray-900" %>
             <%= f.label :remember_me, class: "text-sm text-gray-400" %>
           </div>
         <% end %>
 
         <div class="pt-2">
-          <%= f.submit "Sign In", class: "w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold rounded-lg transition-all duration-150 cursor-pointer shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950" %>
+          <%= f.submit "Sign In", class: "w-full py-2.5 bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-semibold rounded-lg transition-all duration-150 cursor-pointer shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950" %>
         </div>
       <% end %>
 
@@ -47,7 +47,7 @@
         <%- if devise_mapping.registerable? %>
           <p class="text-sm text-gray-400">
             Don't have an account?
-            <%= link_to "Sign up", new_registration_path(resource_name), class: "text-emerald-400 hover:text-emerald-300 font-medium transition-colors duration-150" %>
+            <%= link_to "Sign up", new_registration_path(resource_name), class: "text-orange-400 hover:text-orange-300 font-medium transition-colors duration-150" %>
           </p>
         <% end %>
         <%- if devise_mapping.recoverable? %>

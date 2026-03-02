@@ -2,8 +2,8 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-14">
       <%# Logo / Brand %>
-      <%= link_to root_path, class: "flex items-center gap-2 shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950", "aria-label": "ScoutRail home" do %>
-        <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center shadow-md shadow-emerald-500/20">
+      <%= link_to root_path, class: "flex items-center gap-2 shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950", "aria-label": "ScoutRail home" do %>
+        <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center shadow-md shadow-orange-500/20">
           <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
           </svg>
@@ -18,8 +18,8 @@
             <span class="text-gray-500 truncate max-w-24"><%= current_organization.name %></span>
             <span class="text-gray-700">/</span>
           <% end %>
-          <span class="text-emerald-400 font-semibold truncate max-w-48"><%= current_event.name %></span>
-          <%= link_to "Change", events_path, class: "text-xs text-gray-400 hover:text-gray-200 transition-colors duration-150 rounded px-1.5 py-0.5 hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" %>
+          <span class="text-orange-400 font-semibold truncate max-w-48"><%= current_event.name %></span>
+          <%= link_to "Change", events_path, class: "text-xs text-gray-400 hover:text-gray-200 transition-colors duration-150 rounded px-1.5 py-0.5 hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500" %>
         </div>
       <% end %>
 
@@ -79,7 +79,7 @@
             <span class="text-sm text-gray-300 hidden sm:block"><%= current_user.first_name %></span>
             <%= link_to destroy_user_session_path,
               data: { turbo_method: :delete },
-              class: "text-gray-400 hover:text-red-400 transition-colors duration-150 p-1.5 rounded-lg hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950",
+              class: "text-gray-400 hover:text-red-400 transition-colors duration-150 p-1.5 rounded-lg hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950",
               "aria-label": "Sign out" do %>
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

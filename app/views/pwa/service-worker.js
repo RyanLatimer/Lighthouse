@@ -116,7 +116,7 @@ function offlineFallback() {
       <style>
         body { font-family: system-ui; background: #111827; color: #f3f4f6; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
         .container { text-align: center; padding: 2rem; }
-        h1 { color: #10B981; }
+        h1 { color: #F97316; }
         p { color: #9ca3af; }
       </style></head>
       <body>

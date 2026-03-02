@@ -15,7 +15,7 @@
           <div>
             <h3 class="font-semibold text-white">
               Team
-              <span class="text-emerald-400 font-mono"><%= conflict.frc_team.team_number %></span>
+              <span class="text-orange-400 font-mono"><%= conflict.frc_team.team_number %></span>
               &middot;
               <span class="text-gray-400"><%= conflict.match.display_name %></span>
             </h3>
@@ -43,7 +43,7 @@
                 <p class="text-lg font-bold text-white font-mono"><%= value %></p>
                 <%# Quick-select button %>
                 <button type="button"
-                        class="mt-2 w-full text-xs py-1.5 px-2 rounded-md bg-gray-700 hover:bg-emerald-500/20 text-gray-400 hover:text-emerald-400 transition-all duration-150 font-medium opacity-0 group-hover:opacity-100 focus:opacity-100"
+                        class="mt-2 w-full text-xs py-1.5 px-2 rounded-md bg-gray-700 hover:bg-orange-500/20 text-gray-400 hover:text-orange-400 transition-all duration-150 font-medium opacity-0 group-hover:opacity-100 focus:opacity-100"
                         onclick="this.closest('.scout-card').querySelector('input[name=resolution]').value = '<%= value %>'">
                   Use this value
                 </button>
@@ -69,7 +69,7 @@
   </div>
 <% else %>
   <div class="text-center py-16 scout-card">
-    <svg class="w-12 h-12 text-emerald-500/50 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg class="w-12 h-12 text-orange-500/50 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
     <p class="text-gray-400 font-medium">No Data Conflicts</p>

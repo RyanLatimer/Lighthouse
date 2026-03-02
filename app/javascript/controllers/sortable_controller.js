@@ -88,7 +88,7 @@ export default class extends Controller {
   #createPlaceholder() {
     if (this.placeholder) return
     this.placeholder = document.createElement("div")
-    this.placeholder.className = "h-1 bg-emerald-500 rounded-full mx-4 my-1 transition-all duration-150 shadow-sm shadow-emerald-500/30"
+    this.placeholder.className = "h-1 bg-orange-500 rounded-full mx-4 my-1 transition-all duration-150 shadow-sm shadow-orange-500/30"
     this.placeholder.dataset.placeholder = "true"
   }
 
@@ -188,7 +188,7 @@ export default class extends Controller {
     const isSuccess = type === "success"
     toast.className = `fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-medium animate-slide-down flex items-center gap-2 ${
       isSuccess
-        ? "bg-emerald-600 text-white"
+        ? "bg-orange-600 text-white"
         : "bg-red-600 text-white"
     }`
 

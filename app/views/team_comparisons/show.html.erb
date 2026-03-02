@@ -14,7 +14,8 @@
         <% @all_teams.each do |team| %>
           <% selected = @teams.include?(team) %>
           <label class="flex items-center gap-1 px-3 py-1.5 rounded-lg border cursor-pointer transition text-sm
-            <%= selected ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400' : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600' %>">
+            bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600
+            has-[:checked]:bg-orange-500/20 has-[:checked]:border-orange-500/30 has-[:checked]:text-orange-400">
             <input type="checkbox" name="team_ids[]" value="<%= team.id %>" <%= 'checked' if selected %> class="hidden" onchange="this.form.submit()">
             <span class="font-bold"><%= team.team_number %></span>
           </label>
@@ -22,7 +23,7 @@
       </div>
       <input type="hidden" name="teams" id="compare_teams_field">
       <noscript>
-        <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition">Compare</button>
+        <button type="submit" class="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white text-sm font-medium rounded-lg transition">Compare</button>
       </noscript>
     </div>
   <% end %>
@@ -34,8 +35,8 @@
         <% summary = @summaries[team.id] %>
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
           <div class="text-center mb-3">
-            <%= link_to team_path(team), class: "hover:text-emerald-400 transition" do %>
-              <p class="text-xl font-bold text-emerald-400"><%= team.team_number %></p>
+            <%= link_to team_path(team), class: "hover:text-orange-400 transition" do %>
+              <p class="text-xl font-bold text-orange-400"><%= team.team_number %></p>
               <p class="text-xs text-gray-500 truncate"><%= team.nickname %></p>
             <% end %>
           </div>
@@ -83,7 +84,7 @@
         }
       end %>
       <%= line_chart chart_data,
-                     colors: ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"],
+                     colors: ["#f97316", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"],
                      library: {
                        scales: {
                          x: { ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" } },

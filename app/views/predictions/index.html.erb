@@ -7,13 +7,13 @@
   </div>
   <div class="flex items-center gap-2">
     <% if @accuracy %>
-      <span class="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 text-sm rounded-lg border border-emerald-500/30">
+      <span class="px-3 py-1.5 bg-orange-500/20 text-orange-400 text-sm rounded-lg border border-orange-500/30">
         <%= @accuracy %>% accuracy
       </span>
     <% end %>
     <% if current_user.has_role?(:admin) || current_user.has_role?(:lead) %>
       <%= button_to "Generate Predictions", generate_predictions_path, method: :post,
-            class: "px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition" %>
+            class: "px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white text-sm font-medium rounded-lg transition" %>
     <% end %>
   </div>
 </div>
@@ -37,7 +37,7 @@
           <% blue_teams = match.match_alliances.select { |ma| ma.alliance_color == "blue" }.sort_by(&:station) %>
           <tr class="hover:bg-gray-800/50 transition">
             <td class="px-4 py-3">
-              <%= link_to prediction_path(match), class: "font-semibold text-white hover:text-emerald-400 transition" do %>
+              <%= link_to prediction_path(match), class: "font-semibold text-white hover:text-orange-400 transition" do %>
                 <%= match.display_name %>
               <% end %>
               <p class="text-xs text-gray-600"><%= match.scheduled_time&.strftime("%b %d %l:%M %p") || "TBD" %></p>
@@ -79,7 +79,7 @@
             <td class="px-4 py-3 text-center hidden sm:table-cell">
               <% if prediction %>
                 <% conf = [prediction.red_win_probability, prediction.blue_win_probability].max %>
-                <span class="text-xs font-mono <%= conf > 70 ? 'text-emerald-400' : conf > 55 ? 'text-amber-400' : 'text-gray-500' %>">
+                <span class="text-xs font-mono <%= conf > 70 ? 'text-orange-400' : conf > 55 ? 'text-amber-400' : 'text-gray-500' %>">
                   <%= conf.round(0) %>%
                 </span>
               <% end %>

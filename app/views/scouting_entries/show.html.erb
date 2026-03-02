@@ -9,10 +9,10 @@
     <% end %>
     <h1 class="text-2xl font-bold text-white">
       Scouting Entry
-      <span class="text-emerald-400">#<%= @scouting_entry.frc_team.team_number %></span>
+      <span class="text-orange-400">#<%= @scouting_entry.frc_team.team_number %></span>
     </h1>
     <span class="ml-auto <%= case @scouting_entry.status
-        when 'submitted' then 'badge-emerald'
+        when 'submitted' then 'badge-orange'
         when 'flagged' then 'badge-amber'
         when 'rejected' then 'badge-red'
         else 'badge-gray'
@@ -27,7 +27,7 @@
       <div>
         <span class="text-xs text-gray-400 uppercase tracking-wider font-medium">Team</span>
         <p class="text-lg font-bold text-white mt-1">
-          <%= link_to @scouting_entry.frc_team.team_number, team_path(@scouting_entry.frc_team), class: "text-emerald-400 hover:text-emerald-300 transition-colors duration-150 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" %>
+          <%= link_to @scouting_entry.frc_team.team_number, team_path(@scouting_entry.frc_team), class: "text-orange-400 hover:text-orange-300 transition-colors duration-150 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500" %>
         </p>
         <p class="text-xs text-gray-500"><%= @scouting_entry.frc_team.nickname %></p>
       </div>
@@ -41,7 +41,7 @@
       </div>
       <div>
         <span class="text-xs text-gray-400 uppercase tracking-wider font-medium">Total Points</span>
-        <p class="text-lg font-bold text-emerald-400 mt-1 font-mono"><%= @scouting_entry.total_points %></p>
+        <p class="text-lg font-bold text-orange-400 mt-1 font-mono"><%= @scouting_entry.total_points %></p>
       </div>
     </div>
   </div>
@@ -49,9 +49,9 @@
   <%# Scoring Summary - Phase cards with color-coded borders %>
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
     <%# Auton %>
-    <div class="scout-card p-4 border-l-4 border-l-emerald-500/50">
+    <div class="scout-card p-4 border-l-4 border-l-orange-500/50">
       <div class="flex items-center gap-2 mb-3">
-        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
         <h3 class="text-xs text-gray-400 uppercase tracking-wider font-medium">Autonomous</h3>
@@ -59,7 +59,7 @@
       <div class="space-y-3">
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-400">Fuel Made</span>
-          <span class="text-sm font-bold text-emerald-400 font-mono"><%= @scouting_entry.data&.dig("auton_fuel_made") || 0 %></span>
+          <span class="text-sm font-bold text-orange-400 font-mono"><%= @scouting_entry.data&.dig("auton_fuel_made") || 0 %></span>
         </div>
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-400">Fuel Missed</span>
@@ -67,7 +67,7 @@
         </div>
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-400">Climb</span>
-          <span class="text-sm font-bold <%= @scouting_entry.data&.dig('auton_climb').to_s == 'true' ? 'text-emerald-400' : 'text-gray-600' %>">
+          <span class="text-sm font-bold <%= @scouting_entry.data&.dig('auton_climb').to_s == 'true' ? 'text-orange-400' : 'text-gray-600' %>">
             <%= @scouting_entry.data&.dig("auton_climb").to_s == "true" ? "Yes" : "No" %>
           </span>
         </div>
@@ -95,7 +95,7 @@
       <div class="space-y-3">
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-400">Fuel Made</span>
-          <span class="text-sm font-bold text-emerald-400 font-mono"><%= @scouting_entry.data&.dig("teleop_fuel_made") || 0 %></span>
+          <span class="text-sm font-bold text-orange-400 font-mono"><%= @scouting_entry.data&.dig("teleop_fuel_made") || 0 %></span>
         </div>
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-400">Fuel Missed</span>
@@ -123,7 +123,7 @@
       <div class="space-y-3">
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-400">Fuel Made</span>
-          <span class="text-sm font-bold text-emerald-400 font-mono"><%= @scouting_entry.data&.dig("endgame_fuel_made") || 0 %></span>
+          <span class="text-sm font-bold text-orange-400 font-mono"><%= @scouting_entry.data&.dig("endgame_fuel_made") || 0 %></span>
         </div>
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-400">Fuel Missed</span>
@@ -134,7 +134,7 @@
           <% climb = @scouting_entry.data&.dig("endgame_climb") || "None" %>
           <span class="text-sm font-bold font-mono
             <%= case climb
-                when 'L3' then 'text-emerald-400'
+                when 'L3' then 'text-orange-400'
                 when 'L2' then 'text-blue-400'
                 when 'L1' then 'text-amber-400'
                 else 'text-gray-600'
@@ -151,7 +151,7 @@
     <h3 class="text-xs text-gray-400 uppercase tracking-wider mb-3 font-medium">Overall</h3>
     <div class="grid grid-cols-3 gap-4 text-center">
       <div>
-        <p class="text-2xl font-bold text-emerald-400 font-mono"><%= @scouting_entry.total_fuel_made %></p>
+        <p class="text-2xl font-bold text-orange-400 font-mono"><%= @scouting_entry.total_fuel_made %></p>
         <p class="text-xs text-gray-400">Total Made</p>
       </div>
       <div>
@@ -165,7 +165,7 @@
     </div>
     <%# Accuracy bar %>
     <div class="mt-3 w-full h-2 bg-gray-800 rounded-full overflow-hidden" role="progressbar" aria-valuenow="<%= @scouting_entry.fuel_accuracy %>" aria-valuemin="0" aria-valuemax="100" aria-label="Overall accuracy: <%= @scouting_entry.fuel_accuracy %>%">
-      <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-500" style="width: <%= @scouting_entry.fuel_accuracy %>%"></div>
+      <div class="h-full bg-gradient-to-r from-orange-500 to-orange-400 rounded-full transition-all duration-500" style="width: <%= @scouting_entry.fuel_accuracy %>%"></div>
     </div>
   </div>
 

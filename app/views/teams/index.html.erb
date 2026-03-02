@@ -51,20 +51,20 @@
                 data-search="<%= team.team_number %> <%= team.nickname&.downcase %>">
               <td class="text-gray-400 font-mono text-xs"><%= idx + 1 %></td>
               <td>
-                <%= link_to team_path(team), class: "hover:text-emerald-400 transition-colors duration-150 group inline-flex items-center gap-1.5 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" do %>
-                  <span class="font-bold text-white group-hover:text-emerald-400"><%= team.team_number %></span>
+                <%= link_to team_path(team), class: "hover:text-orange-400 transition-colors duration-150 group inline-flex items-center gap-1.5 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500" do %>
+                  <span class="font-bold text-white group-hover:text-orange-400"><%= team.team_number %></span>
                   <span class="text-gray-500 text-xs hidden sm:inline"><%= team.nickname %></span>
                 <% end %>
               </td>
               <td class="text-right">
-                <span class="font-mono font-bold text-emerald-400"><%= summary&.avg_total_points.to_f.round(1) || "---" %></span>
+                <span class="font-mono font-bold text-orange-400"><%= summary&.avg_total_points.to_f.round(1) || "---" %></span>
               </td>
               <td class="text-right hidden sm:table-cell">
                 <% acc = summary&.fuel_accuracy_pct.to_f.round(0) || 0 %>
                 <div class="flex items-center justify-end gap-2">
                   <div class="w-16 h-1.5 bg-gray-800 rounded-full overflow-hidden" role="progressbar" aria-valuenow="<%= acc %>" aria-valuemin="0" aria-valuemax="100" aria-label="<%= acc %>% accuracy">
                     <div class="h-full rounded-full transition-all duration-500
-                      <%= if acc >= 70 then 'bg-emerald-500'
+                      <%= if acc >= 70 then 'bg-orange-500'
                           elsif acc >= 40 then 'bg-amber-500'
                           else 'bg-red-500'
                           end %>"

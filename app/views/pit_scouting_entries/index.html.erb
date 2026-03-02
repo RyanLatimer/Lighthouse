@@ -5,7 +5,7 @@
     <h1 class="text-2xl font-bold text-white">Pit Scouting</h1>
     <p class="text-sm text-gray-400 mt-1"><%= @scouted_team_ids.size %> of <%= @teams.count %> teams scouted at <%= current_event.name %></p>
   </div>
-  <%= link_to new_pit_scouting_entry_path, class: "flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition" do %>
+  <%= link_to new_pit_scouting_entry_path, class: "flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white text-sm font-medium rounded-lg transition" do %>
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
     </svg>
@@ -18,10 +18,10 @@
   <div class="flex items-center justify-between mb-2">
     <span class="text-sm text-gray-400">Scouting Progress</span>
     <% pct = @teams.any? ? (@scouted_team_ids.size.to_f / @teams.count * 100).round(0) : 0 %>
-    <span class="text-sm font-bold text-emerald-400"><%= pct %>%</span>
+    <span class="text-sm font-bold text-orange-400"><%= pct %>%</span>
   </div>
   <div class="w-full h-3 bg-gray-800 rounded-full overflow-hidden">
-    <div class="h-full bg-emerald-500 rounded-full transition-all" style="width: <%= pct %>%"></div>
+    <div class="h-full bg-orange-500 rounded-full transition-all" style="width: <%= pct %>%"></div>
   </div>
 </div>
 
@@ -36,9 +36,9 @@
         <% scouted = @scouted_team_ids.include?(team.id) %>
         <% entry = @pit_scouting_entries.find { |e| e.frc_team_id == team.id } if scouted %>
         <% if scouted && entry %>
-          <%= link_to pit_scouting_entry_path(entry), class: "bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 text-center hover:bg-emerald-500/20 transition" do %>
-            <p class="font-bold text-emerald-400"><%= team.team_number %></p>
-            <p class="text-xs text-emerald-400/60 mt-0.5">Scouted</p>
+          <%= link_to pit_scouting_entry_path(entry), class: "bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 text-center hover:bg-orange-500/20 transition" do %>
+            <p class="font-bold text-orange-400"><%= team.team_number %></p>
+            <p class="text-xs text-orange-400/60 mt-0.5">Scouted</p>
           <% end %>
         <% else %>
           <%= link_to new_pit_scouting_entry_path(frc_team_id: team.id), class: "bg-gray-800 border border-gray-700 rounded-lg p-3 text-center hover:bg-gray-700 transition" do %>
@@ -62,7 +62,7 @@
         <%= link_to pit_scouting_entry_path(entry), class: "flex items-center justify-between px-4 sm:px-6 py-3 hover:bg-gray-800/50 transition" do %>
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center">
-              <span class="text-sm font-bold text-emerald-400"><%= entry.frc_team.team_number %></span>
+              <span class="text-sm font-bold text-orange-400"><%= entry.frc_team.team_number %></span>
             </div>
             <div>
               <p class="text-sm font-medium text-white">Team <%= entry.frc_team.team_number %> <span class="text-gray-500"><%= entry.frc_team.nickname %></span></p>

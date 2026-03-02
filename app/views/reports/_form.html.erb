@@ -12,17 +12,18 @@
 
   <div>
     <%= f.label :name, class: "block text-sm font-medium text-gray-300 mb-1" %>
-    <%= f.text_field :name, class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition", placeholder: "e.g., Top Scorers Report" %>
+    <%= f.text_field :name, class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition", placeholder: "e.g., Top Scorers Report" %>
   </div>
 
   <div>
     <label class="block text-sm font-medium text-gray-300 mb-2">Metrics to Include</label>
     <div class="grid grid-cols-2 gap-2">
       <% ReportBuilderService::AVAILABLE_METRICS.each do |metric| %>
-        <label class="flex items-center gap-2 px-3 py-2 rounded-lg border bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600 cursor-pointer transition">
+        <label class="flex items-center gap-2 px-3 py-2 rounded-lg border bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600 cursor-pointer transition
+          has-[:checked]:bg-orange-500/10 has-[:checked]:border-orange-500/30 has-[:checked]:text-orange-400">
           <%= check_box_tag "report[config][metrics][]", metric,
                 (report.metrics || []).include?(metric),
-                class: "rounded bg-gray-700 border-gray-600 text-emerald-500 focus:ring-emerald-500" %>
+                class: "rounded bg-gray-700 border-gray-600 text-orange-500 focus:ring-orange-500" %>
           <span class="text-sm"><%= metric.humanize %></span>
         </label>
       <% end %>
@@ -34,13 +35,13 @@
       <label class="block text-sm font-medium text-gray-300 mb-1">Chart Type</label>
       <%= select_tag "report[config][chart_type]",
             options_for_select([["Table", "table"], ["Bar Chart", "bar"], ["Line Chart", "line"]], report.chart_type),
-            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition" %>
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" %>
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-300 mb-1">Sort By</label>
       <%= select_tag "report[config][sort_by]",
             options_for_select(ReportBuilderService::AVAILABLE_METRICS.map { |m| [m.humanize, m] }, report.sort_by),
-            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition" %>
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" %>
     </div>
   </div>
 
@@ -49,12 +50,12 @@
     <%= number_field_tag "report[config][filters][min_matches]",
           report.filters.dig("min_matches"),
           min: 0, step: 1,
-          class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition",
+          class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition",
           placeholder: "0" %>
   </div>
 
   <div class="flex items-center gap-3 pt-2">
-    <%= f.submit report.persisted? ? "Update Report" : "Create Report", class: "px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg transition cursor-pointer" %>
+    <%= f.submit report.persisted? ? "Update Report" : "Create Report", class: "px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-medium rounded-lg transition cursor-pointer" %>
     <%= link_to "Cancel", (report.persisted? ? report_path(report) : reports_path), class: "px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg transition" %>
   </div>
 <% end %>

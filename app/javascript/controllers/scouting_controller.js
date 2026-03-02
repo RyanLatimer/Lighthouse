@@ -100,11 +100,11 @@ export default class extends Controller {
     this.element.querySelectorAll("[data-climb-card]").forEach(card => {
       const isSelected = card.dataset.level === level
       card.classList.toggle("ring-2", isSelected)
-      card.classList.toggle("ring-emerald-400", isSelected)
-      card.classList.toggle("bg-emerald-500/15", isSelected)
-      card.classList.toggle("border-emerald-500", isSelected)
+      card.classList.toggle("ring-orange-400", isSelected)
+      card.classList.toggle("bg-orange-500/15", isSelected)
+      card.classList.toggle("border-orange-500", isSelected)
       card.classList.toggle("shadow-lg", isSelected)
-      card.classList.toggle("shadow-emerald-500/10", isSelected)
+      card.classList.toggle("shadow-orange-500/10", isSelected)
       card.classList.toggle("scale-[1.02]", isSelected)
       card.classList.toggle("bg-gray-800", !isSelected)
       card.classList.toggle("border-gray-700", !isSelected)
@@ -112,7 +112,7 @@ export default class extends Controller {
       // Update text color
       const label = card.querySelector("p:first-child")
       if (label) {
-        label.classList.toggle("text-emerald-400", isSelected)
+        label.classList.toggle("text-orange-400", isSelected)
         label.classList.toggle("text-gray-300", !isSelected)
       }
 
@@ -128,21 +128,30 @@ export default class extends Controller {
   addAutonAction(event) {
     // Bug fix: use dataset.actionName, not dataset.action (which returns the Stimulus action string)
     const actionName = event.currentTarget.dataset.actionName
-    this.#addAutonActionEntry(actionName)
     this.#haptic()
 
     // Toggle the pill visual state
     const pill = event.currentTarget
-    const isActive = pill.classList.contains("bg-emerald-500/15")
+    const isActive = pill.classList.contains("bg-orange-500/15")
 
     if (!isActive) {
-      // Activate the pill
+      // Activate the pill and add to data
+      this.#addAutonActionEntry(actionName)
       pill.classList.remove("bg-gray-800", "border-gray-700", "text-gray-400")
-      pill.classList.add("bg-emerald-500/15", "border-emerald-500/50", "text-emerald-400")
+      pill.classList.add("bg-orange-500/15", "border-orange-500/50", "text-orange-400")
 
       // Show checkmark
       const checkIcon = pill.querySelector("[data-check-icon]")
       if (checkIcon) checkIcon.classList.remove("hidden")
+    } else {
+      // Deactivate the pill and remove from data
+      this.#removeAutonActionEntry(actionName)
+      pill.classList.remove("bg-orange-500/15", "border-orange-500/50", "text-orange-400")
+      pill.classList.add("bg-gray-800", "border-gray-700", "text-gray-400")
+
+      // Hide checkmark
+      const checkIcon = pill.querySelector("[data-check-icon]")
+      if (checkIcon) checkIcon.classList.add("hidden")
     }
   }
 
@@ -157,10 +166,10 @@ export default class extends Controller {
       btn.setAttribute("aria-selected", isActive)
 
       if (isActive) {
-        btn.classList.add("bg-emerald-500/15", "text-emerald-400", "shadow-sm")
+        btn.classList.add("bg-orange-500/15", "text-orange-400", "shadow-sm")
         btn.classList.remove("text-gray-400", "hover:text-gray-300", "hover:bg-gray-700/50")
       } else {
-        btn.classList.remove("bg-emerald-500/15", "text-emerald-400", "shadow-sm")
+        btn.classList.remove("bg-orange-500/15", "text-orange-400", "shadow-sm")
         btn.classList.add("text-gray-400", "hover:text-gray-300", "hover:bg-gray-700/50")
       }
     })
@@ -331,6 +340,13 @@ export default class extends Controller {
     })
   }
 
+  #removeAutonActionEntry(action) {
+    const index = this.autonActions.findLastIndex(e => e.action === action)
+    if (index !== -1) {
+      this.autonActions.splice(index, 1)
+    }
+  }
+
   #setTargetText(name, value) {
     const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1)
     if (this[`has${capitalizedName}Target`]) {
@@ -379,15 +395,15 @@ export default class extends Controller {
     target.setAttribute("aria-checked", this.autonClimbValue)
 
     if (this.autonClimbValue) {
-      target.classList.add("ring-2", "ring-emerald-400", "bg-emerald-900/50")
-      if (track) track.classList.replace("bg-gray-700", "bg-emerald-500")
+      target.classList.add("ring-2", "ring-orange-400", "bg-orange-900/50")
+      if (track) track.classList.replace("bg-gray-700", "bg-orange-500")
       if (knob) {
         knob.style.left = "auto"
         knob.style.right = "4px"
       }
     } else {
-      target.classList.remove("ring-2", "ring-emerald-400", "bg-emerald-900/50")
-      if (track) track.classList.replace("bg-emerald-500", "bg-gray-700")
+      target.classList.remove("ring-2", "ring-orange-400", "bg-orange-900/50")
+      if (track) track.classList.replace("bg-orange-500", "bg-gray-700")
       if (knob) {
         knob.style.left = "4px"
         knob.style.right = "auto"

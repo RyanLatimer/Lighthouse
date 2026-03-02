@@ -10,7 +10,7 @@
     <% end %>
     <div>
       <h1 class="text-2xl font-bold text-white">
-        <span class="text-emerald-400 font-mono"><%= @team.team_number %></span>
+        <span class="text-orange-400 font-mono"><%= @team.team_number %></span>
         <% if @team.nickname.present? %>
           <span class="text-gray-400 font-normal text-lg ml-1"><%= @team.nickname %></span>
         <% end %>
@@ -28,7 +28,7 @@
   <% if @summary %>
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
       <div class="stat-card group text-center">
-        <p class="text-3xl font-bold text-emerald-400 font-mono"><%= @summary.avg_total_points.to_f.round(1) %></p>
+        <p class="text-3xl font-bold text-orange-400 font-mono"><%= @summary.avg_total_points.to_f.round(1) %></p>
         <p class="text-xs text-gray-400 mt-1 font-medium">Avg Points</p>
       </div>
       <div class="stat-card group text-center">
@@ -55,7 +55,7 @@
         <div aria-label="Donut chart showing fuel accuracy: <%= accuracy %>% made">
           <%= pie_chart({ "Made" => made, "Missed" => missed },
                          donut: true,
-                         colors: ["#10b981", "#ef4444"],
+                         colors: ["#f97316", "#ef4444"],
                          library: {
                            plugins: {
                              legend: { labels: { color: "#9ca3af" } }
@@ -71,10 +71,10 @@
           <div>
             <div class="flex items-center justify-between text-sm mb-1">
               <span class="text-gray-400">Avg Fuel Made</span>
-              <span class="font-mono text-emerald-400 font-semibold"><%= made %></span>
+              <span class="font-mono text-orange-400 font-semibold"><%= made %></span>
             </div>
             <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden" role="progressbar" aria-label="Average fuel made: <%= made %>">
-              <div class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: <%= (made.to_f / max_fuel * 100).round(0) %>%"></div>
+              <div class="h-full bg-orange-500 rounded-full transition-all duration-500" style="width: <%= (made.to_f / max_fuel * 100).round(0) %>%"></div>
             </div>
           </div>
           <div>
@@ -121,7 +121,7 @@
     <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-6 mb-6">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-semibold text-white">Pit Scouting</h3>
-        <%= link_to "View Full", pit_scouting_entry_path(@pit_entry), class: "text-sm text-emerald-400 hover:text-emerald-300 transition" %>
+        <%= link_to "View Full", pit_scouting_entry_path(@pit_entry), class: "text-sm text-orange-400 hover:text-orange-300 transition" %>
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
@@ -154,7 +154,7 @@
           <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Mechanisms</p>
           <div class="flex flex-wrap gap-1.5">
             <% @pit_entry.mechanisms.each do |mech| %>
-              <span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-xs rounded-md border border-emerald-500/20"><%= mech %></span>
+              <span class="px-2 py-1 bg-orange-500/10 text-orange-400 text-xs rounded-md border border-orange-500/20"><%= mech %></span>
             <% end %>
           </div>
         </div>
@@ -175,7 +175,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
           <% if @pit_entry.strengths.present? %>
             <div class="bg-gray-800 rounded-lg p-3">
-              <p class="text-xs text-emerald-400 uppercase tracking-wider mb-1">Strengths</p>
+              <p class="text-xs text-orange-400 uppercase tracking-wider mb-1">Strengths</p>
               <p class="text-sm text-gray-300"><%= @pit_entry.strengths %></p>
             </div>
           <% end %>
@@ -191,7 +191,7 @@
   <% else %>
     <div class="bg-gray-900 border border-gray-800 border-dashed rounded-xl p-6 mb-6 text-center">
       <p class="text-gray-500 text-sm mb-2">No pit scouting data for this team yet.</p>
-      <%= link_to "Scout This Team's Pit", new_pit_scouting_entry_path(frc_team_id: @team.id), class: "text-sm text-emerald-400 hover:text-emerald-300 transition" %>
+      <%= link_to "Scout This Team's Pit", new_pit_scouting_entry_path(frc_team_id: @team.id), class: "text-sm text-orange-400 hover:text-orange-300 transition" %>
     </div>
   <% end %>
 
@@ -205,14 +205,14 @@
       end %>
       <div aria-label="Line chart showing points scored over matches">
         <%= line_chart chart_data,
-                       colors: ["#10b981"],
+                       colors: ["#f97316"],
                        library: {
                          scales: {
                            x: { ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" } },
                            y: { ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" }, beginAtZero: true }
                          },
                          plugins: { legend: { display: false } },
-                         elements: { point: { radius: 5, backgroundColor: "#10b981" } }
+                         elements: { point: { radius: 5, backgroundColor: "#f97316" } }
                        } %>
       </div>
     </div>
@@ -240,12 +240,12 @@
             <% @entries.each do |entry| %>
               <tr>
                 <td>
-                  <%= link_to scouting_entry_path(entry), class: "text-white hover:text-emerald-400 transition-colors duration-150 font-medium rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" do %>
+                  <%= link_to scouting_entry_path(entry), class: "text-white hover:text-orange-400 transition-colors duration-150 font-medium rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500" do %>
                     <%= entry.match&.display_name || "---" %>
                   <% end %>
                 </td>
                 <td class="text-gray-400"><%= entry.user.full_name %></td>
-                <td class="text-right font-mono text-emerald-400"><%= entry.total_fuel_made %></td>
+                <td class="text-right font-mono text-orange-400"><%= entry.total_fuel_made %></td>
                 <td class="text-right font-mono text-red-400"><%= entry.total_fuel_missed %></td>
                 <td class="text-right font-mono text-gray-300 hidden sm:table-cell"><%= entry.data&.dig("endgame_climb") || "None" %></td>
                 <td class="text-right font-mono font-bold text-white"><%= entry.total_points %></td>
@@ -260,7 +260,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
         <p class="text-gray-500 text-sm font-medium mb-1">No scouting entries for this team yet</p>
-        <%= link_to "Scout This Team", new_scouting_entry_path, class: "text-sm text-emerald-400 hover:text-emerald-300 transition-colors duration-150 font-medium" %>
+        <%= link_to "Scout This Team", new_scouting_entry_path, class: "text-sm text-orange-400 hover:text-orange-300 transition-colors duration-150 font-medium" %>
       </div>
     <% end %>
   </div>

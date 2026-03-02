@@ -17,8 +17,8 @@
     <%# Teams Scouted %>
     <div class="stat-card group">
       <div class="flex items-center gap-2 mb-2">
-        <div class="stat-card-icon bg-emerald-500/20">
-          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="stat-card-icon bg-orange-500/20">
+          <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         </div>
@@ -79,7 +79,7 @@
     <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-5">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-sm font-semibold text-white uppercase tracking-wider">Pit Scouting Progress</h2>
-        <%= link_to "View All", pit_scouting_entries_path, class: "text-xs text-emerald-400 hover:text-emerald-300 transition" %>
+        <%= link_to "View All", pit_scouting_entries_path, class: "text-xs text-orange-400 hover:text-orange-300 transition" %>
       </div>
       <% pit_pct = @total_teams_at_event > 0 ? (@pit_scouted_count.to_f / @total_teams_at_event * 100).round(0) : 0 %>
       <div class="flex items-end gap-3 mb-3">
@@ -87,7 +87,7 @@
         <p class="text-sm text-gray-500 pb-1">/ <%= @total_teams_at_event %> teams</p>
       </div>
       <div class="w-full h-3 bg-gray-800 rounded-full overflow-hidden mb-2">
-        <div class="h-full rounded-full transition-all duration-500 <%= pit_pct == 100 ? 'bg-emerald-500' : 'bg-amber-500' %>" style="width: <%= pit_pct %>%"></div>
+        <div class="h-full rounded-full transition-all duration-500 <%= pit_pct == 100 ? 'bg-orange-500' : 'bg-amber-500' %>" style="width: <%= pit_pct %>%"></div>
       </div>
       <p class="text-xs text-gray-500"><%= pit_pct %>% complete &middot; <%= @total_teams_at_event - @pit_scouted_count %> remaining</p>
     </div>
@@ -97,8 +97,8 @@
       <h2 class="text-sm font-semibold text-white uppercase tracking-wider mb-3">Quick Actions</h2>
       <div class="grid grid-cols-2 gap-2">
         <%= link_to new_scouting_entry_path, class: "flex items-center gap-2 px-3 py-2.5 bg-gray-800 hover:bg-gray-700 rounded-lg transition group" do %>
-          <div class="w-7 h-7 bg-emerald-500/20 rounded-md flex items-center justify-center shrink-0">
-            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-7 h-7 bg-orange-500/20 rounded-md flex items-center justify-center shrink-0">
+            <svg class="w-3.5 h-3.5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
           </div>
@@ -142,7 +142,7 @@
           <% next unless scout %>
           <div class="flex items-center gap-3">
             <div class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
-              <span class="text-xs font-bold text-emerald-400"><%= scout.first_name[0] %><%= scout.last_name[0] %></span>
+              <span class="text-xs font-bold text-orange-400"><%= scout.first_name[0] %><%= scout.last_name[0] %></span>
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-white truncate"><%= scout.full_name %></p>
@@ -150,7 +150,7 @@
             <div class="flex items-center gap-2">
               <div class="w-24 h-2 bg-gray-800 rounded-full overflow-hidden">
                 <% max_count = @scout_activity.values.max %>
-                <div class="h-full bg-emerald-500 rounded-full" style="width: <%= (count.to_f / max_count * 100).round(0) %>%"></div>
+                <div class="h-full bg-orange-500 rounded-full" style="width: <%= (count.to_f / max_count * 100).round(0) %>%"></div>
               </div>
               <span class="text-sm font-mono text-gray-400 w-8 text-right"><%= count %></span>
             </div>
@@ -168,7 +168,7 @@
          @scoring_data.each { |score| bins["#{(score / 10).to_i * 10}-#{(score / 10).to_i * 10 + 9}"] += 1 }
          sorted_bins = bins.sort_by { |range, _| range.split("-").first.to_i }.to_h %>
       <%= column_chart sorted_bins,
-                       colors: ["#10b981"],
+                       colors: ["#f97316"],
                        xtitle: "Points Range",
                        ytitle: "Teams",
                        library: {
@@ -190,7 +190,7 @@
     <% if top_teams_data.any? %>
       <div aria-label="Bar chart showing top 10 teams by average points scored">
         <%= bar_chart top_teams_data,
-                      colors: ["#10b981"],
+                      colors: ["#f97316"],
                       library: {
                         scales: {
                           x: { ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" } },
@@ -213,7 +213,7 @@
   <div class="scout-card overflow-hidden mb-6">
     <div class="px-4 sm:px-6 py-4 border-b border-gray-800 flex items-center justify-between">
       <h2 class="text-lg font-semibold text-white">Team Rankings</h2>
-      <%= link_to "View All", teams_path, class: "text-sm text-emerald-400 hover:text-emerald-300 transition-colors duration-150 font-medium" %>
+      <%= link_to "View All", teams_path, class: "text-sm text-orange-400 hover:text-orange-300 transition-colors duration-150 font-medium" %>
     </div>
     <% if @team_summaries.any? %>
       <div class="overflow-x-auto">
@@ -233,16 +233,16 @@
               <tr>
                 <td class="text-gray-400 font-mono"><%= idx + 1 %></td>
                 <td>
-                  <%= link_to team_path(summary.frc_team), class: "hover:text-emerald-400 transition-colors duration-150 inline-flex items-center gap-1.5 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" do %>
+                  <%= link_to team_path(summary.frc_team), class: "hover:text-orange-400 transition-colors duration-150 inline-flex items-center gap-1.5 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500" do %>
                     <span class="font-semibold text-white"><%= summary.frc_team.team_number %></span>
                     <span class="text-gray-500 text-xs hidden sm:inline"><%= summary.frc_team.nickname %></span>
                   <% end %>
                 </td>
-                <td class="text-right font-mono text-emerald-400 hidden sm:table-cell"><%= summary.avg_total_points.to_f.round(1) %></td>
+                <td class="text-right font-mono text-orange-400 hidden sm:table-cell"><%= summary.avg_total_points.to_f.round(1) %></td>
                 <td class="text-right hidden sm:table-cell">
                   <div class="flex items-center justify-end gap-2">
                     <div class="w-16 h-1.5 bg-gray-800 rounded-full overflow-hidden" role="progressbar" aria-valuenow="<%= summary.fuel_accuracy_pct.to_f.round(0) %>" aria-valuemin="0" aria-valuemax="100" aria-label="<%= summary.fuel_accuracy_pct.to_f.round(0) %>% accuracy">
-                      <div class="h-full rounded-full transition-all duration-500 <%= summary.fuel_accuracy_pct.to_f >= 70 ? 'bg-emerald-500' : summary.fuel_accuracy_pct.to_f >= 40 ? 'bg-amber-500' : 'bg-red-500' %>" style="width: <%= summary.fuel_accuracy_pct.to_f.round(0) %>%"></div>
+                      <div class="h-full rounded-full transition-all duration-500 <%= summary.fuel_accuracy_pct.to_f >= 70 ? 'bg-orange-500' : summary.fuel_accuracy_pct.to_f >= 40 ? 'bg-amber-500' : 'bg-red-500' %>" style="width: <%= summary.fuel_accuracy_pct.to_f.round(0) %>%"></div>
                     </div>
                     <span class="text-xs font-mono text-gray-400"><%= summary.fuel_accuracy_pct.to_f.round(0) %>%</span>
                   </div>
@@ -269,7 +269,7 @@
   <div class="scout-card overflow-hidden">
     <div class="px-4 sm:px-6 py-4 border-b border-gray-800 flex items-center justify-between">
       <h2 class="text-lg font-semibold text-white">Recent Entries</h2>
-      <%= link_to "View All", scouting_entries_path, class: "text-sm text-emerald-400 hover:text-emerald-300 transition-colors duration-150 font-medium" %>
+      <%= link_to "View All", scouting_entries_path, class: "text-sm text-orange-400 hover:text-orange-300 transition-colors duration-150 font-medium" %>
     </div>
     <% if @recent_entries.any? %>
       <div class="divide-y divide-gray-800/50">
@@ -277,10 +277,10 @@
           <%= link_to scouting_entry_path(entry), class: "flex items-center justify-between px-4 sm:px-6 py-3 hover:bg-gray-800/30 transition-colors duration-150 group" do %>
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center group-hover:bg-gray-700/70 transition-colors duration-150">
-                <span class="text-sm font-bold text-emerald-400"><%= entry.frc_team.team_number %></span>
+                <span class="text-sm font-bold text-orange-400"><%= entry.frc_team.team_number %></span>
               </div>
               <div>
-                <p class="text-sm font-medium text-white group-hover:text-emerald-400 transition-colors duration-150">
+                <p class="text-sm font-medium text-white group-hover:text-orange-400 transition-colors duration-150">
                   Team <%= entry.frc_team.team_number %>
                   <% if entry.match %>
                     <span class="text-gray-600">&middot;</span>
@@ -294,7 +294,7 @@
               <div>
                 <p class="text-sm font-bold text-white font-mono"><%= entry.total_points %> pts</p>
                 <span class="<%= case entry.status
-                    when 'submitted' then 'badge-emerald'
+                    when 'submitted' then 'badge-orange'
                     when 'flagged' then 'badge-amber'
                     when 'rejected' then 'badge-red'
                     else 'badge-gray'
@@ -325,8 +325,8 @@
   <%# No Event Selected — Show Event Selector %>
   <div class="max-w-2xl mx-auto mt-8">
     <div class="text-center mb-8 animate-fade-in">
-      <div class="w-16 h-16 bg-emerald-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/10">
-        <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="w-16 h-16 bg-orange-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/10">
+        <svg class="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
         </svg>
       </div>

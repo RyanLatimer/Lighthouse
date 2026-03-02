@@ -19,7 +19,7 @@
   <%# Tier Legend %>
   <div class="flex items-center gap-4 mb-4 text-xs text-gray-500">
     <span class="flex items-center gap-1"><span class="w-2 h-2 bg-amber-400 rounded-full"></span> Tier 1 (Top 8)</span>
-    <span class="flex items-center gap-1"><span class="w-2 h-2 bg-emerald-400 rounded-full"></span> Tier 2 (9-16)</span>
+    <span class="flex items-center gap-1"><span class="w-2 h-2 bg-orange-400 rounded-full"></span> Tier 2 (9-16)</span>
     <span class="flex items-center gap-1"><span class="w-2 h-2 bg-blue-400 rounded-full"></span> Tier 3 (17-24)</span>
     <span class="flex items-center gap-1"><span class="w-2 h-2 bg-gray-500 rounded-full"></span> Tier 4 (25+)</span>
   </div>
@@ -39,7 +39,7 @@
           <% summary = summaries[team.id] %>
           <% tier_color = case idx
                           when 0..7 then "amber"
-                          when 8..15 then "emerald"
+                          when 8..15 then "orange"
                           when 16..23 then "blue"
                           else "gray"
                           end %>
@@ -58,7 +58,7 @@
             <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold font-mono shrink-0
               <%= case tier_color
                   when 'amber' then 'bg-amber-500/20 border border-amber-500/30 text-amber-400'
-                  when 'emerald' then 'bg-emerald-500/20 border border-emerald-500/30 text-emerald-400'
+                  when 'orange' then 'bg-orange-500/20 border border-orange-500/30 text-orange-400'
                   when 'blue' then 'bg-blue-500/20 border border-blue-500/30 text-blue-400'
                   else 'bg-gray-500/20 border border-gray-500/30 text-gray-400'
                   end %>"
@@ -68,7 +68,7 @@
             <%# Team info %>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
-                <span class="font-bold text-emerald-400 font-mono"><%= team.team_number %></span>
+                <span class="font-bold text-orange-400 font-mono"><%= team.team_number %></span>
                 <span class="text-gray-400 text-sm truncate"><%= team.nickname %></span>
               </div>
               <% if summary %>
@@ -89,7 +89,7 @@
               </div>
             <% end %>
             <%# View link %>
-            <%= link_to team_path(team), class: "text-gray-600 hover:text-gray-400 transition-colors duration-150 shrink-0 p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500", "aria-label": "View team #{team.team_number}" do %>
+            <%= link_to team_path(team), class: "text-gray-600 hover:text-gray-400 transition-colors duration-150 shrink-0 p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500", "aria-label": "View team #{team.team_number}" do %>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>

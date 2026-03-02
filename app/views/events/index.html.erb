@@ -18,7 +18,7 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
   <% @events.each do |event| %>
     <article class="scout-card-hover overflow-hidden
-      <%= 'ring-2 ring-emerald-500/50 border-emerald-500/30' if current_event&.id == event.id %>">
+      <%= 'ring-2 ring-orange-500/50 border-orange-500/30' if current_event&.id == event.id %>">
       <div class="p-5">
         <div class="flex items-start justify-between mb-3">
           <div class="flex-1 min-w-0">
@@ -28,7 +28,7 @@
             </p>
           </div>
           <% if current_event&.id == event.id %>
-            <span class="badge-emerald shrink-0 ml-2">Active</span>
+            <span class="badge-orange shrink-0 ml-2">Active</span>
           <% end %>
         </div>
 
