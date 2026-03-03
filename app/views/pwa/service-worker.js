@@ -1,4 +1,4 @@
-const CACHE_VERSION = "lighthouse-v2"
+const CACHE_VERSION = "lighthouse-v3"
 
 const PRECACHE_URLS = [
   "/",
@@ -9,6 +9,8 @@ const DB_NAME = "lighthouse"
 const DB_VERSION = 2
 const SCOUTING_STORE = "offline_entries"
 const PIT_STORE = "offline_pit_entries"
+const MAX_SYNC_RETRIES = 3
+const RETRY_DELAYS = [1000, 5000, 15000]
 
 // --- Install: precache core shell ---
 
@@ -99,7 +101,7 @@ async function staleWhileRevalidate(request) {
 
   const fetchPromise = fetch(request).then((response) => {
     if (response.ok) {
-      const cache = caches.open(CACHE_VERSION).then((c) => c.put(request, response.clone()))
+      caches.open(CACHE_VERSION).then((c) => c.put(request, response.clone()))
     }
     return response
   }).catch(() => null)
@@ -162,24 +164,45 @@ async function syncOfflineEntries(storeName, syncUrl) {
 
     db.close()
 
-    if (entries.length === 0) return
+    // Filter out entries already marked as permanently failed
+    const toSync = entries.filter((e) => !e._syncFailed)
+    if (toSync.length === 0) return
 
-    const response = await fetch(syncUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify({ entries })
+    // Notify clients that sync is starting
+    await notifyClients({
+      type: "sync-progress",
+      store: storeName,
+      phase: "start",
+      total: toSync.length
     })
 
-    if (!response.ok) return
+    // Attempt sync with retries
+    const response = await fetchWithRetry(syncUrl, toSync)
+
+    if (!response) {
+      await notifyClients({
+        type: "sync-progress",
+        store: storeName,
+        phase: "error",
+        total: toSync.length,
+        message: "Network request failed after retries"
+      })
+      return
+    }
 
     const result = await response.json()
-    const syncedUuids = result.results
-      .filter((r) => r.status === "created" || r.status === "existing")
-      .map((r) => r.client_uuid)
+    const syncedUuids = []
+    const failedEntries = []
 
+    for (const r of result.results) {
+      if (r.status === "created" || r.status === "existing") {
+        syncedUuids.push(r.client_uuid)
+      } else if (r.status === "error") {
+        failedEntries.push({ uuid: r.client_uuid, errors: r.errors })
+      }
+    }
+
+    // Remove successfully synced entries from IndexedDB
     if (syncedUuids.length > 0) {
       const deleteDb = await openDB()
       const deleteTx = deleteDb.transaction(storeName, "readwrite")
@@ -197,13 +220,91 @@ async function syncOfflineEntries(storeName, syncUrl) {
       deleteDb.close()
     }
 
-    // Notify any open clients
-    const clients = await self.clients.matchAll()
-    for (const client of clients) {
-      client.postMessage({ type: "sync-complete", store: storeName, count: syncedUuids.length })
+    // Mark permanently failed entries
+    if (failedEntries.length > 0) {
+      const failDb = await openDB()
+      const failTx = failDb.transaction(storeName, "readwrite")
+      const failStore = failTx.objectStore(storeName)
+
+      for (const { uuid, errors } of failedEntries) {
+        const getReq = failStore.get(uuid)
+        getReq.onsuccess = () => {
+          const entry = getReq.result
+          if (entry) {
+            entry._syncFailed = true
+            entry._syncErrors = errors || ["Unknown error"]
+            entry._failedAt = new Date().toISOString()
+            failStore.put(entry)
+          }
+        }
+      }
+
+      await new Promise((resolve, reject) => {
+        failTx.oncomplete = resolve
+        failTx.onerror = () => reject(failTx.error)
+      })
+
+      failDb.close()
     }
+
+    // Notify clients of completion
+    await notifyClients({
+      type: "sync-complete",
+      store: storeName,
+      synced: syncedUuids.length,
+      failed: failedEntries.length,
+      total: toSync.length
+    })
   } catch (error) {
     console.error("[Lighthouse SW] Background sync failed:", error)
+    await notifyClients({
+      type: "sync-progress",
+      store: storeName,
+      phase: "error",
+      message: error.message
+    })
+  }
+}
+
+async function fetchWithRetry(url, entries) {
+  for (let attempt = 0; attempt < MAX_SYNC_RETRIES; attempt++) {
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ entries })
+      })
+
+      if (response.ok) return response
+
+      // 4xx errors are not retryable
+      if (response.status >= 400 && response.status < 500) {
+        console.error(`[Lighthouse SW] Sync returned ${response.status}, not retrying`)
+        return null
+      }
+
+      console.warn(`[Lighthouse SW] Sync attempt ${attempt + 1} failed: ${response.status}`)
+    } catch (error) {
+      console.warn(`[Lighthouse SW] Sync attempt ${attempt + 1} network error:`, error)
+    }
+
+    // Wait before retrying (unless last attempt)
+    if (attempt < MAX_SYNC_RETRIES - 1) {
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS[attempt]))
+    }
+  }
+
+  console.error("[Lighthouse SW] All sync retries exhausted")
+  return null
+}
+
+async function notifyClients(message) {
+  const clients = await self.clients.matchAll()
+  for (const client of clients) {
+    client.postMessage(message)
   }
 }
 

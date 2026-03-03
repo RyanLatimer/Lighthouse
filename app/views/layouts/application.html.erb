@@ -36,13 +36,36 @@
 
     <%# Offline / sync indicator %>
     <div data-controller="connectivity">
-      <div data-connectivity-target="banner" class="hidden fixed top-14 left-0 right-0 z-40 bg-amber-600/90 backdrop-blur-sm text-white text-xs text-center py-1.5 px-4 flex items-center justify-center gap-3">
-        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728M5.636 5.636a9 9 0 000 12.728" />
-        </svg>
-        <span data-connectivity-target="status">You are offline</span>
-        <span data-connectivity-target="queueCount" class="hidden bg-white/20 px-1.5 py-0.5 rounded-full text-[10px] font-bold"></span>
-        <button data-action="connectivity#retrySync" class="ml-2 underline hover:no-underline text-white/80 hover:text-white">Retry</button>
+      <div data-connectivity-target="banner" class="hidden fixed top-14 left-0 right-0 z-40 bg-amber-600/90 backdrop-blur-sm text-white text-xs px-4 py-1.5">
+        <%# Status row %>
+        <div class="flex items-center justify-center gap-3">
+          <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728M5.636 5.636a9 9 0 000 12.728" />
+          </svg>
+          <span data-connectivity-target="status">You are offline</span>
+          <span data-connectivity-target="queueCount" class="hidden bg-white/20 px-1.5 py-0.5 rounded-full text-[10px] font-bold"></span>
+          <button data-action="connectivity#retrySync" class="ml-1 underline hover:no-underline text-white/80 hover:text-white">Retry</button>
+          <button data-action="connectivity#toggleDetails" class="ml-1 underline hover:no-underline text-white/60 hover:text-white">Details</button>
+        </div>
+
+        <%# Progress bar (shown during sync) %>
+        <div data-connectivity-target="progress" class="hidden mt-1.5">
+          <div class="w-full bg-white/20 rounded-full h-1">
+            <div data-connectivity-target="progressBar" class="bg-white h-1 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <span data-connectivity-target="progressText" class="text-[10px] text-white/70 mt-0.5 block text-center"></span>
+        </div>
+
+        <%# Expandable details panel %>
+        <div data-connectivity-target="details" class="hidden mt-2 bg-gray-900/95 rounded-lg p-3 text-gray-300 max-h-48 overflow-y-auto">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Queued Entries</span>
+            <button data-action="connectivity#clearFailed" class="text-[10px] text-red-400 hover:text-red-300 underline">Clear failed</button>
+          </div>
+          <ul data-connectivity-target="detailsList" class="space-y-0">
+            <li class="text-xs text-gray-500 py-2 text-center">No queued entries</li>
+          </ul>
+        </div>
       </div>
     </div>
 

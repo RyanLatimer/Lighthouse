@@ -289,8 +289,9 @@ export default class extends Controller {
 
       db.close()
 
-      // Notify the user
+      // Notify the user and update the connectivity banner
       this.#showOfflineConfirmation()
+      window.dispatchEvent(new CustomEvent("lighthouse:entry-queued"))
     } catch (error) {
       console.error("[Lighthouse] Failed to save offline entry:", error)
       alert("Failed to save entry offline. Please try again.")

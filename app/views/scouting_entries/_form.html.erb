@@ -25,6 +25,7 @@
 
   <%# UUID for offline sync %>
   <%= f.hidden_field :client_uuid, value: scouting_entry.client_uuid || SecureRandom.uuid %>
+  <%= hidden_field_tag "scouting_entry[event_id]", scouting_entry.event_id || current_event&.id %>
 
   <%# Hidden field that receives the JSON payload on submit %>
   <%= f.hidden_field "data[_json]", value: "", data: { scouting_target: "dataField" } %>
