@@ -64,7 +64,7 @@ production:
     <<: *primary_production
     database: lighthouse_production_cache
     migrations_paths: db/cache_migrate
-    schema_dump: cache_structure.sql
+    schema_dump: cache_schema.rb
   queue:
     <<: *primary_production
     database: lighthouse_production_queue
