@@ -1,0 +1,26 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type 'deploy' to confirm"
+        required: true
+        type: string
+
+# Only run after CI passes on master
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/master' && github.event.inputs.confirm == 'deploy'
+    runs-on: self-hosted
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Deploy
+        run: bin/deploy --local
+        env:
+          COMPOSE_DOCKER_CLI_BUILD: "1"
+          DOCKER_BUILDKIT: "1"

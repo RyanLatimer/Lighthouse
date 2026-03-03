@@ -6,6 +6,7 @@
 
 # Ignore all environment files (contain secrets).
 /.env*
+!/.env*.example
 
 # Ignore all logfiles and tempfiles.
 /log/*

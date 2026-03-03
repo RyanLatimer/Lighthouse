@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      POSTGRES_USER: lighthouse
+      POSTGRES_PASSWORD: ${LIGHTHOUSE_DATABASE_PASSWORD}
+      POSTGRES_DB: lighthouse_production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./bin/create-databases.sh:/docker-entrypoint-initdb.d/create-databases.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lighthouse -d lighthouse_production"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    # Only accessible from other containers, not the host network
+    expose:
+      - "5432"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env.production
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:3000:80"
+    environment:
+      RAILS_ENV: production
+      DB_HOST: db
+      DB_PORT: "5432"
+      SOLID_QUEUE_IN_PUMA: "true"
+      RAILS_LOG_LEVEL: info
+      RAILS_SERVE_STATIC_FILES: "true"
+      WEB_CONCURRENCY: "2"
+      RAILS_MAX_THREADS: "3"
+    volumes:
+      - rails_storage:/rails/storage
+
+volumes:
+  postgres_data:
+  rails_storage:

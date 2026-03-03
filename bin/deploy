@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Deploy Lighthouse to the Raspberry Pi.
+#
+# Usage:
+#   bin/deploy                    # Deploy from local machine via SSH
+#   bin/deploy --local            # Run directly on the Pi itself
+#
+# Prerequisites:
+#   - SSH access to the Pi (key-based auth recommended)
+#   - Set PI_HOST env var or edit the default below
+#   - .env.production must exist on the Pi at ~/lighthouse/.env.production
+
+PI_HOST="${PI_HOST:-pi@lighthouse-pi}"
+REMOTE_DIR="${REMOTE_DIR:-~/lighthouse}"
+
+deploy_remote() {
+  echo "==> Deploying to ${PI_HOST}:${REMOTE_DIR}..."
+
+  ssh "$PI_HOST" bash -s "$REMOTE_DIR" <<'DEPLOY_SCRIPT'
+    set -euo pipefail
+    REMOTE_DIR="$1"
+    cd "$REMOTE_DIR"
+
+    echo "==> Pulling latest code..."
+    git pull --ff-only origin master
+
+    echo "==> Building Docker image (this may take a few minutes on the Pi)..."
+    docker compose -f docker-compose.prod.yml build
+
+    echo "==> Starting/updating services..."
+    docker compose -f docker-compose.prod.yml up -d
+
+    echo "==> Waiting for health check..."
+    for i in $(seq 1 30); do
+      if curl -sf http://127.0.0.1:3000/up > /dev/null 2>&1; then
+        echo "==> App is healthy!"
+        exit 0
+      fi
+      sleep 2
+    done
+
+    echo "==> WARNING: Health check did not pass within 60 seconds."
+    echo "==> Check logs with: docker compose -f docker-compose.prod.yml logs web"
+    exit 1
+DEPLOY_SCRIPT
+}
+
+deploy_local() {
+  echo "==> Deploying locally..."
+
+  echo "==> Pulling latest code..."
+  git pull --ff-only origin master
+
+  echo "==> Building Docker image..."
+  docker compose -f docker-compose.prod.yml build
+
+  echo "==> Starting/updating services..."
+  docker compose -f docker-compose.prod.yml up -d
+
+  echo "==> Waiting for health check..."
+  for i in $(seq 1 30); do
+    if curl -sf http://127.0.0.1:3000/up > /dev/null 2>&1; then
+      echo "==> App is healthy!"
+      exit 0
+    fi
+    sleep 2
+  done
+
+  echo "==> WARNING: Health check did not pass within 60 seconds."
+  echo "==> Check logs with: docker compose -f docker-compose.prod.yml logs web"
+  exit 1
+}
+
+case "${1:-}" in
+  --local)
+    deploy_local
+    ;;
+  *)
+    deploy_remote
+    ;;
+esac

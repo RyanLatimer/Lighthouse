@@ -1,24 +1,21 @@
-# Name of your application. Used to uniquely configure containers.
+# Kamal deployment configuration (not currently used).
+# Lighthouse is deployed via Docker Compose on a Raspberry Pi.
+# See docker-compose.prod.yml and bin/deploy for the active deployment setup.
+#
+# To switch to Kamal in the future, update the placeholders below and run:
+#   kamal setup
+#
 service: lighthouse
+image: ghcr.io/ryanlatimer/lighthouse
 
-# Name of the container image.
-image: your-dockerhub-user/lighthouse
-
-# Deploy to these servers (replace with your actual server IPs).
 servers:
   web:
-    - 192.168.0.1
-  job:
-    hosts:
-      - 192.168.0.1
-    cmd: bin/jobs
+    - YOUR_PI_TAILSCALE_IP
 
-# Enable SSL auto certification via Let's Encrypt.
 proxy:
   ssl: true
-  host: lighthouse.example.com
+  host: lighthouse.frc7790.com
 
-# Container registry (replace with your registry).
 registry:
   server: ghcr.io
   username:
@@ -26,7 +23,6 @@ registry:
   password:
     - KAMAL_REGISTRY_PASSWORD
 
-# Environment variables injected into containers.
 env:
   secret:
     - RAILS_MASTER_KEY
@@ -38,31 +34,26 @@ env:
     RAILS_LOG_LEVEL: info
     RAILS_SERVE_STATIC_FILES: true
     WEB_CONCURRENCY: 2
-    JOB_CONCURRENCY: 3
+    RAILS_MAX_THREADS: 3
 
-# Aliases for common commands.
 aliases:
   console: app exec --interactive --reuse "bin/rails console"
   shell: app exec --interactive --reuse "bash"
   logs: app logs -f
   dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
 
-# Persistent storage for Active Storage and SQLite-backed Solid services.
 volumes:
   - "lighthouse_storage:/rails/storage"
 
-# Bridge assets between deployments.
 asset_path: /rails/public/assets
 
-# Build configuration.
 builder:
-  arch: amd64
+  arch: arm64
 
-# PostgreSQL accessory.
 accessories:
   db:
-    image: postgres:18
-    host: 192.168.0.1
+    image: postgres:17
+    host: YOUR_PI_TAILSCALE_IP
     port: "127.0.0.1:5432:5432"
     env:
       clear:

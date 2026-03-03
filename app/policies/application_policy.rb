@@ -36,20 +36,28 @@ class ApplicationPolicy
 
   private
 
+  def current_organization
+    Current.organization
+  end
+
+  def membership
+    @membership ||= user.membership_for(current_organization)
+  end
+
   def admin?
-    user.has_role?(:admin)
+    membership&.at_least?("admin")
   end
 
   def lead?
-    user.has_role?(:lead)
+    membership&.at_least?("lead")
   end
 
   def analyst?
-    user.has_role?(:analyst)
+    membership&.at_least?("analyst")
   end
 
   def scout?
-    user.has_role?(:scout)
+    membership.present?
   end
 
   def admin_or_lead?
@@ -70,20 +78,28 @@ class ApplicationPolicy
 
     private
 
+    def current_organization
+      Current.organization
+    end
+
+    def membership
+      @membership ||= user.membership_for(current_organization)
+    end
+
     def admin?
-      user.has_role?(:admin)
+      membership&.at_least?("admin")
     end
 
     def lead?
-      user.has_role?(:lead)
+      membership&.at_least?("lead")
     end
 
     def analyst?
-      user.has_role?(:analyst)
+      membership&.at_least?("analyst")
     end
 
     def scout?
-      user.has_role?(:scout)
+      membership.present?
     end
 
     def admin_or_lead?

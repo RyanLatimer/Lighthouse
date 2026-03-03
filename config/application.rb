@@ -16,6 +16,10 @@ module Lighthouse
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
 
+    # Use structure.sql instead of schema.rb so PostgreSQL-specific objects
+    # (materialized views, custom indexes, etc.) are preserved across db:setup/reset.
+    config.active_record.schema_format = :sql
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
