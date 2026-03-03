@@ -40,32 +40,24 @@ export default class extends Controller {
   incrementMade(event) {
     const phase = event.currentTarget.dataset.phase
     this.#incrementValue(phase, "Made")
-    this.#haptic()
-    this.#pulseElement(event.currentTarget)
-    this.#bounceCounter(phase, "Made")
     this.updateDisplay()
   }
 
   incrementMissed(event) {
     const phase = event.currentTarget.dataset.phase
     this.#incrementValue(phase, "Missed")
-    this.#haptic()
-    this.#pulseElement(event.currentTarget)
-    this.#bounceCounter(phase, "Missed")
     this.updateDisplay()
   }
 
   undoMade(event) {
     const phase = event.currentTarget.dataset.phase
     this.#decrementValue(phase, "Made")
-    this.#haptic(20)
     this.updateDisplay()
   }
 
   undoMissed(event) {
     const phase = event.currentTarget.dataset.phase
     this.#decrementValue(phase, "Missed")
-    this.#haptic(20)
     this.updateDisplay()
   }
 
@@ -73,7 +65,6 @@ export default class extends Controller {
 
   toggleAutonClimb() {
     this.autonClimbValue = !this.autonClimbValue
-    this.#haptic()
     this.#updateToggleVisual()
     this.updateDisplay()
   }
@@ -81,7 +72,6 @@ export default class extends Controller {
   selectClimb(event) {
     const level = event.currentTarget.dataset.level
     this.endgameClimbValue = level
-    this.#haptic()
 
     // Highlight the selected card, deselect others
     this.element.querySelectorAll("[data-climb-card]").forEach(card => {
@@ -304,29 +294,6 @@ export default class extends Controller {
     if (this[`has${capitalizedName}Target`]) {
       const target = this[`${name}Target`]
       target.textContent = value
-    }
-  }
-
-  #haptic(duration = 30) {
-    if (navigator.vibrate) {
-      navigator.vibrate(duration)
-    }
-  }
-
-  #pulseElement(el) {
-    el.classList.add("scale-110")
-    setTimeout(() => el.classList.remove("scale-110"), 200)
-  }
-
-  #bounceCounter(phase, suffix) {
-    const targetName = `${phase}${suffix}`
-    const capitalizedName = targetName.charAt(0).toUpperCase() + targetName.slice(1)
-    if (this[`has${capitalizedName}Target`]) {
-      const target = this[`${targetName}Target`]
-      target.classList.add("animate-bounce-number")
-      target.addEventListener("animationend", () => {
-        target.classList.remove("animate-bounce-number")
-      }, { once: true })
     }
   }
 
