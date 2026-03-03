@@ -3,8 +3,6 @@ module Api
     class PitScoutingEntriesController < ActionController::API
       include ApiAuthenticatable
 
-      skip_forgery_protection
-
       def create
         entry = PitScoutingEntry.from_offline_data(
           entry_params.merge(user_id: current_api_user.id)

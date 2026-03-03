@@ -1,4 +1,4 @@
-<%= form_with(model: pit_scouting_entry, class: "space-y-4") do |f| %>
+<%= form_with(model: pit_scouting_entry, class: "space-y-4", data: { controller: "pit-scouting", action: "submit->pit-scouting#submitForm" }) do |f| %>
   <% if pit_scouting_entry.errors.any? %>
     <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
       <h3 class="text-sm font-semibold text-red-400 mb-2"><%= pluralize(pit_scouting_entry.errors.count, "error") %> prevented this entry from being saved:</h3>
@@ -11,6 +11,7 @@
   <% end %>
 
   <%= f.hidden_field :client_uuid, value: pit_scouting_entry.client_uuid || SecureRandom.uuid %>
+  <%= hidden_field_tag "pit_scouting_entry[event_id]", pit_scouting_entry.event_id || current_event&.id %>
 
   <% # Team selector %>
   <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">

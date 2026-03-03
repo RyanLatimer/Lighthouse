@@ -1,9 +1,13 @@
 import { Controller } from "@hotwired/stimulus"
 
 const DB_NAME = "lighthouse"
-const DB_VERSION = 1
-const STORE_NAME = "offline_entries"
-const SYNC_URL = "/api/v1/scouting_entries/bulk_sync"
+const DB_VERSION = 2
+const SCOUTING_STORE = "offline_entries"
+const PIT_STORE = "offline_pit_entries"
+const SCOUTING_SYNC_URL = "/api/v1/scouting_entries/bulk_sync"
+const PIT_SYNC_URL = "/api/v1/pit_scouting_entries/bulk_sync"
+const MAX_RETRIES = 3
+const RETRY_DELAYS = [1000, 5000, 15000]
 
 export default class extends Controller {
   connect() {
@@ -32,52 +36,25 @@ export default class extends Controller {
   async syncQueue() {
     if (!navigator.onLine) return
 
-    try {
-      const db = await this.#openDB()
-      const tx = db.transaction(STORE_NAME, "readonly")
-      const store = tx.objectStore(STORE_NAME)
+    let totalSynced = 0
+    let totalFailed = 0
 
-      const entries = await new Promise((resolve, reject) => {
-        const request = store.getAll()
-        request.onsuccess = () => resolve(request.result)
-        request.onerror = () => reject(request.error)
-      })
+    // Sync match scouting entries
+    const scoutingResult = await this.#syncStore(SCOUTING_STORE, SCOUTING_SYNC_URL)
+    totalSynced += scoutingResult.synced
+    totalFailed += scoutingResult.failed
 
-      db.close()
+    // Sync pit scouting entries
+    const pitResult = await this.#syncStore(PIT_STORE, PIT_SYNC_URL)
+    totalSynced += pitResult.synced
+    totalFailed += pitResult.failed
 
-      if (entries.length === 0) return
-
-      const csrfToken = document.querySelector("meta[name='csrf-token']")?.content
-
-      const response = await fetch(SYNC_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": csrfToken || "",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify({ entries })
-      })
-
-      if (!response.ok) {
-        throw new Error(`Sync failed: ${response.status}`)
-      }
-
-      const result = await response.json()
-
-      // Remove successfully synced entries from IndexedDB
-      const syncedUuids = result.results
-        .filter(r => r.status === "created" || r.status === "existing")
-        .map(r => r.client_uuid)
-
-      if (syncedUuids.length > 0) {
-        await this.#removeSyncedEntries(syncedUuids)
-      }
-
-      this.#showSyncBanner(syncedUuids.length)
-    } catch (error) {
-      console.error("[Lighthouse] Sync failed:", error)
+    if (totalSynced > 0 || totalFailed > 0) {
+      this.#showSyncBanner(totalSynced, totalFailed)
     }
+
+    // Dispatch event so connectivity controller can update counts
+    window.dispatchEvent(new CustomEvent("lighthouse:sync-complete"))
   }
 
   // --- Private ---
@@ -91,13 +68,124 @@ export default class extends Controller {
     this.element.classList.remove("hidden")
   }
 
+  async #syncStore(storeName, syncUrl) {
+    const result = { synced: 0, failed: 0 }
+
+    try {
+      const db = await this.#openDB()
+
+      if (!db.objectStoreNames.contains(storeName)) {
+        db.close()
+        return result
+      }
+
+      const tx = db.transaction(storeName, "readonly")
+      const store = tx.objectStore(storeName)
+
+      const entries = await new Promise((resolve, reject) => {
+        const request = store.getAll()
+        request.onsuccess = () => resolve(request.result)
+        request.onerror = () => reject(request.error)
+      })
+
+      db.close()
+
+      if (entries.length === 0) return result
+
+      // Separate entries that have already permanently failed from those to retry
+      const toSync = entries.filter(e => !e._syncFailed)
+      const alreadyFailed = entries.filter(e => e._syncFailed)
+      result.failed += alreadyFailed.length
+
+      if (toSync.length === 0) return result
+
+      const response = await this.#fetchWithRetry(syncUrl, toSync)
+
+      if (!response) {
+        result.failed += toSync.length
+        return result
+      }
+
+      const json = await response.json()
+      const syncedUuids = []
+      const failedUuids = []
+
+      for (const r of json.results) {
+        if (r.status === "created" || r.status === "existing") {
+          syncedUuids.push(r.client_uuid)
+        } else if (r.status === "error") {
+          failedUuids.push({ uuid: r.client_uuid, errors: r.errors })
+        }
+      }
+
+      // Remove successfully synced entries
+      if (syncedUuids.length > 0) {
+        await this.#removeSyncedEntries(storeName, syncedUuids)
+      }
+
+      // Mark permanently failed entries so they stop being retried
+      if (failedUuids.length > 0) {
+        await this.#markEntriesFailed(storeName, failedUuids)
+      }
+
+      result.synced = syncedUuids.length
+      result.failed += failedUuids.length
+    } catch (error) {
+      console.error(`[Lighthouse] Sync failed for ${storeName}:`, error)
+    }
+
+    return result
+  }
+
+  async #fetchWithRetry(url, entries) {
+    const csrfToken = document.querySelector("meta[name='csrf-token']")?.content
+
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrfToken || "",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({ entries })
+        })
+
+        if (response.ok) return response
+
+        // 4xx errors are not retryable (client error)
+        if (response.status >= 400 && response.status < 500) {
+          console.error(`[Lighthouse] Sync returned ${response.status}, not retrying`)
+          return null
+        }
+
+        // 5xx errors are retryable
+        console.warn(`[Lighthouse] Sync attempt ${attempt + 1} failed: ${response.status}`)
+      } catch (error) {
+        console.warn(`[Lighthouse] Sync attempt ${attempt + 1} network error:`, error)
+      }
+
+      // Wait before retrying (unless this was the last attempt)
+      if (attempt < MAX_RETRIES - 1) {
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAYS[attempt]))
+      }
+    }
+
+    console.error("[Lighthouse] All sync retries exhausted")
+    return null
+  }
+
   #openDB() {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, DB_VERSION)
       request.onupgradeneeded = (event) => {
         const db = event.target.result
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME, { keyPath: "client_uuid" })
+        if (!db.objectStoreNames.contains(SCOUTING_STORE)) {
+          db.createObjectStore(SCOUTING_STORE, { keyPath: "client_uuid" })
+        }
+        if (!db.objectStoreNames.contains(PIT_STORE)) {
+          db.createObjectStore(PIT_STORE, { keyPath: "client_uuid" })
         }
       }
       request.onsuccess = () => resolve(request.result)
@@ -105,10 +193,10 @@ export default class extends Controller {
     })
   }
 
-  async #removeSyncedEntries(uuids) {
+  async #removeSyncedEntries(storeName, uuids) {
     const db = await this.#openDB()
-    const tx = db.transaction(STORE_NAME, "readwrite")
-    const store = tx.objectStore(STORE_NAME)
+    const tx = db.transaction(storeName, "readwrite")
+    const store = tx.objectStore(storeName)
 
     for (const uuid of uuids) {
       store.delete(uuid)
@@ -122,18 +210,56 @@ export default class extends Controller {
     db.close()
   }
 
-  #showSyncBanner(count) {
-    if (count === 0) return
+  async #markEntriesFailed(storeName, failedEntries) {
+    try {
+      const db = await this.#openDB()
+      const tx = db.transaction(storeName, "readwrite")
+      const store = tx.objectStore(storeName)
 
+      for (const { uuid, errors } of failedEntries) {
+        const getReq = store.get(uuid)
+        getReq.onsuccess = () => {
+          const entry = getReq.result
+          if (entry) {
+            entry._syncFailed = true
+            entry._syncErrors = errors || ["Unknown error"]
+            entry._failedAt = new Date().toISOString()
+            store.put(entry)
+          }
+        }
+      }
+
+      await new Promise((resolve, reject) => {
+        tx.oncomplete = resolve
+        tx.onerror = () => reject(tx.error)
+      })
+
+      db.close()
+    } catch (error) {
+      console.error("[Lighthouse] Failed to mark entries as failed:", error)
+    }
+  }
+
+  #showSyncBanner(synced, failed) {
     const banner = document.createElement("div")
-    banner.className = "fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-orange-600 text-white px-6 py-3 rounded-lg shadow-lg font-medium"
-    banner.textContent = `Synced ${count} offline ${count === 1 ? "entry" : "entries"} successfully.`
+
+    if (failed > 0 && synced > 0) {
+      banner.className = "fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-amber-600 text-white px-6 py-3 rounded-lg shadow-lg font-medium"
+      banner.textContent = `Synced ${synced} ${synced === 1 ? "entry" : "entries"}. ${failed} failed — tap Retry to try again.`
+    } else if (failed > 0) {
+      banner.className = "fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg font-medium"
+      banner.textContent = `Sync failed for ${failed} ${failed === 1 ? "entry" : "entries"}. Tap Retry to try again.`
+    } else {
+      banner.className = "fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg font-medium"
+      banner.textContent = `Synced ${synced} offline ${synced === 1 ? "entry" : "entries"} successfully.`
+    }
+
     document.body.appendChild(banner)
 
     setTimeout(() => {
       banner.style.transition = "opacity 0.5s"
       banner.style.opacity = "0"
       setTimeout(() => banner.remove(), 500)
-    }, 4000)
+    }, 5000)
   }
 }

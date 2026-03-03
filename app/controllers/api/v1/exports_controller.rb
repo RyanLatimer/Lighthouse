@@ -3,8 +3,6 @@ module Api
     class ExportsController < ActionController::API
       include ApiAuthenticatable
 
-      skip_forgery_protection
-
       def scouting_data
         event = Event.find(params[:event_id])
         entries = ScoutingEntry.where(event: event).includes(:user, :frc_team, :match)

@@ -299,11 +299,14 @@ export default class extends Controller {
 
   #openDB() {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open("lighthouse", 1)
+      const request = indexedDB.open("lighthouse", 2)
       request.onupgradeneeded = (event) => {
         const db = event.target.result
         if (!db.objectStoreNames.contains("offline_entries")) {
           db.createObjectStore("offline_entries", { keyPath: "client_uuid" })
+        }
+        if (!db.objectStoreNames.contains("offline_pit_entries")) {
+          db.createObjectStore("offline_pit_entries", { keyPath: "client_uuid" })
         }
       }
       request.onsuccess = () => resolve(request.result)
