@@ -64,14 +64,14 @@ production:
     <<: *primary_production
     database: lighthouse_production_cache
     migrations_paths: db/cache_migrate
-    schema_dump: db/cache_structure.sql
+    schema_dump: cache_structure.sql
   queue:
     <<: *primary_production
     database: lighthouse_production_queue
     migrations_paths: db/queue_migrate
-    schema_dump: db/queue_schema.rb
+    schema_dump: queue_schema.rb
   cable:
     <<: *primary_production
     database: lighthouse_production_cable
     migrations_paths: db/cable_migrate
-    schema_dump: db/cable_schema.rb
+    schema_dump: cable_schema.rb
