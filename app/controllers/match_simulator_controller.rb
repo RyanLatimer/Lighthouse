@@ -17,9 +17,6 @@ class MatchSimulatorController < ApplicationController
     @red_teams = FrcTeam.where(id: red_team_ids)
     @blue_teams = FrcTeam.where(id: blue_team_ids)
 
-    @red_summaries = TeamEventSummary.where(event: current_event, frc_team_id: red_team_ids)
-    @blue_summaries = TeamEventSummary.where(event: current_event, frc_team_id: blue_team_ids)
-
     # Use Monte Carlo simulation instead of simple sum
     iterations = (params[:iterations] || 1000).to_i.clamp(100, 5000)
     simulator = MatchSimulatorService.new(current_event, statbotics: StatboticsClient.new)
@@ -30,6 +27,8 @@ class MatchSimulatorController < ApplicationController
     @red_win_pct = @simulation[:red_win_pct]
     @blue_win_pct = @simulation[:blue_win_pct]
     @margin = @simulation[:margin_of_victory]
+    @red_team_stats = @simulation[:red_team_stats]
+    @blue_team_stats = @simulation[:blue_team_stats]
 
     # Save simulation if requested
     if params[:save_simulation] == "1"

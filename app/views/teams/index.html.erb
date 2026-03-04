@@ -1,22 +1,12 @@
 <% content_for(:title) { "Teams - Lighthouse" } %>
 
-<div class="flex items-center justify-between mb-6">
-  <div>
-    <h1 class="text-2xl font-bold text-white">Team Rankings</h1>
-    <p class="text-sm text-gray-400 mt-1"><%= @teams.count %> teams at <%= current_event.name %></p>
-  </div>
-  <div class="flex items-center gap-2">
-    <%= link_to new_match_simulator_path, class: "btn-secondary" do %>
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-      <span class="hidden sm:inline ml-1">Simulate</span>
-    <% end %>
-  </div>
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-white">Team Rankings</h1>
+  <p class="text-sm text-gray-400 mt-1"><%= @teams.count %> teams at <%= current_event.name %></p>
 </div>
 
 <%# Search with Stimulus search controller %>
-<div class="mb-4" data-controller="search">
+<div class="mb-4" data-controller="search sortable-table">
   <div class="relative">
     <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -34,42 +24,52 @@
       <table class="data-table">
         <thead class="sticky top-0 bg-gray-900 z-10">
           <tr class="border-b border-gray-800">
-            <th scope="col" class="text-left">#</th>
-            <th scope="col" class="text-left">Team</th>
-            <th scope="col" class="text-right">Avg Pts</th>
-            <th scope="col" class="text-right hidden sm:table-cell">EPA</th>
-            <th scope="col" class="text-right hidden sm:table-cell">Accuracy</th>
-            <th scope="col" class="text-right hidden md:table-cell">Record</th>
-            <th scope="col" class="text-right hidden lg:table-cell">Std Dev</th>
-            <th scope="col" class="text-right">Scouted</th>
+            <th scope="col" class="text-left cursor-pointer select-none hover:text-orange-400 transition" data-col="0" data-action="click->sortable-table#sort">Rank<span data-sort-arrow class="text-orange-400 text-xs invisible"> ▲</span></th>
+            <th scope="col" class="text-left cursor-pointer select-none hover:text-orange-400 transition" data-col="1" data-action="click->sortable-table#sort">Team<span data-sort-arrow class="text-orange-400 text-xs invisible"> ▲</span></th>
+            <th scope="col" class="text-right cursor-pointer select-none hover:text-orange-400 transition" data-col="2" data-action="click->sortable-table#sort">Avg Pts<span data-sort-arrow class="text-orange-400 text-xs invisible"> ▲</span></th>
+            <th scope="col" class="text-right cursor-pointer select-none hover:text-orange-400 transition hidden sm:table-cell" data-col="3" data-action="click->sortable-table#sort">EPA<span data-sort-arrow class="text-orange-400 text-xs invisible"> ▲</span></th>
+            <th scope="col" class="text-right cursor-pointer select-none hover:text-orange-400 transition hidden sm:table-cell" data-col="4" data-action="click->sortable-table#sort">Accuracy<span data-sort-arrow class="text-orange-400 text-xs invisible"> ▲</span></th>
+            <th scope="col" class="text-right hidden md:table-cell cursor-pointer select-none hover:text-orange-400 transition" data-col="5" data-action="click->sortable-table#sort">Record<span data-sort-arrow class="text-orange-400 text-xs invisible"> ▲</span></th>
+            <th scope="col" class="text-right hidden md:table-cell cursor-pointer select-none hover:text-orange-400 transition" data-col="6" data-action="click->sortable-table#sort">RP Avg<span data-sort-arrow class="text-orange-400 text-xs invisible"> ▲</span></th>
+            <th scope="col" class="text-right hidden lg:table-cell cursor-pointer select-none hover:text-orange-400 transition" data-col="7" data-action="click->sortable-table#sort">Std Dev<span data-sort-arrow class="text-orange-400 text-xs invisible"> ▲</span></th>
+            <th scope="col" class="text-right cursor-pointer select-none hover:text-orange-400 transition" data-col="8" data-action="click->sortable-table#sort">Scouted<span data-sort-arrow class="text-orange-400 text-xs invisible"> ▲</span></th>
           </tr>
         </thead>
-        <tbody>
+        <tbody data-sortable-table-target="body">
           <% sorted_teams = @teams.sort_by { |t|
-            scouted = @summaries[t.id]&.avg_total_points.to_f || 0
-            epa = @statbotics_epa[t.id]&.epa_mean.to_f || 0
-            -(scouted > 0 ? scouted : epa)
+            @rankings.dig(t.team_number, :rank) || 9999
           } %>
-          <% sorted_teams.each_with_index do |team, idx| %>
+          <% sorted_teams.each do |team| %>
             <% summary = @summaries[team.id] %>
+            <% ranking = @rankings[team.team_number] %>
+            <% rank = ranking&.dig(:rank) %>
+            <% epa_data = @statbotics_epa[team.id] %>
+            <% avg_pts = summary&.avg_total_points.to_f %>
+            <% epa_val = epa_data&.epa_mean.to_f %>
+            <% acc = summary&.fuel_accuracy_pct.to_f.round(0) || 0 %>
+            <% qual_wins = epa_data&.qual_wins.to_i || 0 %>
+            <% qual_losses = epa_data&.qual_losses.to_i || 0 %>
+            <% qual_total = qual_wins + qual_losses %>
+            <% winrate = qual_total > 0 ? (qual_wins.to_f / qual_total * 100).round(0) : 0 %>
+            <% rp = ranking&.dig(:rp_avg) %>
+            <% stddev = summary&.stddev_total_points.to_f %>
+            <% scouted = summary&.matches_scouted || 0 %>
             <tr data-search-target="item"
                 data-search="<%= team.team_number %> <%= team.nickname&.downcase %>">
-              <td class="text-gray-400 font-mono text-xs"><%= idx + 1 %></td>
-              <td>
+              <td class="text-gray-400 font-mono text-xs" data-sort-value="<%= rank || 9999 %>"><%= rank || "—" %></td>
+              <td data-sort-value="<%= team.team_number %>">
                 <%= link_to team_path(team), class: "hover:text-orange-400 transition-colors duration-150 group inline-flex items-center gap-1.5 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500" do %>
                   <span class="font-bold text-white group-hover:text-orange-400"><%= team.team_number %></span>
                   <span class="text-gray-500 text-xs hidden sm:inline"><%= team.nickname %></span>
                 <% end %>
               </td>
-              <% epa_data = @statbotics_epa[team.id] %>
-              <td class="text-right">
-                <span class="font-mono font-bold text-orange-400"><%= summary&.avg_total_points.to_f.round(1) || "---" %></span>
+              <td class="text-right" data-sort-value="<%= avg_pts %>">
+                <span class="font-mono font-bold text-orange-400"><%= avg_pts.round(1) %></span>
               </td>
-              <td class="text-right hidden sm:table-cell">
-                <span class="font-mono font-semibold text-emerald-400"><%= epa_data ? epa_data.epa_mean.round(1) : "---" %></span>
+              <td class="text-right hidden sm:table-cell" data-sort-value="<%= epa_val %>">
+                <span class="font-mono font-semibold text-emerald-400"><%= epa_data ? epa_val.round(1) : "---" %></span>
               </td>
-              <td class="text-right hidden sm:table-cell">
-                <% acc = summary&.fuel_accuracy_pct.to_f.round(0) || 0 %>
+              <td class="text-right hidden sm:table-cell" data-sort-value="<%= acc %>">
                 <div class="flex items-center justify-end gap-2">
                   <div class="w-16 h-1.5 bg-gray-800 rounded-full overflow-hidden" role="progressbar" aria-valuenow="<%= acc %>" aria-valuemin="0" aria-valuemax="100" aria-label="<%= acc %>% accuracy">
                     <div class="h-full rounded-full transition-all duration-500
@@ -82,16 +82,19 @@
                   <span class="text-xs font-mono text-gray-400 w-8 text-right"><%= acc %>%</span>
                 </div>
               </td>
-              <td class="text-right hidden md:table-cell">
-                <% if epa_data %>
-                  <span class="font-mono text-gray-300"><%= epa_data.record %></span>
-                  <span class="text-xs text-gray-500 ml-1">(<%= (epa_data.winrate * 100).round(0) %>%)</span>
+              <td class="text-right hidden md:table-cell" data-sort-value="<%= winrate %>">
+                <% if qual_total > 0 %>
+                  <span class="font-mono text-gray-300"><%= epa_data.qual_record %></span>
+                  <span class="text-xs text-gray-500 ml-1">(<%= winrate %>%)</span>
                 <% else %>
                   <span class="font-mono text-gray-500">---</span>
                 <% end %>
               </td>
-              <td class="text-right font-mono text-gray-500 hidden lg:table-cell"><%= summary&.stddev_total_points.to_f.round(1) || "---" %></td>
-              <td class="text-right font-mono text-gray-400"><%= summary&.matches_scouted || 0 %></td>
+              <td class="text-right hidden md:table-cell" data-sort-value="<%= rp || 0 %>">
+                <span class="font-mono font-semibold <%= rp && rp >= 3.0 ? 'text-emerald-400' : rp && rp >= 2.0 ? 'text-amber-400' : 'text-gray-400' %>"><%= rp ? rp.round(2) : "---" %></span>
+              </td>
+              <td class="text-right font-mono text-gray-500 hidden lg:table-cell" data-sort-value="<%= stddev %>"><%= stddev.round(1) %></td>
+              <td class="text-right font-mono text-gray-400" data-sort-value="<%= scouted %>"><%= scouted %></td>
             </tr>
           <% end %>
         </tbody>

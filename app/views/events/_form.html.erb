@@ -49,13 +49,8 @@
       </div>
     </div>
   <% else %>
-    <%# New mode: just name, event code, and year — TBA fills the rest %>
+    <%# New mode: just event code and year — TBA fills the rest %>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div class="sm:col-span-2">
-        <%= f.label :name, class: "block text-sm font-medium text-gray-300 mb-1" %>
-        <%= f.text_field :name, class: "input-field", placeholder: "e.g. FIM District Traverse City Event" %>
-      </div>
-
       <div>
         <%= f.label :event_code, "Event Code", class: "block text-sm font-medium text-gray-300 mb-1" %>
         <%= f.text_field :event_code, class: "input-field font-mono", placeholder: "e.g. mitvc", value: params.dig(:event, :event_code) %>
@@ -67,7 +62,7 @@
       </div>
     </div>
 
-    <p class="text-xs text-gray-500">Event details (dates, location, type) will be fetched automatically from The Blue Alliance.</p>
+    <p class="text-xs text-gray-500">Event name and details will be fetched automatically from The Blue Alliance.</p>
   <% end %>
 
   <div class="flex items-center gap-3 pt-2">

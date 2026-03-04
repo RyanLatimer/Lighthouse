@@ -35,6 +35,7 @@ export default class extends Controller {
     this.updateDisplay()
     this.#initializeToggleState()
     this.#initializeTeamFilter()
+    this.#initializeMatchFilter()
     this.#cacheReferenceData()
   }
 
@@ -170,6 +171,10 @@ export default class extends Controller {
 
   matchChanged() {
     this.#filterTeams()
+  }
+
+  teamChanged() {
+    this.#filterMatches()
   }
 
   // --- Form submission ---
@@ -466,6 +471,80 @@ export default class extends Controller {
       select.value = currentTeamId
     } else {
       select.value = ""
+    }
+  }
+
+  #initializeMatchFilter() {
+    if (!this.hasMatchSelectTarget || !this.hasTeamSelectTarget) return
+
+    // Cache all original match options so we can restore them
+    this._allMatchOptions = Array.from(this.matchSelectTarget.options).map(opt => ({
+      value: opt.value,
+      text: opt.text
+    }))
+
+    // Build reverse lookup: team_id (string) → Set of match_id strings
+    this._teamMatchIds = {}
+    const matchTeams = this.matchTeamsValue || {}
+    for (const [matchId, teams] of Object.entries(matchTeams)) {
+      for (const team of teams) {
+        const teamId = String(team.id)
+        if (!this._teamMatchIds[teamId]) {
+          this._teamMatchIds[teamId] = new Set()
+        }
+        this._teamMatchIds[teamId].add(matchId)
+      }
+    }
+
+    // If a team is already pre-filled (e.g. from "Scout This Team" link), filter now
+    if (this.teamSelectTarget.value && !this.matchSelectTarget.value) {
+      this.#filterMatches()
+    }
+  }
+
+  #filterMatches() {
+    if (!this.hasMatchSelectTarget || !this.hasTeamSelectTarget) return
+
+    const select = this.matchSelectTarget
+    const teamId = this.teamSelectTarget.value
+    const previousMatchId = select.value
+
+    // Clear existing options
+    select.innerHTML = ""
+
+    // Always add the prompt option
+    const prompt = document.createElement("option")
+    prompt.value = ""
+    prompt.textContent = "Select match..."
+    select.appendChild(prompt)
+
+    if (!teamId) {
+      // No team selected: restore all matches
+      this._allMatchOptions.forEach(opt => {
+        if (opt.value === "") return // skip original prompt
+        const option = document.createElement("option")
+        option.value = opt.value
+        option.textContent = opt.text
+        select.appendChild(option)
+      })
+    } else {
+      // Team selected: show only matches containing this team
+      const validMatchIds = this._teamMatchIds[teamId] || new Set()
+      this._allMatchOptions.forEach(opt => {
+        if (opt.value === "") return // skip prompt
+        if (validMatchIds.has(opt.value)) {
+          const option = document.createElement("option")
+          option.value = opt.value
+          option.textContent = opt.text
+          select.appendChild(option)
+        }
+      })
+    }
+
+    // Preserve the previous match selection if it's still in the filtered list
+    const validValues = new Set(Array.from(select.options).map(o => o.value))
+    if (validValues.has(previousMatchId)) {
+      select.value = previousMatchId
     }
   }
 }

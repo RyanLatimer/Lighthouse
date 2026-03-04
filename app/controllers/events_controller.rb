@@ -23,13 +23,14 @@ class EventsController < ApplicationController
     event_code = params[:event][:event_code].to_s.strip.downcase
     tba_key = "#{year}#{event_code}"
 
-    @event = Event.new(name: params[:event][:name], tba_key: tba_key, year: year)
+    @event = Event.new(tba_key: tba_key, year: year)
     authorize @event
 
     # Fetch details from TBA to auto-populate fields
     tba_data = TbaClient.new.event(tba_key)
     if tba_data
       @event.assign_attributes(
+        name: tba_data["name"],
         start_date: tba_data["start_date"],
         end_date: tba_data["end_date"],
         city: tba_data["city"],
@@ -38,10 +39,24 @@ class EventsController < ApplicationController
         event_type: tba_data["event_type"],
         week: tba_data["week"]
       )
+    else
+      @event.name = tba_key
     end
 
     if @event.save
-      redirect_to @event, notice: "Event was successfully created."
+      # Auto-sync teams and matches from TBA (synchronous so data is ready immediately)
+      begin
+        TbaSyncService.new(tba_key).sync_all!
+      rescue StandardError => e
+        Rails.logger.warn("[EventsController] TBA sync failed for new event #{tba_key}: #{e.message}")
+      end
+
+      # Enqueue background jobs for Statbotics data, summaries, and predictions
+      RefreshSummariesJob.perform_later(@event.id)
+      SyncStatboticsJob.perform_later(@event.id)
+      RefreshPredictionsJob.perform_later(@event.id)
+
+      redirect_to @event, notice: "Event created and syncing data from TBA."
     else
       render :new, status: :unprocessable_entity
     end
@@ -73,6 +88,7 @@ class EventsController < ApplicationController
     authorize @event, :select?
 
     session[:current_event_id] = @event.id
+
     redirect_to root_path, notice: "Switched to #{@event.name}."
   end
 

@@ -70,35 +70,32 @@
 
       <%# Team Breakdown %>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
-          <h3 class="text-xs text-red-400 uppercase tracking-wider mb-3">Red Alliance Teams</h3>
-          <div class="space-y-2">
-            <% @red_summaries.includes(:frc_team).each do |summary| %>
-              <div class="flex items-center justify-between bg-gray-800 rounded-lg px-3 py-2">
-                <div>
-                  <span class="font-bold text-red-400"><%= summary.frc_team.team_number %></span>
-                  <span class="text-gray-500 text-xs ml-1"><%= summary.frc_team.nickname %></span>
+        <% { "red" => @red_team_stats, "blue" => @blue_team_stats }.each do |color, team_stats| %>
+          <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+            <h3 class="text-xs text-<%= color %>-400 uppercase tracking-wider mb-3"><%= color.capitalize %> Alliance Teams</h3>
+            <div class="space-y-2">
+              <% (team_stats || []).each do |ts| %>
+                <div class="flex items-center justify-between bg-gray-800 rounded-lg px-3 py-2">
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-<%= color %>-400 font-mono"><%= ts[:team].team_number %></span>
+                    <span class="text-gray-500 text-xs"><%= ts[:team].nickname %></span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <% case ts[:source] %>
+                    <% when :scouting %>
+                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-medium">Scouted</span>
+                    <% when :statbotics %>
+                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 font-medium">Statbotics</span>
+                    <% when :fallback %>
+                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium">Estimated</span>
+                    <% end %>
+                    <span class="font-mono text-sm text-white font-semibold"><%= ts[:avg].round(1) %> pts</span>
+                  </div>
                 </div>
-                <span class="font-mono text-sm text-white"><%= summary.avg_total_points.to_f.round(1) %> pts</span>
-              </div>
-            <% end %>
+              <% end %>
+            </div>
           </div>
-        </div>
-
-        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
-          <h3 class="text-xs text-blue-400 uppercase tracking-wider mb-3">Blue Alliance Teams</h3>
-          <div class="space-y-2">
-            <% @blue_summaries.includes(:frc_team).each do |summary| %>
-              <div class="flex items-center justify-between bg-gray-800 rounded-lg px-3 py-2">
-                <div>
-                  <span class="font-bold text-blue-400"><%= summary.frc_team.team_number %></span>
-                  <span class="text-gray-500 text-xs ml-1"><%= summary.frc_team.nickname %></span>
-                </div>
-                <span class="font-mono text-sm text-white"><%= summary.avg_total_points.to_f.round(1) %> pts</span>
-              </div>
-            <% end %>
-          </div>
-        </div>
+        <% end %>
       </div>
     </div>
   <% end %>

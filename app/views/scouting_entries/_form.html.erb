@@ -47,7 +47,7 @@
             options_from_collection_for_select(@teams, :id, ->(t) { "#{t.team_number} - #{t.nickname}" }, scouting_entry.frc_team_id),
             { prompt: "Select team..." },
             { class: "input-field text-sm",
-              data: { scouting_target: "teamSelect" } } %>
+              data: { scouting_target: "teamSelect", action: "change->scouting#teamChanged" } } %>
     </div>
   </div>
 

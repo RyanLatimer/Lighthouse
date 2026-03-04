@@ -16,7 +16,7 @@ class MatchSimulatorService
   #
   # @param red_teams [Array<FrcTeam>] 3 teams on the red alliance
   # @param blue_teams [Array<FrcTeam>] 3 teams on the blue alliance
-  # @return [Hash] simulation results
+  # @return [Hash] simulation results including per-team stats
   def simulate(red_teams, blue_teams)
     red_stats = red_teams.map { |t| team_stats(t) }
     blue_stats = blue_teams.map { |t| team_stats(t) }
@@ -52,7 +52,9 @@ class MatchSimulatorService
       blue_avg: blue_avg,
       red_win_pct: (red_wins / ITERATIONS.to_f * 100).round(1),
       blue_win_pct: (blue_wins / ITERATIONS.to_f * 100).round(1),
-      margin_of_victory: (red_avg - blue_avg).abs.round(2)
+      margin_of_victory: (red_avg - blue_avg).abs.round(2),
+      red_team_stats: red_stats,
+      blue_team_stats: blue_stats
     }
   end
 
@@ -64,22 +66,29 @@ class MatchSimulatorService
     # If we have real scouting data, use it
     if agg[:matches_scouted] > 0
       {
+        team: frc_team,
         avg: agg[:avg_total_points],
-        stddev: agg[:stddev_total_points].positive? ? agg[:stddev_total_points] : DEFAULT_STDDEV
+        stddev: agg[:stddev_total_points].positive? ? agg[:stddev_total_points] : DEFAULT_STDDEV,
+        source: :scouting,
+        matches: agg[:matches_scouted]
       }
     else
       # Fall back to Statbotics EPA data
       epa = fetch_statbotics_epa(frc_team)
       if epa
         {
+          team: frc_team,
           avg: epa[:mean],
-          stddev: epa[:sd].positive? ? epa[:sd] : DEFAULT_STDDEV
+          stddev: epa[:sd].positive? ? epa[:sd] : DEFAULT_STDDEV,
+          source: :statbotics
         }
       else
         # No data at all — use conservative fallback
         {
+          team: frc_team,
           avg: FALLBACK_EPA,
-          stddev: DEFAULT_STDDEV
+          stddev: DEFAULT_STDDEV,
+          source: :fallback
         }
       end
     end

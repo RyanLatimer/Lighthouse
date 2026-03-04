@@ -19,6 +19,7 @@ class ScoutingEntriesController < ApplicationController
 
   def new
     @scouting_entry = ScoutingEntry.new(event: current_event)
+    @scouting_entry.frc_team_id = params[:frc_team_id] if params[:frc_team_id].present?
     authorize @scouting_entry
 
     @game_config = GameConfig.current

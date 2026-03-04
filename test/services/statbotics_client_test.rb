@@ -19,24 +19,19 @@ class StatboticsClientTest < ActiveSupport::TestCase
     assert_equal 1.hour, StatboticsClient::CACHE_TTL
   end
 
-  test "team_year returns nil on network failure" do
-    # In test environment, real HTTP calls will fail or be unavailable
-    # The client rescues Faraday::Error and returns nil
+  test "team_year returns nil or a hash" do
     result = @client.team_year(254, 2026)
-
-    # Will be nil because the real API is not available in test
-    # (or could be cached). Either way, it should not raise.
-    assert_nil(result) || assert(result.is_a?(Hash))
+    assert(result.nil? || result.is_a?(Hash), "Expected nil or Hash, got #{result.class}")
   end
 
-  test "event returns nil on network failure" do
+  test "event returns nil or a hash" do
     result = @client.event("2026cmp")
-    assert_nil(result) || assert(result.is_a?(Hash))
+    assert(result.nil? || result.is_a?(Hash), "Expected nil or Hash, got #{result.class}")
   end
 
-  test "matches returns nil on network failure" do
+  test "matches returns nil or an array" do
     result = @client.matches("2026cmp")
-    assert_nil(result) || assert(result.is_a?(Array))
+    assert(result.nil? || result.is_a?(Array), "Expected nil or Array, got #{result.class}")
   end
 
   test "methods do not raise exceptions on failure" do

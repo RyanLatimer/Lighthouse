@@ -14,6 +14,7 @@ class ApplicationController < ActionController::Base
   before_action :set_current_organization
 
   after_action :pundit_verify, unless: :skip_pundit?
+  before_action :auto_sync_event, if: :should_auto_sync?
 
   helper_method :current_event, :current_organization
 
@@ -74,5 +75,31 @@ class ApplicationController < ActionController::Base
 
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(:account_update, keys: [ :first_name, :last_name, :team_number ])
+  end
+
+  # Runs a debounced TBA sync inline (fast, ~1-2s with caching) so pages
+  # always render with fresh data. Heavier jobs (Statbotics, predictions)
+  # are enqueued in the background.
+  def should_auto_sync?
+    request.get? &&
+      request.format.html? &&
+      current_user.present? &&
+      current_event.present?
+  end
+
+  def auto_sync_event
+    cache_key = "auto_sync:#{current_event.id}"
+    return if Rails.cache.exist?(cache_key)
+
+    Rails.cache.write(cache_key, true, expires_in: AutoSyncEventJob::COOLDOWN)
+
+    # Inline TBA sync — fast because TbaClient caches API responses for 5 min
+    TbaSyncService.new(current_event.tba_key).sync_all! if current_event.tba_key.present?
+
+    # Heavier work stays async
+    AutoSyncEventJob.perform_later(current_event.id)
+  rescue StandardError => e
+    Rails.cache.delete(cache_key)
+    Rails.logger.warn("[ApplicationController] Auto-sync failed: #{e.message}")
   end
 end

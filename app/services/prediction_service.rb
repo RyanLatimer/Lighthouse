@@ -145,11 +145,12 @@ class PredictionService
     pred = match_data["pred"]
     return nil unless pred
 
+    red_win_prob = pred["red_win_prob"].to_f
     {
       red_score: pred["red_score"].to_f,
       blue_score: pred["blue_score"].to_f,
-      red_win_pct: (pred["red_win_prob"].to_f * 100).round(1),
-      blue_win_pct: (pred["blue_win_prob"].to_f * 100).round(1)
+      red_win_pct: (red_win_prob * 100).round(1),
+      blue_win_pct: ((1.0 - red_win_prob) * 100).round(1)
     }
   rescue StandardError => e
     Rails.logger.warn("[PredictionService] Statbotics fetch failed: #{e.message}")

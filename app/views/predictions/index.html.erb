@@ -28,7 +28,6 @@
           <th class="px-4 py-3 text-center">Red Alliance</th>
           <th class="px-4 py-3 text-center">Prediction</th>
           <th class="px-4 py-3 text-center">Blue Alliance</th>
-          <th class="px-4 py-3 text-center hidden sm:table-cell">Confidence</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-800/50">
@@ -55,14 +54,18 @@
             </td>
             <td class="px-4 py-3 text-center">
               <% if prediction %>
-                <% winner = prediction.red_win_probability.to_f > 50 ? "red" : "blue" %>
+                <% red_pct = prediction.red_win_probability.to_f
+                   blue_pct = prediction.blue_win_probability.to_f
+                   blue_pct = 100.0 - red_pct if blue_pct.zero? && red_pct > 0
+                   winner = red_pct >= blue_pct ? "red" : "blue"
+                   confidence = winner == "red" ? red_pct : blue_pct %>
                 <div class="flex items-center justify-center gap-1">
                   <div class="w-12 h-2 bg-gray-800 rounded-full overflow-hidden flex">
-                    <div class="h-full bg-red-500 rounded-l-full" style="width: <%= prediction.red_win_probability %>%"></div>
-                    <div class="h-full bg-blue-500 rounded-r-full" style="width: <%= prediction.blue_win_probability %>%"></div>
+                    <div class="h-full bg-red-500 rounded-l-full" style="width: <%= red_pct %>%"></div>
+                    <div class="h-full bg-blue-500 rounded-r-full" style="width: <%= blue_pct %>%"></div>
                   </div>
                 </div>
-                <p class="text-xs text-<%= winner %>-400 font-bold mt-1"><%= winner == "red" ? prediction.red_win_probability : prediction.blue_win_probability %>%</p>
+                <p class="text-xs text-<%= winner %>-400 font-bold mt-1"><%= confidence.round(1) %>%</p>
               <% else %>
                 <span class="text-xs text-gray-600">No prediction</span>
               <% end %>
@@ -75,14 +78,6 @@
               </div>
               <% if prediction %>
                 <p class="text-lg font-bold text-blue-400 mt-1"><%= prediction.blue_score.round(1) %></p>
-              <% end %>
-            </td>
-            <td class="px-4 py-3 text-center hidden sm:table-cell">
-              <% if prediction %>
-                <% conf = [prediction.red_win_probability, prediction.blue_win_probability].max %>
-                <span class="text-xs font-mono <%= conf > 70 ? 'text-orange-400' : conf > 55 ? 'text-amber-400' : 'text-gray-500' %>">
-                  <%= conf.round(0) %>%
-                </span>
               <% end %>
             </td>
           </tr>

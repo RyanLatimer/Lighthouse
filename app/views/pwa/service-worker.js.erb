@@ -102,8 +102,8 @@ self.addEventListener("fetch", (event) => {
     return
   }
 
-  // HTML pages: stale-while-revalidate
-  event.respondWith(staleWhileRevalidate(request))
+  // HTML pages: network-first (fresh data when online, cached fallback when offline)
+  event.respondWith(networkFirst(request))
 })
 
 // --- Caching strategies ---
@@ -118,7 +118,13 @@ async function networkFirst(request) {
     return response
   } catch {
     const cached = await caches.match(request)
-    return cached || new Response(JSON.stringify({ error: "offline" }), {
+    if (cached) return cached
+
+    // Provide a contextual fallback based on request type
+    const acceptsHTML = (request.headers.get("Accept") || "").includes("text/html")
+    if (acceptsHTML) return offlineFallback()
+
+    return new Response(JSON.stringify({ error: "offline" }), {
       status: 503,
       headers: { "Content-Type": "application/json" }
     })
@@ -139,21 +145,6 @@ async function cacheFirst(request) {
   } catch {
     return new Response("", { status: 503, statusText: "Offline" })
   }
-}
-
-async function staleWhileRevalidate(request) {
-  const cached = await caches.match(request)
-
-  const fetchPromise = fetch(request).then((response) => {
-    if (response.ok) {
-      const cloned = response.clone()
-      caches.open(CACHE_VERSION).then((c) => c.put(request, cloned))
-        .catch((err) => console.warn("[Lighthouse SW] Cache put failed:", err))
-    }
-    return response
-  }).catch(() => null)
-
-  return cached || await fetchPromise || offlineFallback()
 }
 
 function offlineFallback() {

@@ -11,25 +11,25 @@ class StatboticsClient
   # GET /team_year/{team}/{year}
   # Returns EPA data for a team in a given year.
   def team_year(team_number, year)
-    cached_get("statbotics:team_year:#{team_number}:#{year}", "/team_year/#{team_number}/#{year}")
+    cached_get("statbotics:team_year:#{team_number}:#{year}", "team_year/#{team_number}/#{year}")
   end
 
   # GET /team_events?event={event_key}
   # Returns EPA + record for ALL teams at an event in a single request.
   def team_events(event_key)
-    cached_get("statbotics:team_events:#{event_key}", "/team_events", event: event_key)
+    cached_get("statbotics:team_events:#{event_key}", "team_events", event: event_key)
   end
 
   # GET /event/{event_key}
   # Returns event-level EPA and prediction data.
   def event(event_key)
-    cached_get("statbotics:event:#{event_key}", "/event/#{event_key}")
+    cached_get("statbotics:event:#{event_key}", "event/#{event_key}")
   end
 
   # GET /matches?event={event_key}
   # Returns match predictions and results for an event.
   def matches(event_key)
-    cached_get("statbotics:matches:#{event_key}", "/matches", event: event_key)
+    cached_get("statbotics:matches:#{event_key}", "matches", event: event_key)
   end
 
   private
@@ -45,7 +45,7 @@ class StatboticsClient
   end
 
   def cached_get(cache_key, path, params = {})
-    Rails.cache.fetch(cache_key, expires_in: CACHE_TTL) do
+    Rails.cache.fetch(cache_key, expires_in: CACHE_TTL, skip_nil: true) do
       response = @conn.get(path, params)
 
       if response.success?
