@@ -197,6 +197,43 @@
     </div>
   <% end %>
 
+  <%# QR Code for Offline Transfer %>
+  <details class="scout-card mb-4 group">
+    <summary class="flex items-center gap-2 p-4 cursor-pointer select-none list-none">
+      <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+      </svg>
+      <span class="text-sm font-medium text-gray-300">QR Code for Offline Transfer</span>
+      <svg class="w-4 h-4 text-gray-500 ml-auto transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </summary>
+    <div class="px-4 pb-4">
+      <p class="text-xs text-gray-500 mb-3">Have an analyst or admin scan this code to import this entry without internet.</p>
+      <%
+        qr_entry = {
+          client_uuid: @scouting_entry.client_uuid,
+          match_id:    @scouting_entry.match_id,
+          frc_team_id: @scouting_entry.frc_team_id,
+          event_id:    @scouting_entry.event_id,
+          notes:       @scouting_entry.notes,
+          status:      ScoutingEntry.statuses[@scouting_entry.status],
+          updated_at:  @scouting_entry.updated_at&.iso8601,
+          data:        @scouting_entry.data || {},
+        }
+      %>
+      <div class="flex flex-col items-center"
+           data-controller="qr-generator"
+           data-qr-generator-entry-value="<%= qr_entry.to_json %>">
+        <canvas data-qr-generator-target="canvas" class="rounded-lg"></canvas>
+        <p data-qr-generator-target="error" class="hidden text-sm text-red-400 mt-2"></p>
+        <p class="text-xs text-gray-600 mt-2">
+          Payload: <span data-qr-generator-target="size" class="font-mono">--</span>
+        </p>
+      </div>
+    </div>
+  </details>
+
   <%# Actions %>
   <div class="flex items-center gap-3 mt-4">
     <% if policy(@scouting_entry).update? %>

@@ -1,0 +1,82 @@
+<% content_for(:title) { "QR Scanner - Lighthouse" } %>
+
+<div class="max-w-2xl mx-auto">
+  <div class="flex items-center gap-2 mb-6">
+    <%= link_to scouting_entries_path, class: "back-link", "aria-label": "Back to entries" do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    <% end %>
+    <h1 class="text-2xl font-bold text-white">QR Scanner</h1>
+  </div>
+
+  <div class="scout-card p-5"
+       data-controller="qr-scanner"
+       data-qr-scanner-import-url-value="<%= import_qr_imports_path %>">
+
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-10 h-10 bg-orange-500/10 rounded-lg flex items-center justify-center">
+        <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-sm font-medium text-white">Import Scouting Entries</h2>
+        <p class="text-xs text-gray-500">Scan QR codes from scouts to import their match data.</p>
+      </div>
+    </div>
+
+    <%# Start button %>
+    <button data-qr-scanner-target="startBtn"
+            data-action="qr-scanner#start"
+            class="w-full py-3 px-4 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors duration-150 flex items-center justify-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      Open Camera
+    </button>
+
+    <%# Camera preview (hidden until started) %>
+    <div data-qr-scanner-target="preview" class="hidden">
+      <div class="relative rounded-lg overflow-hidden bg-black mt-3">
+        <video data-qr-scanner-target="video"
+               class="w-full rounded-lg"
+               muted
+               playsinline></video>
+        <%# Scan overlay corners %>
+        <div class="absolute inset-0 pointer-events-none">
+          <div class="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-orange-400 rounded-tl-lg"></div>
+          <div class="absolute top-4 right-4 w-12 h-12 border-t-2 border-r-2 border-orange-400 rounded-tr-lg"></div>
+          <div class="absolute bottom-4 left-4 w-12 h-12 border-b-2 border-l-2 border-orange-400 rounded-bl-lg"></div>
+          <div class="absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 border-orange-400 rounded-br-lg"></div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center mt-3">
+        <button data-action="qr-scanner#stop"
+                class="text-sm text-gray-400 hover:text-red-400 transition-colors duration-150 flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+          </svg>
+          Stop Camera
+        </button>
+      </div>
+    </div>
+
+    <%# Hidden canvas for frame extraction %>
+    <canvas data-qr-scanner-target="canvas" class="hidden"></canvas>
+
+    <%# Status text %>
+    <p data-qr-scanner-target="status" class="text-sm text-gray-500 mt-3 text-center">
+      Tap "Open Camera" to begin scanning.
+    </p>
+
+    <%# Import results %>
+    <div data-qr-scanner-target="result" class="hidden mt-4">
+      <h3 class="text-xs text-gray-400 uppercase tracking-wider font-medium mb-2">Import Results</h3>
+      <div data-qr-scanner-target="list" class="space-y-2"></div>
+    </div>
+  </div>
+</div>

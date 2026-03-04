@@ -23,6 +23,14 @@ Rails.application.routes.draw do
     end
   end
 
+  # QR code offline import (analysts/admins scan scout QR codes)
+  resources :qr_imports, only: [] do
+    collection do
+      get :scanner
+      post :import
+    end
+  end
+
   resources :pit_scouting_entries do
     collection do
       post :sync

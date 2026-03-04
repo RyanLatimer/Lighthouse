@@ -8,3 +8,7 @@ pin_all_from "app/javascript/controllers", under: "controllers"
 pin "lib/lighthouse_db", to: "lib/lighthouse_db.js"
 pin "chartkick", to: "chartkick.js"
 pin "Chart.bundle", to: "Chart.bundle.js"
+pin "qrcode" # @1.5.4
+pin "dijkstrajs" # @1.0.3
+pin "jsqr" # @1.4.0
+pin "lib/qr_payload", to: "lib/qr_payload.js"

@@ -33,11 +33,11 @@ class ScoutingEntriesController < ApplicationController
     @scouting_entry.event = current_event
     authorize @scouting_entry
 
-    # Handle offline sync: skip if a duplicate client_uuid already exists
+    # Handle offline sync: if a duplicate client_uuid exists, apply LWW
     if @scouting_entry.client_uuid.present?
       existing = ScoutingEntry.find_by(client_uuid: @scouting_entry.client_uuid)
       if existing
-        redirect_to existing, notice: "Entry already synced."
+        redirect_to existing, notice: "Entry already exists."
         return
       end
     end
@@ -100,10 +100,24 @@ class ScoutingEntriesController < ApplicationController
     created_event_ids = []
 
     entries_params.each do |entry_data|
-      entry = ScoutingEntry.find_by(client_uuid: entry_data[:client_uuid])
+      existing = ScoutingEntry.find_by(client_uuid: entry_data[:client_uuid])
 
-      if entry
-        results << { client_uuid: entry_data[:client_uuid], status: "existing", id: entry.id }
+      if existing
+        # Last-Write-Wins: compare the incoming updated_at against the server's.
+        # If the incoming record is newer, update; otherwise keep server copy.
+        incoming_time = Time.parse(entry_data[:updated_at].to_s) rescue nil
+
+        if incoming_time && incoming_time > existing.updated_at
+          existing.update!(
+            data:   entry_data[:data].is_a?(ActionController::Parameters) ? entry_data[:data].to_unsafe_h : (entry_data[:data] || {}),
+            notes:  entry_data[:notes],
+            status: entry_data[:status] || :submitted
+          )
+          results << { client_uuid: entry_data[:client_uuid], status: "updated", id: existing.id }
+          created_event_ids << existing.event_id
+        else
+          results << { client_uuid: entry_data[:client_uuid], status: "existing", id: existing.id }
+        end
       else
         permitted = entry_data.permit(:match_id, :frc_team_id, :event_id, :notes, :photo_url, :client_uuid, :status, data: {})
                               .merge(user_id: current_user.id)
