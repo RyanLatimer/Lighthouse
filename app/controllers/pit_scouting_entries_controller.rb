@@ -120,10 +120,34 @@ class PitScoutingEntriesController < ApplicationController
   end
 
   def pit_scouting_entry_params
-    params.require(:pit_scouting_entry).permit(
+    permitted = params.require(:pit_scouting_entry).permit(
       :frc_team_id, :notes, :client_uuid, :status,
-      data: {},
+      data: [
+        :robot_width, :robot_length, :robot_height, :robot_weight,
+        :drivetrain, :drive_motor, :pivot_motor, :drivetrain_notes,
+        :intake_width, :intake_mechanism, :intake_mechanism_other, :intake_notes,
+        :hopper_x, :hopper_y, :hopper_z,
+        :hopper_extended_x, :hopper_extended_y, :hopper_extended_z, :hopper_notes,
+        :indexer, :indexer_other, :indexer_notes,
+        :shooter_hood, :shooter_motor, :shooter_notes,
+        :climber_type, :climber_notes,
+        :auton_paths_json, :auton_notes,
+        :strengths, :weaknesses,
+        intake_types: [], shooter_types: [], climber_levels: []
+      ],
       photos: []
     )
+
+    # Parse auton_paths from its JSON hidden field into a real array
+    if permitted[:data].is_a?(ActionController::Parameters) && permitted[:data][:auton_paths_json].present?
+      begin
+        permitted[:data][:auton_paths] = JSON.parse(permitted[:data][:auton_paths_json])
+      rescue JSON::ParserError
+        permitted[:data][:auton_paths] = []
+      end
+      permitted[:data].delete(:auton_paths_json)
+    end
+
+    permitted
   end
 end

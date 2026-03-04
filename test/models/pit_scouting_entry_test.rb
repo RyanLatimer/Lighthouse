@@ -60,12 +60,9 @@ class PitScoutingEntryTest < ActiveSupport::TestCase
   end
 
   # --- Computed Methods: pit_254 ---
-  # Data: drivetrain=swerve, robot_weight=120, robot_width=28, robot_length=30, robot_height=42,
-  #        mechanisms=[shooter, intake, climber], auto_capabilities=[4-ball],
-  #        strengths="Fast cycle time, reliable climber", weaknesses="Occasional intake jams"
 
   test "drivetrain for pit_254" do
-    assert_equal "swerve", pit_scouting_entries(:pit_254).drivetrain
+    assert_equal "Swerve", pit_scouting_entries(:pit_254).drivetrain
   end
 
   test "robot_width for pit_254" do
@@ -84,12 +81,36 @@ class PitScoutingEntryTest < ActiveSupport::TestCase
     assert_equal 120, pit_scouting_entries(:pit_254).robot_weight
   end
 
-  test "mechanisms for pit_254" do
-    assert_equal ["shooter", "intake", "climber"], pit_scouting_entries(:pit_254).mechanisms
+  test "drive_motor for pit_254" do
+    assert_equal "Kraken X60", pit_scouting_entries(:pit_254).drive_motor
   end
 
-  test "auto_capabilities for pit_254" do
-    assert_equal ["4-ball"], pit_scouting_entries(:pit_254).auto_capabilities
+  test "pivot_motor for pit_254" do
+    assert_equal "NEO 550", pit_scouting_entries(:pit_254).pivot_motor
+  end
+
+  test "intake_types for pit_254" do
+    assert_equal ["over_bumper"], pit_scouting_entries(:pit_254).intake_types
+  end
+
+  test "intake_mechanism for pit_254" do
+    assert_equal "Slapdown", pit_scouting_entries(:pit_254).intake_mechanism
+  end
+
+  test "shooter_types for pit_254" do
+    assert_equal ["Turret"], pit_scouting_entries(:pit_254).shooter_types
+  end
+
+  test "shooter_hood for pit_254" do
+    assert_equal "Adjustable", pit_scouting_entries(:pit_254).shooter_hood
+  end
+
+  test "climber_levels for pit_254" do
+    assert_equal ["L2", "L3"], pit_scouting_entries(:pit_254).climber_levels
+  end
+
+  test "climber_type for pit_254" do
+    assert_equal "Elevator", pit_scouting_entries(:pit_254).climber_type
   end
 
   test "strengths for pit_254" do
@@ -103,19 +124,31 @@ class PitScoutingEntryTest < ActiveSupport::TestCase
   # --- Computed Methods: pit_1678 ---
 
   test "drivetrain for pit_1678" do
-    assert_equal "swerve", pit_scouting_entries(:pit_1678).drivetrain
+    assert_equal "Swerve", pit_scouting_entries(:pit_1678).drivetrain
   end
 
   test "robot_weight for pit_1678" do
     assert_equal 118, pit_scouting_entries(:pit_1678).robot_weight
   end
 
-  test "mechanisms for pit_1678" do
-    assert_equal ["shooter", "intake", "climber"], pit_scouting_entries(:pit_1678).mechanisms
+  test "intake_types for pit_1678" do
+    assert_equal ["over_bumper", "through_bumper"], pit_scouting_entries(:pit_1678).intake_types
   end
 
-  test "auto_capabilities for pit_1678" do
-    assert_equal ["3-ball"], pit_scouting_entries(:pit_1678).auto_capabilities
+  test "indexer for pit_1678" do
+    assert_equal "Spindexer", pit_scouting_entries(:pit_1678).indexer
+  end
+
+  test "shooter_types for pit_1678" do
+    assert_equal ["Dual Shooter"], pit_scouting_entries(:pit_1678).shooter_types
+  end
+
+  test "climber_levels for pit_1678" do
+    assert_equal ["L1", "L2", "L3"], pit_scouting_entries(:pit_1678).climber_levels
+  end
+
+  test "climber_type for pit_1678" do
+    assert_equal "Windmill", pit_scouting_entries(:pit_1678).climber_type
   end
 
   test "strengths for pit_1678" do
@@ -138,14 +171,24 @@ class PitScoutingEntryTest < ActiveSupport::TestCase
     assert_nil entry.robot_width
   end
 
-  test "mechanisms returns empty array when not present" do
+  test "intake_types returns empty array when not present" do
     entry = PitScoutingEntry.new(data: {}, event: events(:championship), frc_team: frc_teams(:team_254), user: users(:admin_user))
-    assert_equal [], entry.mechanisms
+    assert_equal [], entry.intake_types
   end
 
-  test "auto_capabilities returns empty array when not present" do
+  test "shooter_types returns empty array when not present" do
     entry = PitScoutingEntry.new(data: {}, event: events(:championship), frc_team: frc_teams(:team_254), user: users(:admin_user))
-    assert_equal [], entry.auto_capabilities
+    assert_equal [], entry.shooter_types
+  end
+
+  test "climber_levels returns empty array when not present" do
+    entry = PitScoutingEntry.new(data: {}, event: events(:championship), frc_team: frc_teams(:team_254), user: users(:admin_user))
+    assert_equal [], entry.climber_levels
+  end
+
+  test "auton_paths returns empty array when not present" do
+    entry = PitScoutingEntry.new(data: {}, event: events(:championship), frc_team: frc_teams(:team_254), user: users(:admin_user))
+    assert_equal [], entry.auton_paths
   end
 
   test "strengths returns empty string when not present" do
@@ -156,6 +199,28 @@ class PitScoutingEntryTest < ActiveSupport::TestCase
   test "weaknesses returns empty string when not present" do
     entry = PitScoutingEntry.new(data: {}, event: events(:championship), frc_team: frc_teams(:team_254), user: users(:admin_user))
     assert_equal "", entry.weaknesses
+  end
+
+  # --- Display helpers ---
+
+  test "intake_mechanism_display returns mechanism name" do
+    entry = PitScoutingEntry.new(data: { "intake_mechanism" => "Slapdown" })
+    assert_equal "Slapdown", entry.intake_mechanism_display
+  end
+
+  test "intake_mechanism_display returns other text when Other" do
+    entry = PitScoutingEntry.new(data: { "intake_mechanism" => "Other", "intake_mechanism_other" => "Custom arm" })
+    assert_equal "Custom arm", entry.intake_mechanism_display
+  end
+
+  test "indexer_display returns indexer name" do
+    entry = PitScoutingEntry.new(data: { "indexer" => "Spindexer" })
+    assert_equal "Spindexer", entry.indexer_display
+  end
+
+  test "indexer_display returns other text when Other" do
+    entry = PitScoutingEntry.new(data: { "indexer" => "Other", "indexer_other" => "Custom belt" })
+    assert_equal "Custom belt", entry.indexer_display
   end
 
   # --- Class Methods ---

@@ -11,6 +11,9 @@ import { openDB, PIT_STORE } from "lib/lighthouse_db"
  */
 export default class extends Controller {
   submitForm(event) {
+    // Serialize auton paths data before submission
+    this.#serializeAutonPaths()
+
     if (navigator.onLine) return // Allow normal submission when online
 
     event.preventDefault()
@@ -71,6 +74,15 @@ export default class extends Controller {
     } catch (error) {
       console.error("[Lighthouse] Failed to save pit scouting entry offline:", error)
       alert("Failed to save entry offline. Please try again.")
+    }
+  }
+
+  #serializeAutonPaths() {
+    // Find the auton-paths controller and trigger serialization
+    const autonPathsEl = this.element.querySelector("[data-controller*='auton-paths']")
+    if (autonPathsEl) {
+      const autonPathsController = this.application.getControllerForElementAndIdentifier(autonPathsEl, "auton-paths")
+      if (autonPathsController) autonPathsController.serialize()
     }
   }
 

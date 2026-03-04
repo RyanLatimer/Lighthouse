@@ -176,23 +176,40 @@
         <% end %>
       </div>
 
-      <% if @pit_entry.mechanisms.any? %>
+      <% if @pit_entry.intake_types.any? %>
         <div class="mb-3">
-          <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Mechanisms</p>
+          <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Intake</p>
           <div class="flex flex-wrap gap-1.5">
-            <% @pit_entry.mechanisms.each do |mech| %>
-              <span class="px-2 py-1 bg-orange-500/10 text-orange-400 text-xs rounded-md border border-orange-500/20"><%= mech %></span>
+            <% @pit_entry.intake_types.each do |type| %>
+              <span class="px-2 py-1 bg-orange-500/10 text-orange-400 text-xs rounded-md border border-orange-500/20"><%= type.humanize.titleize %></span>
+            <% end %>
+            <% if @pit_entry.intake_mechanism.present? %>
+              <span class="px-2 py-1 bg-orange-500/10 text-orange-400 text-xs rounded-md border border-orange-500/20"><%= @pit_entry.intake_mechanism_display %></span>
             <% end %>
           </div>
         </div>
       <% end %>
 
-      <% if @pit_entry.auto_capabilities.any? %>
+      <% if @pit_entry.shooter_types.any? %>
         <div class="mb-3">
-          <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Auto Capabilities</p>
+          <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Shooter</p>
           <div class="flex flex-wrap gap-1.5">
-            <% @pit_entry.auto_capabilities.each do |cap| %>
-              <span class="px-2 py-1 bg-blue-500/10 text-blue-400 text-xs rounded-md border border-blue-500/20"><%= cap %></span>
+            <% @pit_entry.shooter_types.each do |type| %>
+              <span class="px-2 py-1 bg-blue-500/10 text-blue-400 text-xs rounded-md border border-blue-500/20"><%= type %></span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <% if @pit_entry.climber_levels.any? %>
+        <div class="mb-3">
+          <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Climber</p>
+          <div class="flex flex-wrap gap-1.5">
+            <% @pit_entry.climber_levels.each do |level| %>
+              <span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-xs rounded-md border border-emerald-500/20"><%= level %></span>
+            <% end %>
+            <% if @pit_entry.climber_type.present? %>
+              <span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-xs rounded-md border border-emerald-500/20"><%= @pit_entry.climber_type %></span>
             <% end %>
           </div>
         </div>

@@ -33,7 +33,7 @@
                 is_new_entry = request.path == new_scouting_entry_path
                 is_edit_entry = request.path.match?(/scouting_entries\/\d+\/edit/)
                 is_entries_index = request.path == scouting_entries_path
-                is_entry_show = request.path.match?(/scouting_entries\/\d+$/)
+                is_entry_show = request.path.match?(/scouting_entries\/\d+$/) && !request.path.include?('pit_scouting')
                 is_scout_active = is_new_entry || is_edit_entry
                 is_entries_active = is_entries_index || is_entry_show
               %>

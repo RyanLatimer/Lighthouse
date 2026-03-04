@@ -1,4 +1,8 @@
-<%= form_with(model: pit_scouting_entry, class: "space-y-4", data: { controller: "pit-scouting", action: "submit->pit-scouting#submitForm" }) do |f| %>
+<%= form_with(model: pit_scouting_entry, class: "space-y-4",
+             data: {
+               controller: "pit-scouting pit-form",
+               action: "submit->pit-scouting#submitForm"
+             }) do |f| %>
   <% if pit_scouting_entry.errors.any? %>
     <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
       <h3 class="text-sm font-semibold text-red-400 mb-2"><%= pluralize(pit_scouting_entry.errors.count, "error") %> prevented this entry from being saved:</h3>
@@ -13,7 +17,7 @@
   <%= f.hidden_field :client_uuid, value: pit_scouting_entry.client_uuid || SecureRandom.uuid %>
   <%= hidden_field_tag "pit_scouting_entry[event_id]", pit_scouting_entry.event_id || current_event&.id %>
 
-  <% # Team selector %>
+  <%# ===== TEAM SELECTOR ===== %>
   <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
     <%= f.label :frc_team_id, "Team", class: "block text-sm font-medium text-gray-300 mb-1" %>
     <%= f.select :frc_team_id,
@@ -22,7 +26,7 @@
           class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" %>
   </div>
 
-  <% # Robot Specs %>
+  <%# ===== ROBOT SPECIFICATIONS ===== %>
   <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
     <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Robot Specifications</h3>
     <div class="grid grid-cols-2 gap-3">
@@ -39,51 +43,332 @@
     </div>
   </div>
 
-  <% # Drivetrain %>
-  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+  <%# ===== DRIVETRAIN ===== %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3">
     <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Drivetrain</h3>
+
+    <%# Drive type %>
+    <%= label_tag "pit_scouting_entry[data][drivetrain]", "Drive Type", class: "block text-sm font-medium text-gray-300 mb-1" %>
     <%= select_tag "pit_scouting_entry[data][drivetrain]",
           options_for_select(
             [["Swerve", "Swerve"], ["Tank", "Tank"], ["Mecanum", "Mecanum"], ["H-Drive", "H-Drive"], ["Other", "Other"]],
             pit_scouting_entry.data&.dig("drivetrain")
           ),
           prompt: "Select drivetrain...",
-          class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" %>
+          class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition",
+          data: { pit_form_target: "drivetrainSelect", action: "change->pit-form#drivetrainChanged" } %>
+
+    <%# Drive motor (always visible) %>
+    <div>
+      <%= label_tag "pit_scouting_entry[data][drive_motor]", "Drive Motor", class: "block text-sm font-medium text-gray-300 mb-1" %>
+      <%= select_tag "pit_scouting_entry[data][drive_motor]",
+            options_for_select(
+              ["Kraken X60", "NEO Vortex", "NEO", "NEO 2.0", "CIM"],
+              pit_scouting_entry.data&.dig("drive_motor")
+            ),
+            prompt: "Select motor...",
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" %>
+    </div>
+
+    <%# Pivot motor (only if Swerve) %>
+    <div data-pit-form-target="pivotMotorGroup"
+         class="<%= 'hidden' unless pit_scouting_entry.data&.dig('drivetrain') == 'Swerve' %>">
+      <%= label_tag "pit_scouting_entry[data][pivot_motor]", "Pivot Motor", class: "block text-sm font-medium text-gray-300 mb-1" %>
+      <%= select_tag "pit_scouting_entry[data][pivot_motor]",
+            options_for_select(
+              ["Kraken X60", "Kraken X44", "NEO Vortex", "NEO", "NEO 2.0", "NEO 550", "CTRE Minion", "CIM"],
+              pit_scouting_entry.data&.dig("pivot_motor")
+            ),
+            prompt: "Select motor...",
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" %>
+    </div>
+
+    <%# Drivetrain notes %>
+    <div>
+      <%= label_tag "pit_scouting_entry[data][drivetrain_notes]", "Notes", class: "block text-xs text-gray-500 uppercase tracking-wider mb-1" %>
+      <%= text_area_tag "pit_scouting_entry[data][drivetrain_notes]",
+            pit_scouting_entry.data&.dig("drivetrain_notes"),
+            rows: 2,
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none",
+            placeholder: "Drivetrain notes..." %>
+    </div>
   </div>
 
-  <% # Mechanisms %>
-  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
-    <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Mechanisms (select all that apply)</h3>
+  <%# ===== INTAKE ===== %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3">
+    <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Intake</h3>
+
+    <%# Intake type checkboxes %>
     <div class="flex flex-wrap gap-2">
-      <% %w[Intake Shooter Climber Arm Elevator Turret Conveyor Hopper].each do |mech| %>
-        <% checked = (pit_scouting_entry.data&.dig("mechanisms") || []).include?(mech) %>
+      <% %w[over_bumper through_bumper].each do |type| %>
+        <% checked = (pit_scouting_entry.data&.dig("intake_types") || []).include?(type) %>
         <label class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition
           bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600
           has-[:checked]:bg-blue-500/20 has-[:checked]:border-blue-500/30 has-[:checked]:text-blue-400">
-          <%= check_box_tag "pit_scouting_entry[data][mechanisms][]", mech, checked, class: "hidden" %>
-          <span class="text-sm font-medium"><%= mech %></span>
+          <%= check_box_tag "pit_scouting_entry[data][intake_types][]", type, checked,
+                class: "hidden",
+                data: type == "over_bumper" ? { pit_form_target: "overBumperCheckbox", action: "change->pit-form#intakeChanged" } : {} %>
+          <span class="text-sm font-medium"><%= type.humanize.titleize %></span>
         </label>
       <% end %>
     </div>
+
+    <%# Intake width %>
+    <div>
+      <%= label_tag "pit_scouting_entry[data][intake_width]", "Intake Width (inches)", class: "block text-sm font-medium text-gray-300 mb-1" %>
+      <%= number_field_tag "pit_scouting_entry[data][intake_width]",
+            pit_scouting_entry.data&.dig("intake_width"),
+            step: "0.1",
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition",
+            placeholder: "inches" %>
+    </div>
+
+    <%# Intake mechanism (only if over-bumper) %>
+    <% over_bumper_checked = (pit_scouting_entry.data&.dig("intake_types") || []).include?("over_bumper") %>
+    <div data-pit-form-target="intakeTypeGroup" class="<%= 'hidden' unless over_bumper_checked %> space-y-2">
+      <%= label_tag "pit_scouting_entry[data][intake_mechanism]", "Intake Mechanism", class: "block text-sm font-medium text-gray-300 mb-1" %>
+      <%= select_tag "pit_scouting_entry[data][intake_mechanism]",
+            options_for_select(
+              ["Rack and Pinion", "Linkage", "Slapdown", "Other"],
+              pit_scouting_entry.data&.dig("intake_mechanism")
+            ),
+            prompt: "Select mechanism...",
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition",
+            data: { pit_form_target: "intakeMechanismSelect", action: "change->pit-form#intakeMechanismChanged" } %>
+
+      <%# Other text input %>
+      <div data-pit-form-target="intakeMechanismOther"
+           class="<%= 'hidden' unless pit_scouting_entry.data&.dig('intake_mechanism') == 'Other' %>">
+        <%= text_field_tag "pit_scouting_entry[data][intake_mechanism_other]",
+              pit_scouting_entry.data&.dig("intake_mechanism_other"),
+              class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition",
+              placeholder: "Describe the mechanism..." %>
+      </div>
+    </div>
+
+    <%# Intake notes %>
+    <div>
+      <%= label_tag "pit_scouting_entry[data][intake_notes]", "Notes", class: "block text-xs text-gray-500 uppercase tracking-wider mb-1" %>
+      <%= text_area_tag "pit_scouting_entry[data][intake_notes]",
+            pit_scouting_entry.data&.dig("intake_notes"),
+            rows: 2,
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none",
+            placeholder: "Intake notes..." %>
+    </div>
   </div>
 
-  <% # Auto capabilities %>
-  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
-    <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Auto Capabilities</h3>
+  <%# ===== HOPPER ===== %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3">
+    <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Hopper</h3>
+
+    <%# XYZ Dimensions %>
+    <p class="text-sm font-medium text-gray-300">Dimensions (inches)</p>
+    <div class="grid grid-cols-3 gap-3">
+      <% %w[hopper_x hopper_y hopper_z].each_with_index do |field, i| %>
+        <div>
+          <%= label_tag "pit_scouting_entry[data][#{field}]", %w[X Y Z][i], class: "block text-xs text-gray-400 mb-1" %>
+          <%= number_field_tag "pit_scouting_entry[data][#{field}]",
+                pit_scouting_entry.data&.dig(field),
+                step: "0.1",
+                class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition",
+                placeholder: "in" %>
+        </div>
+      <% end %>
+    </div>
+
+    <%# Extended XYZ Dimensions %>
+    <p class="text-sm font-medium text-gray-300">Extended Dimensions (inches)</p>
+    <div class="grid grid-cols-3 gap-3">
+      <% %w[hopper_extended_x hopper_extended_y hopper_extended_z].each_with_index do |field, i| %>
+        <div>
+          <%= label_tag "pit_scouting_entry[data][#{field}]", %w[X Y Z][i], class: "block text-xs text-gray-400 mb-1" %>
+          <%= number_field_tag "pit_scouting_entry[data][#{field}]",
+                pit_scouting_entry.data&.dig(field),
+                step: "0.1",
+                class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition",
+                placeholder: "in" %>
+        </div>
+      <% end %>
+    </div>
+
+    <%# Hopper notes %>
+    <div>
+      <%= label_tag "pit_scouting_entry[data][hopper_notes]", "Notes", class: "block text-xs text-gray-500 uppercase tracking-wider mb-1" %>
+      <%= text_area_tag "pit_scouting_entry[data][hopper_notes]",
+            pit_scouting_entry.data&.dig("hopper_notes"),
+            rows: 2,
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none",
+            placeholder: "Hopper notes..." %>
+    </div>
+  </div>
+
+  <%# ===== INDEXER ===== %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3">
+    <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Indexer</h3>
+
+    <%= select_tag "pit_scouting_entry[data][indexer]",
+          options_for_select(
+            ["Twindexer", "Spindexer", "Belt Conveyor", "Roller Conveyor", "Dye Rotor", "Other"],
+            pit_scouting_entry.data&.dig("indexer")
+          ),
+          prompt: "Select indexer...",
+          class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition",
+          data: { pit_form_target: "indexerSelect", action: "change->pit-form#indexerChanged" } %>
+
+    <%# Other text input %>
+    <div data-pit-form-target="indexerOther"
+         class="<%= 'hidden' unless pit_scouting_entry.data&.dig('indexer') == 'Other' %>">
+      <%= text_field_tag "pit_scouting_entry[data][indexer_other]",
+            pit_scouting_entry.data&.dig("indexer_other"),
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition",
+            placeholder: "Describe the indexer..." %>
+    </div>
+
+    <%# Indexer notes %>
+    <div>
+      <%= label_tag "pit_scouting_entry[data][indexer_notes]", "Notes", class: "block text-xs text-gray-500 uppercase tracking-wider mb-1" %>
+      <%= text_area_tag "pit_scouting_entry[data][indexer_notes]",
+            pit_scouting_entry.data&.dig("indexer_notes"),
+            rows: 2,
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none",
+            placeholder: "Indexer notes..." %>
+    </div>
+  </div>
+
+  <%# ===== SHOOTER ===== %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3">
+    <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Shooter</h3>
+
+    <%# Shooter type (multi-select) %>
+    <p class="text-sm font-medium text-gray-300 mb-1">Shooter Type</p>
     <div class="flex flex-wrap gap-2">
-      <% %w[Leave Scoring Climbing Multi-piece].each do |cap| %>
-        <% checked = (pit_scouting_entry.data&.dig("auto_capabilities") || []).include?(cap) %>
+      <% ["Turret", "Dual Shooter", "Triple Shooter", "Full-Width Shooter"].each do |type| %>
+        <% checked = (pit_scouting_entry.data&.dig("shooter_types") || []).include?(type) %>
         <label class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition
           bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600
-          has-[:checked]:bg-amber-500/20 has-[:checked]:border-amber-500/30 has-[:checked]:text-amber-400">
-          <%= check_box_tag "pit_scouting_entry[data][auto_capabilities][]", cap, checked, class: "hidden" %>
-          <span class="text-sm font-medium"><%= cap %></span>
+          has-[:checked]:bg-blue-500/20 has-[:checked]:border-blue-500/30 has-[:checked]:text-blue-400">
+          <%= check_box_tag "pit_scouting_entry[data][shooter_types][]", type, checked, class: "hidden" %>
+          <span class="text-sm font-medium"><%= type %></span>
         </label>
       <% end %>
     </div>
+
+    <%# Hood (single select radio) %>
+    <p class="text-sm font-medium text-gray-300 mb-1">Hood</p>
+    <div class="flex flex-wrap gap-2">
+      <% ["Adjustable", "Fixed"].each do |hood| %>
+        <% checked = pit_scouting_entry.data&.dig("shooter_hood") == hood %>
+        <label class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition
+          bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600
+          has-[:checked]:bg-orange-500/20 has-[:checked]:border-orange-500/30 has-[:checked]:text-orange-400">
+          <%= radio_button_tag "pit_scouting_entry[data][shooter_hood]", hood, checked, class: "hidden" %>
+          <span class="text-sm font-medium"><%= hood %> Hood</span>
+        </label>
+      <% end %>
+    </div>
+
+    <%# Motor type (single select) %>
+    <div>
+      <%= label_tag "pit_scouting_entry[data][shooter_motor]", "Motor Type", class: "block text-sm font-medium text-gray-300 mb-1" %>
+      <%= select_tag "pit_scouting_entry[data][shooter_motor]",
+            options_for_select(
+              ["Kraken X60", "Kraken X44", "NEO Vortex", "NEO", "NEO 2.0", "NEO 550", "CTRE Minion", "CIM"],
+              pit_scouting_entry.data&.dig("shooter_motor")
+            ),
+            prompt: "Select motor...",
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition" %>
+    </div>
+
+    <%# Shooter notes %>
+    <div>
+      <%= label_tag "pit_scouting_entry[data][shooter_notes]", "Notes", class: "block text-xs text-gray-500 uppercase tracking-wider mb-1" %>
+      <%= text_area_tag "pit_scouting_entry[data][shooter_notes]",
+            pit_scouting_entry.data&.dig("shooter_notes"),
+            rows: 2,
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none",
+            placeholder: "Shooter notes..." %>
+    </div>
   </div>
 
-  <% # Strengths / Weaknesses %>
+  <%# ===== CLIMBER ===== %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3">
+    <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Climber</h3>
+
+    <%# Climber level (multi-select) %>
+    <p class="text-sm font-medium text-gray-300 mb-1">Level</p>
+    <div class="flex flex-wrap gap-2">
+      <% %w[L1 L2 L3].each do |level| %>
+        <% checked = (pit_scouting_entry.data&.dig("climber_levels") || []).include?(level) %>
+        <label class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition
+          bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600
+          has-[:checked]:bg-emerald-500/20 has-[:checked]:border-emerald-500/30 has-[:checked]:text-emerald-400">
+          <%= check_box_tag "pit_scouting_entry[data][climber_levels][]", level, checked, class: "hidden" %>
+          <span class="text-sm font-medium"><%= level %></span>
+        </label>
+      <% end %>
+    </div>
+
+    <%# Climber type (single select radio) %>
+    <p class="text-sm font-medium text-gray-300 mb-1">Type</p>
+    <div class="flex flex-wrap gap-2">
+      <% ["Windmill", "Everybot", "Penn State", "Elevator"].each do |type| %>
+        <% checked = pit_scouting_entry.data&.dig("climber_type") == type %>
+        <label class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition
+          bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600
+          has-[:checked]:bg-orange-500/20 has-[:checked]:border-orange-500/30 has-[:checked]:text-orange-400">
+          <%= radio_button_tag "pit_scouting_entry[data][climber_type]", type, checked, class: "hidden" %>
+          <span class="text-sm font-medium"><%= type %></span>
+        </label>
+      <% end %>
+    </div>
+
+    <%# Climber notes %>
+    <div>
+      <%= label_tag "pit_scouting_entry[data][climber_notes]", "Notes", class: "block text-xs text-gray-500 uppercase tracking-wider mb-1" %>
+      <%= text_area_tag "pit_scouting_entry[data][climber_notes]",
+            pit_scouting_entry.data&.dig("climber_notes"),
+            rows: 2,
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none",
+            placeholder: "Climber notes..." %>
+    </div>
+  </div>
+
+  <%# ===== AUTO ===== %>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3">
+    <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Auto</h3>
+
+    <% auton_paths = pit_scouting_entry.data&.dig("auton_paths") || [] %>
+    <div data-controller="auton-paths"
+         data-auton-paths-paths-value="<%= auton_paths.to_json %>"
+         data-auton-paths-field-image-value="<%= image_path('field_2026.jpeg') %>">
+      <div data-auton-paths-target="container" class="space-y-3">
+        <%# Existing paths are rendered by the JS controller from pathsValue %>
+      </div>
+
+      <input type="hidden"
+             name="pit_scouting_entry[data][auton_paths_json]"
+             data-auton-paths-target="hiddenField"
+             value="<%= auton_paths.to_json %>" />
+
+      <button type="button"
+              class="mt-3 w-full py-2.5 text-sm font-medium rounded-lg border-2 border-dashed border-gray-700 text-gray-400 hover:border-gray-600 hover:text-gray-300 transition"
+              data-action="click->auton-paths#addPath">
+        + Add Auto Path
+      </button>
+    </div>
+
+    <%# Auton notes %>
+    <div>
+      <%= label_tag "pit_scouting_entry[data][auton_notes]", "Notes", class: "block text-xs text-gray-500 uppercase tracking-wider mb-1" %>
+      <%= text_area_tag "pit_scouting_entry[data][auton_notes]",
+            pit_scouting_entry.data&.dig("auton_notes"),
+            rows: 2,
+            class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none",
+            placeholder: "Auto notes..." %>
+    </div>
+  </div>
+
+  <%# ===== STRENGTHS / WEAKNESSES ===== %>
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
       <%= label_tag "pit_scouting_entry[data][strengths]", "Strengths", class: "block text-xs text-gray-500 uppercase tracking-wider mb-2" %>
@@ -103,20 +388,20 @@
     </div>
   </div>
 
-  <% # Notes %>
+  <%# ===== NOTES ===== %>
   <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
     <%= f.label :notes, class: "block text-xs text-gray-500 uppercase tracking-wider mb-2" %>
     <%= f.text_area :notes, rows: 3, class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none", placeholder: "Additional observations..." %>
   </div>
 
-  <% # Photo upload %>
+  <%# ===== PHOTOS ===== %>
   <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
     <h3 class="text-xs text-gray-500 uppercase tracking-wider mb-3">Photos</h3>
     <%= f.file_field :photos, multiple: true, accept: "image/*", capture: "environment",
           class: "w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-600 file:text-white hover:file:bg-orange-500 file:cursor-pointer" %>
   </div>
 
-  <% # Submit %>
+  <%# ===== SUBMIT ===== %>
   <div class="pb-4">
     <%= f.submit pit_scouting_entry.persisted? ? "Update Entry" : "Submit Pit Scout",
                  class: "w-full py-4 text-lg font-bold bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white rounded-xl transition-all active:scale-[0.98] cursor-pointer shadow-lg shadow-orange-500/20" %>

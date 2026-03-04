@@ -5,17 +5,25 @@ pit_254:
   frc_team: team_254
   organization: team_254
   data:
-    drivetrain: "swerve"
+    drivetrain: "Swerve"
+    drive_motor: "Kraken X60"
+    pivot_motor: "NEO 550"
     robot_weight: 120
     robot_width: 28
     robot_length: 30
     robot_height: 42
-    mechanisms:
-      - "shooter"
-      - "intake"
-      - "climber"
-    auto_capabilities:
-      - "4-ball"
+    intake_types:
+      - "over_bumper"
+    intake_width: 14
+    intake_mechanism: "Slapdown"
+    shooter_types:
+      - "Turret"
+    shooter_hood: "Adjustable"
+    shooter_motor: "Kraken X60"
+    climber_levels:
+      - "L2"
+      - "L3"
+    climber_type: "Elevator"
     strengths: "Fast cycle time, reliable climber"
     weaknesses: "Occasional intake jams"
   notes: "Very well-built robot, clean wiring."
@@ -28,17 +36,28 @@ pit_1678:
   frc_team: team_1678
   organization: team_254
   data:
-    drivetrain: "swerve"
+    drivetrain: "Swerve"
+    drive_motor: "NEO Vortex"
+    pivot_motor: "Kraken X44"
     robot_weight: 118
     robot_width: 27
     robot_length: 29
     robot_height: 40
-    mechanisms:
-      - "shooter"
-      - "intake"
-      - "climber"
-    auto_capabilities:
-      - "3-ball"
+    intake_types:
+      - "over_bumper"
+      - "through_bumper"
+    intake_width: 16
+    intake_mechanism: "Linkage"
+    indexer: "Spindexer"
+    shooter_types:
+      - "Dual Shooter"
+    shooter_hood: "Fixed"
+    shooter_motor: "NEO Vortex"
+    climber_levels:
+      - "L1"
+      - "L2"
+      - "L3"
+    climber_type: "Windmill"
     strengths: "Consistent autonomous, great defense"
     weaknesses: "Slower cycle time"
   notes: "Solid build quality."

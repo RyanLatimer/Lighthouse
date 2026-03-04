@@ -423,7 +423,8 @@ CREATE TABLE public.organizations (
     settings jsonb DEFAULT '{}'::jsonb NOT NULL,
     slug character varying NOT NULL,
     team_number integer,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    creator_id bigint
 );
 
 
@@ -784,7 +785,7 @@ CREATE MATERIALIZED VIEW public.team_event_summaries AS
         END) AS avg_climb_points,
     avg(((((COALESCE(((data ->> 'auton_fuel_made'::text))::numeric, (0)::numeric) + COALESCE(((data ->> 'teleop_fuel_made'::text))::numeric, (0)::numeric)) + COALESCE(((data ->> 'endgame_fuel_made'::text))::numeric, (0)::numeric)) + (
         CASE
-            WHEN ((data ->> 'auton_climb'::text))::boolean THEN 10
+            WHEN ((data ->> 'auton_climb'::text))::boolean THEN 15
             ELSE 0
         END)::numeric) + (
         CASE
@@ -795,7 +796,7 @@ CREATE MATERIALIZED VIEW public.team_event_summaries AS
         END)::numeric)) AS avg_total_points,
     stddev_samp(((((COALESCE(((data ->> 'auton_fuel_made'::text))::numeric, (0)::numeric) + COALESCE(((data ->> 'teleop_fuel_made'::text))::numeric, (0)::numeric)) + COALESCE(((data ->> 'endgame_fuel_made'::text))::numeric, (0)::numeric)) + (
         CASE
-            WHEN ((data ->> 'auton_climb'::text))::boolean THEN 10
+            WHEN ((data ->> 'auton_climb'::text))::boolean THEN 15
             ELSE 0
         END)::numeric) + (
         CASE
@@ -1417,6 +1418,13 @@ CREATE UNIQUE INDEX index_memberships_on_user_id_and_organization_id ON public.m
 
 
 --
+-- Name: index_organizations_on_creator_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_organizations_on_creator_id ON public.organizations USING btree (creator_id);
+
+
+--
 -- Name: index_organizations_on_slug; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1890,6 +1898,14 @@ ALTER TABLE ONLY public.predictions
 
 
 --
+-- Name: organizations fk_rails_976c6ec94b; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.organizations
+    ADD CONSTRAINT fk_rails_976c6ec94b FOREIGN KEY (creator_id) REFERENCES public.users(id);
+
+
+--
 -- Name: memberships fk_rails_99326fb65d; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2008,6 +2024,7 @@ ALTER TABLE ONLY public.predictions
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260303120000'),
 ('20260302210800'),
 ('20260302192708'),
 ('20260302020008'),
