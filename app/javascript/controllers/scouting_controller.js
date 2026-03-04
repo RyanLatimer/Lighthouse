@@ -27,6 +27,7 @@ export default class extends Controller {
     endgameMissed:{ type: Number, default: 0 },
     autonClimb:   { type: Boolean, default: false },
     endgameClimb: { type: String, default: "None" },
+    defenseRating:{ type: Number, default: 0 },
     matchTeams:   { type: Object, default: {} }
   }
 
@@ -100,6 +101,33 @@ export default class extends Controller {
     })
 
     this.updateDisplay()
+  }
+
+  selectDefense(event) {
+    const rating = parseInt(event.currentTarget.dataset.rating, 10)
+    this.defenseRatingValue = rating
+
+    // Highlight the selected card, deselect others
+    this.element.querySelectorAll("[data-defense-card]").forEach(card => {
+      const isSelected = parseInt(card.dataset.rating, 10) === rating
+      card.classList.toggle("ring-2", isSelected)
+      card.classList.toggle("ring-orange-400", isSelected)
+      card.classList.toggle("bg-orange-500/15", isSelected)
+      card.classList.toggle("border-orange-500", isSelected)
+      card.classList.toggle("shadow-lg", isSelected)
+      card.classList.toggle("shadow-orange-500/10", isSelected)
+      card.classList.toggle("scale-[1.02]", isSelected)
+      card.classList.toggle("bg-gray-800", !isSelected)
+      card.classList.toggle("border-gray-700", !isSelected)
+
+      const label = card.querySelector("p:first-child")
+      if (label) {
+        label.classList.toggle("text-orange-400", isSelected)
+        label.classList.toggle("text-gray-300", !isSelected)
+      }
+
+      card.setAttribute("aria-checked", isSelected)
+    })
   }
 
   // --- Tab switching ---
@@ -206,6 +234,7 @@ export default class extends Controller {
       endgame_fuel_missed: this.endgameMissedValue,
       auton_climb: this.autonClimbValue,
       endgame_climb: this.endgameClimbValue,
+      defense_rating: this.defenseRatingValue,
       auton_path: autonPath
     }
   }

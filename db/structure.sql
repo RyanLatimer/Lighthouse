@@ -776,22 +776,26 @@ CREATE MATERIALIZED VIEW public.team_event_summaries AS
             WHEN (sum((((((COALESCE(((data ->> 'auton_fuel_made'::text))::numeric, (0)::numeric) + COALESCE(((data ->> 'teleop_fuel_made'::text))::numeric, (0)::numeric)) + COALESCE(((data ->> 'endgame_fuel_made'::text))::numeric, (0)::numeric)) + COALESCE(((data ->> 'auton_fuel_missed'::text))::numeric, (0)::numeric)) + COALESCE(((data ->> 'teleop_fuel_missed'::text))::numeric, (0)::numeric)) + COALESCE(((data ->> 'endgame_fuel_missed'::text))::numeric, (0)::numeric))) > (0)::numeric) THEN round(((sum(((COALESCE(((data ->> 'auton_fuel_made'::text))::numeric, (0)::numeric) + COALESCE(((data ->> 'teleop_fuel_made'::text))::numeric, (0)::numeric)) + COALESCE(((data ->> 'endgame_fuel_made'::text))::numeric, (0)::numeric))) * 100.0) / NULLIF(sum((((((COALESCE(((data ->> 'auton_fuel_made'::text))::numeric, (0)::numeric) + COALESCE(((data ->> 'teleop_fuel_made'::text))::numeric, (0)::numeric)) + COALESCE(((data ->> 'endgame_fuel_made'::text))::numeric, (0)::numeric)) + COALESCE(((data ->> 'auton_fuel_missed'::text))::numeric, (0)::numeric)) + COALESCE(((data ->> 'teleop_fuel_missed'::text))::numeric, (0)::numeric)) + COALESCE(((data ->> 'endgame_fuel_missed'::text))::numeric, (0)::numeric))), (0)::numeric)), 1)
             ELSE (0)::numeric
         END AS fuel_accuracy_pct,
-    avg(
+    avg((
         CASE
-            WHEN ((data ->> 'endgame_climb'::text) = 'L3'::text) THEN 30
-            WHEN ((data ->> 'endgame_climb'::text) = 'L2'::text) THEN 20
-            WHEN ((data ->> 'endgame_climb'::text) = 'L1'::text) THEN 10
+            WHEN ((data ->> 'auton_climb'::text))::boolean THEN 15
             ELSE 0
-        END) AS avg_climb_points,
+        END +
+        CASE (data ->> 'endgame_climb'::text)
+            WHEN 'L3'::text THEN 30
+            WHEN 'L2'::text THEN 20
+            WHEN 'L1'::text THEN 10
+            ELSE 0
+        END)) AS avg_climb_points,
     avg(((((COALESCE(((data ->> 'auton_fuel_made'::text))::numeric, (0)::numeric) + COALESCE(((data ->> 'teleop_fuel_made'::text))::numeric, (0)::numeric)) + COALESCE(((data ->> 'endgame_fuel_made'::text))::numeric, (0)::numeric)) + (
         CASE
             WHEN ((data ->> 'auton_climb'::text))::boolean THEN 15
             ELSE 0
         END)::numeric) + (
-        CASE
-            WHEN ((data ->> 'endgame_climb'::text) = 'L3'::text) THEN 30
-            WHEN ((data ->> 'endgame_climb'::text) = 'L2'::text) THEN 20
-            WHEN ((data ->> 'endgame_climb'::text) = 'L1'::text) THEN 10
+        CASE (data ->> 'endgame_climb'::text)
+            WHEN 'L3'::text THEN 30
+            WHEN 'L2'::text THEN 20
+            WHEN 'L1'::text THEN 10
             ELSE 0
         END)::numeric)) AS avg_total_points,
     stddev_samp(((((COALESCE(((data ->> 'auton_fuel_made'::text))::numeric, (0)::numeric) + COALESCE(((data ->> 'teleop_fuel_made'::text))::numeric, (0)::numeric)) + COALESCE(((data ->> 'endgame_fuel_made'::text))::numeric, (0)::numeric)) + (
@@ -799,14 +803,20 @@ CREATE MATERIALIZED VIEW public.team_event_summaries AS
             WHEN ((data ->> 'auton_climb'::text))::boolean THEN 15
             ELSE 0
         END)::numeric) + (
-        CASE
-            WHEN ((data ->> 'endgame_climb'::text) = 'L3'::text) THEN 30
-            WHEN ((data ->> 'endgame_climb'::text) = 'L2'::text) THEN 20
-            WHEN ((data ->> 'endgame_climb'::text) = 'L1'::text) THEN 10
+        CASE (data ->> 'endgame_climb'::text)
+            WHEN 'L3'::text THEN 30
+            WHEN 'L2'::text THEN 20
+            WHEN 'L1'::text THEN 10
             ELSE 0
         END)::numeric)) AS stddev_total_points,
+    avg((COALESCE(((data ->> 'auton_fuel_made'::text))::numeric, (0)::numeric) + (
+        CASE
+            WHEN ((data ->> 'auton_climb'::text))::boolean THEN 15
+            ELSE 0
+        END)::numeric)) AS avg_auton_points,
+    avg(NULLIF(COALESCE(((data ->> 'defense_rating'::text))::numeric, (0)::numeric), (0)::numeric)) AS avg_defense_rating,
     max(updated_at) AS last_updated
-   FROM public.scouting_entries se
+   FROM public.scouting_entries
   WHERE (status = 0)
   GROUP BY event_id, frc_team_id
   WITH NO DATA;
@@ -2024,6 +2034,7 @@ ALTER TABLE ONLY public.predictions
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260304043658'),
 ('20260303120000'),
 ('20260302210800'),
 ('20260302192708'),

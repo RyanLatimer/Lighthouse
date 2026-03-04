@@ -56,6 +56,26 @@ class ScoutingEntry < ApplicationRecord
     points
   end
 
+  # Auton points for this entry (auton fuel + auton climb bonus)
+  def auton_points
+    pts = dig_int("auton_fuel_made") * FUEL_POINT_VALUE
+    pts += AUTON_CLIMB_POINTS if ActiveModel::Type::Boolean.new.cast(data&.dig("auton_climb"))
+    pts
+  end
+
+  # Climb points for this entry (auton climb + endgame climb)
+  def climb_points
+    pts = 0
+    pts += AUTON_CLIMB_POINTS if ActiveModel::Type::Boolean.new.cast(data&.dig("auton_climb"))
+    pts += CLIMB_POINTS.fetch(data&.dig("endgame_climb").to_s, 0)
+    pts
+  end
+
+  # Defense rating (1-5, 0 means not rated)
+  def defense_rating
+    dig_int("defense_rating")
+  end
+
   # Returns the array of autonomous actions from the JSONB data
   def auton_actions
     data&.dig("auton_actions") || []

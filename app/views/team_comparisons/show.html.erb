@@ -28,72 +28,36 @@
   <% end %>
 
   <% if @teams.any? %>
-    <% # Side-by-side stat cards %>
-    <div class="grid grid-cols-<%= [@teams.size, 6].min %> gap-3 mb-6">
-      <% @teams.each do |team| %>
-        <% summary = @summaries[team.id] %>
-        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
-          <div class="text-center mb-3">
-            <%= link_to team_path(team), class: "hover:text-orange-400 transition" do %>
-              <p class="text-xl font-bold text-orange-400"><%= team.team_number %></p>
-              <p class="text-xs text-gray-500 truncate"><%= team.nickname %></p>
-            <% end %>
-          </div>
-          <% if summary %>
-            <div class="space-y-2 text-sm">
-              <div class="flex justify-between">
-                <span class="text-gray-500">Avg Pts</span>
-                <span class="font-mono font-bold text-white"><%= summary.avg_total_points.to_f.round(1) %></span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-500">Accuracy</span>
-                <span class="font-mono text-amber-400"><%= summary.fuel_accuracy_pct.to_f.round(0) %>%</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-500">Climb</span>
-                <span class="font-mono text-blue-400"><%= summary.avg_climb_points.to_f.round(1) %></span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-500">Std Dev</span>
-                <span class="font-mono text-gray-400"><%= summary.stddev_total_points.to_f.round(1) %></span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-500">Scouted</span>
-                <span class="font-mono text-gray-400"><%= summary.matches_scouted %></span>
-              </div>
-            </div>
-          <% else %>
-            <p class="text-center text-gray-600 text-xs">No data</p>
+    <%# ===== RADAR CHART ===== %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-6 mb-6"
+         data-controller="radar-chart"
+         data-radar-chart-teams-value="<%= @radar_teams.to_json %>"
+         data-radar-chart-all-values-value="<%= @radar_all_values.to_json %>">
+      <h3 class="text-lg font-semibold text-white mb-4">Performance Radar</h3>
+      <div class="max-w-2xl mx-auto">
+        <canvas></canvas>
+      </div>
+      <p class="text-xs text-gray-600 text-center mt-3">Normalized to best/worst at this event</p>
+    </div>
+
+    <%# ===== PERFORMANCE OVER TIME CHART ===== %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-6 mb-6"
+         data-controller="stat-chart"
+         data-stat-chart-all-data-value="<%= @line_chart_data.to_json %>">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-white">Performance Over Matches</h3>
+        <select data-stat-chart-target="select"
+                data-action="change->stat-chart#changeStat"
+                class="bg-gray-800 border border-gray-700 text-gray-300 text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+          <% @line_chart_stats.each do |key, label| %>
+            <option value="<%= key %>"><%= label %></option>
           <% end %>
-        </div>
-      <% end %>
+        </select>
+      </div>
+      <canvas data-stat-chart-target="canvas"></canvas>
     </div>
 
-    <% # Performance over time chart %>
-    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-6 mb-6">
-      <h3 class="text-lg font-semibold text-white mb-4">Points Over Matches</h3>
-      <% chart_data = @teams.map do |team|
-        entries = @entries_by_team[team.id] || []
-        {
-          name: "##{team.team_number}",
-          data: entries.each_with_object({}) do |entry, hash|
-            label = entry.match&.display_name || "Entry #{entry.id}"
-            hash[label] = entry.total_points
-          end
-        }
-      end %>
-      <%= line_chart chart_data,
-                     colors: ["#f97316", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"],
-                     library: {
-                       scales: {
-                         x: { ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" } },
-                         y: { ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" }, beginAtZero: true }
-                       },
-                       plugins: { legend: { labels: { color: "#d1d5db" } } }
-                     } %>
-    </div>
-
-    <% # Pit scouting comparison %>
+    <%# ===== PIT SCOUTING COMPARISON ===== %>
     <% pit_entries = @teams.select { |t| @pit_data[t.id].present? } %>
     <% if pit_entries.any? %>
       <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden mb-6">

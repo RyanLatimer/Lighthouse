@@ -244,6 +244,23 @@ class ScoutingEntryTest < ActiveSupport::TestCase
     assert_equal 0, entry.total_points
   end
 
+  # --- Defense Rating ---
+
+  test "defense_rating returns 0 when not present" do
+    entry = ScoutingEntry.new(data: {}, event: events(:championship), frc_team: frc_teams(:team_254), user: users(:admin_user))
+    assert_equal 0, entry.defense_rating
+  end
+
+  test "defense_rating returns value from JSONB data" do
+    entry = ScoutingEntry.new(
+      data: { "defense_rating" => 4 },
+      event: events(:championship),
+      frc_team: frc_teams(:team_254),
+      user: users(:admin_user)
+    )
+    assert_equal 4, entry.defense_rating
+  end
+
   test "auton_actions returns empty array when not present" do
     entry = ScoutingEntry.new(data: {}, event: events(:championship), frc_team: frc_teams(:team_254), user: users(:admin_user))
     assert_equal [], entry.auton_actions

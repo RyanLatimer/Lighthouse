@@ -270,6 +270,7 @@ match_assignments.each_with_index do |(match_num, red_indices, blue_indices), mi
       endgame_missed = rand(0..1)
       climb = weighted_pick(profile[:climb_wt])
       auton_climb = rand < profile[:auton_climb]
+      defense = rand(1..5)
 
       entry = ScoutingEntry.find_or_create_by!(
         event: event, frc_team: team, match: match, user: scouter
@@ -285,6 +286,7 @@ match_assignments.each_with_index do |(match_num, red_indices, blue_indices), mi
           "endgame_fuel_missed" => endgame_missed,
           "endgame_climb" => climb,
           "auton_climb" => auton_climb,
+          "defense_rating" => defense,
           "auton_actions" => [
             { "action" => "Mobility", "timestamp" => Time.now.to_i },
             auton_made > 3 ? { "action" => "Preload", "timestamp" => Time.now.to_i } : nil,
