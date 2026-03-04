@@ -36,32 +36,20 @@ class ApplicationPolicy
 
   private
 
-  def current_organization
-    Current.organization
-  end
-
-  def membership
-    @membership ||= user.membership_for(current_organization)
-  end
-
   def admin?
-    membership&.at_least?("admin")
-  end
-
-  def lead?
-    membership&.at_least?("lead")
+    user.admin?
   end
 
   def analyst?
-    membership&.at_least?("analyst")
+    user.admin? || user.analyst?
   end
 
   def scout?
-    membership.present?
+    user.admin? || user.analyst? || user.scout?
   end
 
-  def admin_or_lead?
-    admin? || lead?
+  def admin?
+    user.admin?
   end
 
   class Scope
@@ -78,32 +66,20 @@ class ApplicationPolicy
 
     private
 
-    def current_organization
-      Current.organization
-    end
-
-    def membership
-      @membership ||= user.membership_for(current_organization)
-    end
-
     def admin?
-      membership&.at_least?("admin")
-    end
-
-    def lead?
-      membership&.at_least?("lead")
+      user.admin?
     end
 
     def analyst?
-      membership&.at_least?("analyst")
+      user.admin? || user.analyst?
     end
 
     def scout?
-      membership.present?
+      user.admin? || user.analyst? || user.scout?
     end
 
-    def admin_or_lead?
-      admin? || lead?
+    def admin?
+      user.admin?
     end
   end
 end

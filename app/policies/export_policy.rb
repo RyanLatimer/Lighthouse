@@ -5,18 +5,18 @@ class ExportPolicy < ApplicationPolicy
   end
 
   def csv?
-    admin_or_lead?
+    analyst?
   end
 
   def pdf?
-    admin_or_lead?
+    analyst?
   end
 
   def excel?
-    admin_or_lead?
+    analyst?
   end
 
   def json?
-    admin_or_lead?
+    analyst?
   end
 end

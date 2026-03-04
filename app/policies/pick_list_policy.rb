@@ -1,27 +1,27 @@
 class PickListPolicy < ApplicationPolicy
   def index?
-    analyst? || admin_or_lead?
+    analyst?
   end
 
   def show?
-    analyst? || admin_or_lead?
+    analyst?
   end
 
   def create?
-    admin_or_lead?
+    admin?
   end
 
   def update?
-    admin_or_lead?
+    admin?
   end
 
   def destroy?
-    admin_or_lead?
+    admin?
   end
 
   class Scope < ApplicationPolicy::Scope
     def resolve
-      if admin_or_lead?
+      if admin?
         scope.all
       else
         scope.where(user: user)

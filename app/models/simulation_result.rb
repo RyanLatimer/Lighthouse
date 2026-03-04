@@ -3,7 +3,6 @@
 class SimulationResult < ApplicationRecord
   belongs_to :user
   belongs_to :event
-  belongs_to :organization, optional: true
 
   validates :red_team_ids, presence: true
   validates :blue_team_ids, presence: true

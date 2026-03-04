@@ -12,11 +12,11 @@ class ScoutingEntryPolicy < ApplicationPolicy
   end
 
   def update?
-    owner? || admin_or_lead?
+    owner? || analyst?
   end
 
   def destroy?
-    admin_or_lead?
+    analyst?
   end
 
   def sync?

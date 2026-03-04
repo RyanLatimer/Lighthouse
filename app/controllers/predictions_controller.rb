@@ -41,7 +41,7 @@ class PredictionsController < ApplicationController
     # Warm Statbotics cache first, then generate predictions
     SyncStatboticsJob.perform_later(current_event.id)
 
-    service = PredictionService.new(current_event, current_organization)
+    service = PredictionService.new(current_event)
     count = service.generate_all!
 
     redirect_to predictions_path, notice: "Generated predictions for #{count} matches."

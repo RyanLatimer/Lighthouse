@@ -3,7 +3,6 @@
 class Prediction < ApplicationRecord
   belongs_to :match
   belongs_to :event
-  belongs_to :organization, optional: true
 
   validates :source, presence: true,
             inclusion: { in: %w[scouting statbotics blended] }

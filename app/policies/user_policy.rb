@@ -1,13 +1,17 @@
-class ReportPolicy < ApplicationPolicy
+class UserPolicy < ApplicationPolicy
   def index?
-    analyst?
+    admin?
   end
 
-  def show?
-    analyst?
+  def new?
+    admin?
   end
 
   def create?
+    admin?
+  end
+
+  def edit?
     admin?
   end
 
@@ -21,11 +25,7 @@ class ReportPolicy < ApplicationPolicy
 
   class Scope < ApplicationPolicy::Scope
     def resolve
-      if admin?
-        scope.all
-      else
-        scope.where(user: user)
-      end
+      scope.all
     end
   end
 end

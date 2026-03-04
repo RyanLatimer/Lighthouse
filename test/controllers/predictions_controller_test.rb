@@ -17,13 +17,13 @@ class PredictionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "scout can get index" do
+  test "scout cannot get index" do
     sign_out :user
     sign_in_as(users(:scout_user))
     select_event(@event)
 
     get predictions_path
-    assert_response :success
+    assert_response :redirect
   end
 
   test "index requires event" do
@@ -41,13 +41,13 @@ class PredictionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "scout can get show" do
+  test "scout cannot get show" do
     sign_out :user
     sign_in_as(users(:scout_user))
     select_event(@event)
 
     get prediction_path(@match)
-    assert_response :success
+    assert_response :redirect
   end
 
   # --- Generate ---

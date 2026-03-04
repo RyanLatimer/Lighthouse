@@ -136,7 +136,6 @@ CREATE TABLE public.data_conflicts (
     field_name character varying NOT NULL,
     frc_team_id bigint NOT NULL,
     match_id bigint NOT NULL,
-    organization_id bigint,
     resolution_value character varying,
     resolved boolean DEFAULT false NOT NULL,
     resolved_by_id bigint,
@@ -208,7 +207,6 @@ CREATE TABLE public.events (
     end_date date,
     event_type integer,
     name character varying,
-    organization_id bigint,
     start_date date,
     state_prov character varying,
     tba_key character varying,
@@ -284,7 +282,6 @@ CREATE TABLE public.game_configs (
     config jsonb DEFAULT '{}'::jsonb NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     game_name character varying NOT NULL,
-    organization_id bigint,
     updated_at timestamp(6) without time zone NOT NULL,
     year integer NOT NULL
 );
@@ -380,74 +377,6 @@ ALTER SEQUENCE public.matches_id_seq OWNED BY public.matches.id;
 
 
 --
--- Name: memberships; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.memberships (
-    id bigint NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL,
-    organization_id bigint NOT NULL,
-    role integer DEFAULT 0 NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL,
-    user_id bigint NOT NULL
-);
-
-
---
--- Name: memberships_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.memberships_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: memberships_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.memberships_id_seq OWNED BY public.memberships.id;
-
-
---
--- Name: organizations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.organizations (
-    id bigint NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL,
-    name character varying NOT NULL,
-    settings jsonb DEFAULT '{}'::jsonb NOT NULL,
-    slug character varying NOT NULL,
-    team_number integer,
-    updated_at timestamp(6) without time zone NOT NULL,
-    creator_id bigint
-);
-
-
---
--- Name: organizations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.organizations_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: organizations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.organizations_id_seq OWNED BY public.organizations.id;
-
-
---
 -- Name: pick_lists; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -457,7 +386,6 @@ CREATE TABLE public.pick_lists (
     entries jsonb,
     event_id bigint NOT NULL,
     name character varying,
-    organization_id bigint,
     updated_at timestamp(6) without time zone NOT NULL,
     user_id bigint NOT NULL
 );
@@ -494,7 +422,6 @@ CREATE TABLE public.pit_scouting_entries (
     event_id bigint NOT NULL,
     frc_team_id bigint NOT NULL,
     notes text,
-    organization_id bigint,
     status integer DEFAULT 0 NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     user_id bigint NOT NULL
@@ -534,7 +461,6 @@ CREATE TABLE public.predictions (
     details jsonb DEFAULT '{}'::jsonb NOT NULL,
     event_id bigint NOT NULL,
     match_id bigint NOT NULL,
-    organization_id bigint,
     red_score double precision,
     red_win_probability double precision,
     source character varying,
@@ -573,7 +499,6 @@ CREATE TABLE public.reports (
     event_id bigint NOT NULL,
     last_generated_at timestamp(6) without time zone,
     name character varying NOT NULL,
-    organization_id bigint,
     updated_at timestamp(6) without time zone NOT NULL,
     user_id bigint NOT NULL
 );
@@ -599,39 +524,6 @@ ALTER SEQUENCE public.reports_id_seq OWNED BY public.reports.id;
 
 
 --
--- Name: roles; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.roles (
-    id bigint NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL,
-    name character varying,
-    resource_id bigint,
-    resource_type character varying,
-    updated_at timestamp(6) without time zone NOT NULL
-);
-
-
---
--- Name: roles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.roles_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: roles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.roles_id_seq OWNED BY public.roles.id;
-
-
---
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -653,7 +545,6 @@ CREATE TABLE public.scouting_entries (
     frc_team_id bigint NOT NULL,
     match_id bigint,
     notes text,
-    organization_id bigint,
     photo_url character varying,
     status integer DEFAULT 0 NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
@@ -691,7 +582,6 @@ CREATE TABLE public.simulation_results (
     event_id bigint NOT NULL,
     iterations integer DEFAULT 1000,
     name character varying,
-    organization_id bigint,
     red_team_ids jsonb DEFAULT '[]'::jsonb NOT NULL,
     results jsonb DEFAULT '{}'::jsonb NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
@@ -839,7 +729,9 @@ CREATE TABLE public.users (
     reset_password_sent_at timestamp(6) without time zone,
     reset_password_token character varying,
     team_number integer,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    role integer DEFAULT 0 NOT NULL,
+    username character varying NOT NULL
 );
 
 
@@ -860,16 +752,6 @@ CREATE SEQUENCE public.users_id_seq
 --
 
 ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
-
-
---
--- Name: users_roles; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.users_roles (
-    role_id bigint,
-    user_id bigint
-);
 
 
 --
@@ -943,20 +825,6 @@ ALTER TABLE ONLY public.matches ALTER COLUMN id SET DEFAULT nextval('public.matc
 
 
 --
--- Name: memberships id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.memberships ALTER COLUMN id SET DEFAULT nextval('public.memberships_id_seq'::regclass);
-
-
---
--- Name: organizations id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.organizations ALTER COLUMN id SET DEFAULT nextval('public.organizations_id_seq'::regclass);
-
-
---
 -- Name: pick_lists id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -982,13 +850,6 @@ ALTER TABLE ONLY public.predictions ALTER COLUMN id SET DEFAULT nextval('public.
 --
 
 ALTER TABLE ONLY public.reports ALTER COLUMN id SET DEFAULT nextval('public.reports_id_seq'::regclass);
-
-
---
--- Name: roles id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.roles ALTER COLUMN id SET DEFAULT nextval('public.roles_id_seq'::regclass);
 
 
 --
@@ -1108,22 +969,6 @@ ALTER TABLE ONLY public.matches
 
 
 --
--- Name: memberships memberships_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.memberships
-    ADD CONSTRAINT memberships_pkey PRIMARY KEY (id);
-
-
---
--- Name: organizations organizations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.organizations
-    ADD CONSTRAINT organizations_pkey PRIMARY KEY (id);
-
-
---
 -- Name: pick_lists pick_lists_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1153,14 +998,6 @@ ALTER TABLE ONLY public.predictions
 
 ALTER TABLE ONLY public.reports
     ADD CONSTRAINT reports_pkey PRIMARY KEY (id);
-
-
---
--- Name: roles roles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.roles
-    ADD CONSTRAINT roles_pkey PRIMARY KEY (id);
 
 
 --
@@ -1222,13 +1059,6 @@ CREATE UNIQUE INDEX idx_match_alliances_unique_station ON public.match_alliances
 --
 
 CREATE UNIQUE INDEX idx_pit_scouting_entries_unique ON public.pit_scouting_entries USING btree (event_id, frc_team_id, user_id);
-
-
---
--- Name: idx_predictions_unique; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX idx_predictions_unique ON public.predictions USING btree (match_id, organization_id, source);
 
 
 --
@@ -1295,13 +1125,6 @@ CREATE INDEX index_data_conflicts_on_match_id ON public.data_conflicts USING btr
 
 
 --
--- Name: index_data_conflicts_on_organization_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_data_conflicts_on_organization_id ON public.data_conflicts USING btree (organization_id);
-
-
---
 -- Name: index_data_conflicts_on_resolved_by_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1330,13 +1153,6 @@ CREATE INDEX index_event_teams_on_frc_team_id ON public.event_teams USING btree 
 
 
 --
--- Name: index_events_on_organization_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_events_on_organization_id ON public.events USING btree (organization_id);
-
-
---
 -- Name: index_events_on_tba_key; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1355,13 +1171,6 @@ CREATE UNIQUE INDEX index_frc_teams_on_team_number ON public.frc_teams USING btr
 --
 
 CREATE INDEX index_game_configs_on_active ON public.game_configs USING btree (active);
-
-
---
--- Name: index_game_configs_on_organization_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_game_configs_on_organization_id ON public.game_configs USING btree (organization_id);
 
 
 --
@@ -1407,59 +1216,10 @@ CREATE UNIQUE INDEX index_matches_on_tba_key ON public.matches USING btree (tba_
 
 
 --
--- Name: index_memberships_on_organization_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_memberships_on_organization_id ON public.memberships USING btree (organization_id);
-
-
---
--- Name: index_memberships_on_user_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_memberships_on_user_id ON public.memberships USING btree (user_id);
-
-
---
--- Name: index_memberships_on_user_id_and_organization_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_memberships_on_user_id_and_organization_id ON public.memberships USING btree (user_id, organization_id);
-
-
---
--- Name: index_organizations_on_creator_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_organizations_on_creator_id ON public.organizations USING btree (creator_id);
-
-
---
--- Name: index_organizations_on_slug; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_organizations_on_slug ON public.organizations USING btree (slug);
-
-
---
--- Name: index_organizations_on_team_number; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_organizations_on_team_number ON public.organizations USING btree (team_number);
-
-
---
 -- Name: index_pick_lists_on_event_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_pick_lists_on_event_id ON public.pick_lists USING btree (event_id);
-
-
---
--- Name: index_pick_lists_on_organization_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_pick_lists_on_organization_id ON public.pick_lists USING btree (organization_id);
 
 
 --
@@ -1498,13 +1258,6 @@ CREATE INDEX index_pit_scouting_entries_on_frc_team_id ON public.pit_scouting_en
 
 
 --
--- Name: index_pit_scouting_entries_on_organization_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_pit_scouting_entries_on_organization_id ON public.pit_scouting_entries USING btree (organization_id);
-
-
---
 -- Name: index_pit_scouting_entries_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1526,13 +1279,6 @@ CREATE INDEX index_predictions_on_match_id ON public.predictions USING btree (ma
 
 
 --
--- Name: index_predictions_on_organization_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_predictions_on_organization_id ON public.predictions USING btree (organization_id);
-
-
---
 -- Name: index_reports_on_event_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1540,31 +1286,10 @@ CREATE INDEX index_reports_on_event_id ON public.reports USING btree (event_id);
 
 
 --
--- Name: index_reports_on_organization_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_reports_on_organization_id ON public.reports USING btree (organization_id);
-
-
---
 -- Name: index_reports_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_reports_on_user_id ON public.reports USING btree (user_id);
-
-
---
--- Name: index_roles_on_name_and_resource_type_and_resource_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_roles_on_name_and_resource_type_and_resource_id ON public.roles USING btree (name, resource_type, resource_id);
-
-
---
--- Name: index_roles_on_resource; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_roles_on_resource ON public.roles USING btree (resource_type, resource_id);
 
 
 --
@@ -1603,13 +1328,6 @@ CREATE INDEX index_scouting_entries_on_match_id ON public.scouting_entries USING
 
 
 --
--- Name: index_scouting_entries_on_organization_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_scouting_entries_on_organization_id ON public.scouting_entries USING btree (organization_id);
-
-
---
 -- Name: index_scouting_entries_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1621,13 +1339,6 @@ CREATE INDEX index_scouting_entries_on_user_id ON public.scouting_entries USING 
 --
 
 CREATE INDEX index_simulation_results_on_event_id ON public.simulation_results USING btree (event_id);
-
-
---
--- Name: index_simulation_results_on_organization_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_simulation_results_on_organization_id ON public.simulation_results USING btree (organization_id);
 
 
 --
@@ -1687,32 +1398,10 @@ CREATE UNIQUE INDEX index_users_on_reset_password_token ON public.users USING bt
 
 
 --
--- Name: index_users_roles_on_role_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_users_on_username; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_users_roles_on_role_id ON public.users_roles USING btree (role_id);
-
-
---
--- Name: index_users_roles_on_user_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_users_roles_on_user_id ON public.users_roles USING btree (user_id);
-
-
---
--- Name: index_users_roles_on_user_id_and_role_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_users_roles_on_user_id_and_role_id ON public.users_roles USING btree (user_id, role_id);
-
-
---
--- Name: predictions fk_rails_02c1b084c9; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.predictions
-    ADD CONSTRAINT fk_rails_02c1b084c9 FOREIGN KEY (organization_id) REFERENCES public.organizations(id);
+CREATE UNIQUE INDEX index_users_on_username ON public.users USING btree (username);
 
 
 --
@@ -1729,14 +1418,6 @@ ALTER TABLE ONLY public.simulation_results
 
 ALTER TABLE ONLY public.reports
     ADD CONSTRAINT fk_rails_13bc38ca00 FOREIGN KEY (event_id) REFERENCES public.events(id);
-
-
---
--- Name: events fk_rails_163b5130b5; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.events
-    ADD CONSTRAINT fk_rails_163b5130b5 FOREIGN KEY (organization_id) REFERENCES public.organizations(id);
 
 
 --
@@ -1844,22 +1525,6 @@ ALTER TABLE ONLY public.pick_lists
 
 
 --
--- Name: memberships fk_rails_64267aab58; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.memberships
-    ADD CONSTRAINT fk_rails_64267aab58 FOREIGN KEY (organization_id) REFERENCES public.organizations(id);
-
-
---
--- Name: simulation_results fk_rails_706191125d; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.simulation_results
-    ADD CONSTRAINT fk_rails_706191125d FOREIGN KEY (organization_id) REFERENCES public.organizations(id);
-
-
---
 -- Name: matches fk_rails_7069ec1376; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1868,27 +1533,11 @@ ALTER TABLE ONLY public.matches
 
 
 --
--- Name: pit_scouting_entries fk_rails_72ca1556df; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.pit_scouting_entries
-    ADD CONSTRAINT fk_rails_72ca1556df FOREIGN KEY (organization_id) REFERENCES public.organizations(id);
-
-
---
 -- Name: pit_scouting_entries fk_rails_7885593f98; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.pit_scouting_entries
     ADD CONSTRAINT fk_rails_7885593f98 FOREIGN KEY (user_id) REFERENCES public.users(id);
-
-
---
--- Name: scouting_entries fk_rails_80ee362e55; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.scouting_entries
-    ADD CONSTRAINT fk_rails_80ee362e55 FOREIGN KEY (organization_id) REFERENCES public.organizations(id);
 
 
 --
@@ -1905,22 +1554,6 @@ ALTER TABLE ONLY public.scouting_entries
 
 ALTER TABLE ONLY public.predictions
     ADD CONSTRAINT fk_rails_899a4f2cfe FOREIGN KEY (event_id) REFERENCES public.events(id);
-
-
---
--- Name: organizations fk_rails_976c6ec94b; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.organizations
-    ADD CONSTRAINT fk_rails_976c6ec94b FOREIGN KEY (creator_id) REFERENCES public.users(id);
-
-
---
--- Name: memberships fk_rails_99326fb65d; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.memberships
-    ADD CONSTRAINT fk_rails_99326fb65d FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -1956,27 +1589,11 @@ ALTER TABLE ONLY public.data_conflicts
 
 
 --
--- Name: game_configs fk_rails_bafc743e82; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.game_configs
-    ADD CONSTRAINT fk_rails_bafc743e82 FOREIGN KEY (organization_id) REFERENCES public.organizations(id);
-
-
---
 -- Name: active_storage_attachments fk_rails_c3b3935057; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.active_storage_attachments
     ADD CONSTRAINT fk_rails_c3b3935057 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
-
-
---
--- Name: pick_lists fk_rails_c461c3fcfe; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.pick_lists
-    ADD CONSTRAINT fk_rails_c461c3fcfe FOREIGN KEY (organization_id) REFERENCES public.organizations(id);
 
 
 --
@@ -1988,27 +1605,11 @@ ALTER TABLE ONLY public.reports
 
 
 --
--- Name: reports fk_rails_c912a99069; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.reports
-    ADD CONSTRAINT fk_rails_c912a99069 FOREIGN KEY (organization_id) REFERENCES public.organizations(id);
-
-
---
 -- Name: data_conflicts fk_rails_cf41e98d82; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.data_conflicts
     ADD CONSTRAINT fk_rails_cf41e98d82 FOREIGN KEY (frc_team_id) REFERENCES public.frc_teams(id);
-
-
---
--- Name: data_conflicts fk_rails_e940e97253; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.data_conflicts
-    ADD CONSTRAINT fk_rails_e940e97253 FOREIGN KEY (organization_id) REFERENCES public.organizations(id);
 
 
 --
@@ -2034,6 +1635,8 @@ ALTER TABLE ONLY public.predictions
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260304154510'),
+('20260304150742'),
 ('20260304043658'),
 ('20260303120000'),
 ('20260302210800'),

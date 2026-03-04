@@ -22,7 +22,6 @@ class ReportsController < ApplicationController
   def create
     @report = current_user.reports.build(report_params)
     @report.event = current_event
-    @report.organization = current_organization
     authorize @report
 
     if @report.save

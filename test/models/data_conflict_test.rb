@@ -26,10 +26,6 @@ class DataConflictTest < ActiveSupport::TestCase
     assert_nil conflict.resolved_by
   end
 
-  test "belongs to organization (optional)" do
-    assert_equal organizations(:team_254), data_conflicts(:conflict_qm1_254_climb).organization
-  end
-
   # --- Scopes ---
 
   test "unresolved returns conflicts that are not resolved" do

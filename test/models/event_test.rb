@@ -11,8 +11,7 @@ class EventTest < ActiveSupport::TestCase
     duplicate = Event.new(
       name: "Duplicate",
       tba_key: "2026cmp",
-      year: 2026,
-      organization: organizations(:team_254)
+      year: 2026
     )
     assert_not duplicate.valid?
     assert_includes duplicate.errors[:tba_key], "has already been taken"
@@ -25,11 +24,6 @@ class EventTest < ActiveSupport::TestCase
   end
 
   # --- Associations ---
-
-  test "belongs to organization (optional)" do
-    event = events(:championship)
-    assert_equal organizations(:team_254), event.organization
-  end
 
   test "has many matches" do
     event = events(:championship)
@@ -107,16 +101,6 @@ class EventTest < ActiveSupport::TestCase
     travel_to Date.new(2026, 5, 1) do
       assert_not_includes Event.active, events(:championship)
     end
-  end
-
-  test "for_organization returns events for a specific org" do
-    org = organizations(:team_254)
-    assert_includes Event.for_organization(org), events(:championship)
-  end
-
-  test "for_organization excludes events from other orgs" do
-    org = organizations(:team_1678)
-    assert_not_includes Event.for_organization(org), events(:championship)
   end
 
   # --- Dependent destroy ---

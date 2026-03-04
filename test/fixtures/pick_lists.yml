@@ -4,4 +4,3 @@ championship_picks:
   entries: <%= [254, 1678, 118, 4414].to_json %>
   event: championship
   user: admin_user
-  organization: team_254

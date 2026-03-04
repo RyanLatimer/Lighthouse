@@ -23,10 +23,6 @@ class GameConfigTest < ActiveSupport::TestCase
 
   # --- Associations ---
 
-  test "belongs to organization (optional)" do
-    assert_equal organizations(:team_254), game_configs(:reefscape_2026).organization
-  end
-
   # --- Scopes ---
 
   test "active scope returns active configs" do

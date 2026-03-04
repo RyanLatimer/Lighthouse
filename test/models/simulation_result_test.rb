@@ -31,10 +31,6 @@ class SimulationResultTest < ActiveSupport::TestCase
     assert_equal events(:championship), simulation_results(:sim_254_vs_1678).event
   end
 
-  test "belongs to organization (optional)" do
-    assert_equal organizations(:team_254), simulation_results(:sim_254_vs_1678).organization
-  end
-
   # --- Computed Methods ---
   # Test with a properly-built SimulationResult that has Hash results
 

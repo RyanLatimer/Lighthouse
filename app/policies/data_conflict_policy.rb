@@ -1,10 +1,10 @@
 class DataConflictPolicy < ApplicationPolicy
   def index?
-    analyst? || admin_or_lead?
+    analyst?
   end
 
   def resolve?
-    admin_or_lead?
+    admin?
   end
 
   class Scope < ApplicationPolicy::Scope

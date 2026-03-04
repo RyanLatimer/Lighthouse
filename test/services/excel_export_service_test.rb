@@ -71,8 +71,7 @@ class ExcelExportServiceTest < ActiveSupport::TestCase
       country: "USA",
       event_type: 0,
       year: 2026,
-      week: 1,
-      organization: organizations(:team_254)
+      week: 1
     )
 
     service = ExcelExportService.new(empty_event)

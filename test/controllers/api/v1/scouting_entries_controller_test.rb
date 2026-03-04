@@ -21,7 +21,6 @@ class Api::V1::ScoutingEntriesControllerTest < ActionDispatch::IntegrationTest
           match_id: @match.id,
           frc_team_id: api_team.id,
           event_id: @event.id,
-          organization_id: organizations(:team_254).id,
           notes: "API created entry",
           client_uuid: "api-create-#{SecureRandom.hex(8)}",
           data: { auton_fuel_made: 5, teleop_fuel_made: 10 }

@@ -17,10 +17,10 @@
 
       <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-4" }) do |f| %>
         <div>
-          <%= f.label :email, class: "block text-sm font-medium text-gray-300 mb-1" %>
-          <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true,
+          <%= f.label :username, "Name", class: "block text-sm font-medium text-gray-300 mb-1" %>
+          <%= f.text_field :username, autofocus: true, autocomplete: "username", required: true,
               class: "input-field py-2.5",
-              placeholder: "you@harborps.org" %>
+              placeholder: "Your full name" %>
         </div>
 
         <div>
@@ -34,15 +34,6 @@
           <%= f.submit "Sign In", class: "w-full py-2.5 bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-semibold rounded-lg transition-all duration-150 cursor-pointer shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950" %>
         </div>
       <% end %>
-
-      <%# Links %>
-      <div class="mt-6 pt-6 border-t border-gray-800 space-y-2 text-center">
-          <%- if devise_mapping.recoverable? %>
-          <p>
-            <%= link_to "Forgot your password?", new_password_path(resource_name), class: "text-sm text-gray-400 hover:text-gray-300 transition-colors duration-150" %>
-          </p>
-        <% end %>
-      </div>
     </div>
   </div>
 </div>

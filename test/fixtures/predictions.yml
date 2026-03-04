@@ -2,7 +2,6 @@
 prediction_qm1:
   match: qm1
   event: championship
-  organization: team_254
   red_score: 85.5
   blue_score: 72.3
   red_win_probability: 68.2

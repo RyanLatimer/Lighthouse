@@ -11,34 +11,15 @@ class ApplicationController < ActionController::Base
 
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
-  before_action :set_current_organization
 
   after_action :pundit_verify, unless: :skip_pundit?
   before_action :auto_sync_event, if: :should_auto_sync?
 
-  helper_method :current_event, :current_organization
+  helper_method :current_event
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   private
-
-  # Returns the currently selected organization from the session, or the user's first org.
-  def current_organization
-    return @current_organization if defined?(@current_organization)
-
-    if session[:current_organization_id].present?
-      @current_organization = current_user&.organizations&.find_by(id: session[:current_organization_id])
-    end
-
-    @current_organization ||= current_user&.organizations&.first
-    @current_organization
-  end
-
-  def set_current_organization
-    return unless current_user
-
-    Current.organization = current_organization
-  end
 
   # Returns the currently selected event from the session, or nil.
   def current_event
@@ -74,7 +55,8 @@ class ApplicationController < ActionController::Base
   end
 
   def configure_permitted_parameters
-    devise_parameter_sanitizer.permit(:account_update, keys: [ :first_name, :last_name, :team_number ])
+    devise_parameter_sanitizer.permit(:sign_in, keys: [ :username ])
+    devise_parameter_sanitizer.permit(:account_update, keys: [ :first_name, :last_name ])
   end
 
   # Runs a debounced TBA sync inline (fast, ~1-2s with caching) so pages

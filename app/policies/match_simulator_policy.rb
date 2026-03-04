@@ -5,10 +5,10 @@ class MatchSimulatorPolicy < ApplicationPolicy
   end
 
   def new?
-    analyst? || admin_or_lead?
+    analyst?
   end
 
   def create?
-    analyst? || admin_or_lead?
+    analyst?
   end
 end

@@ -69,10 +69,6 @@ class ScoutingEntryTest < ActiveSupport::TestCase
     assert_equal events(:championship), scouting_entries(:entry_qm1_254).event
   end
 
-  test "belongs to organization (optional)" do
-    assert_equal organizations(:team_254), scouting_entries(:entry_qm1_254).organization
-  end
-
   # --- Enums ---
 
   test "status enum values" do
@@ -284,7 +280,6 @@ class ScoutingEntryTest < ActiveSupport::TestCase
       match_id: matches(:qm1).id,
       frc_team_id: frc_teams(:team_254).id,
       event_id: events(:championship).id,
-      organization_id: organizations(:team_254).id,
       data: { "auton_fuel_made" => 10 },
       notes: "Offline entry",
       photo_url: "https://example.com/photo.jpg",
@@ -298,7 +293,6 @@ class ScoutingEntryTest < ActiveSupport::TestCase
     assert_equal matches(:qm1).id, entry.match_id
     assert_equal frc_teams(:team_254).id, entry.frc_team_id
     assert_equal events(:championship).id, entry.event_id
-    assert_equal organizations(:team_254).id, entry.organization_id
     assert_equal({ "auton_fuel_made" => 10 }, entry.data)
     assert_equal "Offline entry", entry.notes
     assert_equal "https://example.com/photo.jpg", entry.photo_url

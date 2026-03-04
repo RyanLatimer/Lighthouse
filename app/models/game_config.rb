@@ -1,5 +1,4 @@
 class GameConfig < ApplicationRecord
-  belongs_to :organization, optional: true
 
   # Validations
   validates :year, presence: true

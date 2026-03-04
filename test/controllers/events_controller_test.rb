@@ -59,12 +59,12 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "lead should get new" do
+  test "analyst should not get new" do
     sign_out :user
     sign_in_as(users(:lead_user))
 
     get new_event_path
-    assert_response :success
+    assert_response :redirect
   end
 
   test "scout should not get new" do
@@ -93,11 +93,11 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to event_path(Event.last)
   end
 
-  test "lead should create event" do
+  test "analyst should not create event" do
     sign_out :user
     sign_in_as(users(:lead_user))
 
-    assert_difference("Event.count", 1) do
+    assert_no_difference("Event.count") do
       post events_path, params: {
         event: {
           name: "Lead Regional",
@@ -109,7 +109,7 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
         }
       }
     end
-    assert_redirected_to event_path(Event.last)
+    assert_response :redirect
   end
 
   test "scout should not create event" do
@@ -143,16 +143,14 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to events_path
   end
 
-  test "lead should destroy event" do
+  test "analyst should not destroy event" do
     sign_out :user
     sign_in_as(users(:lead_user))
 
-    event = Event.create!(name: "Lead Deletable", tba_key: "2026leaddel", year: 2026, event_type: 0)
-
-    assert_difference("Event.count", -1) do
-      delete event_path(event)
+    assert_no_difference("Event.count") do
+      delete event_path(@event)
     end
-    assert_redirected_to events_path
+    assert_response :redirect
   end
 
   test "scout should not destroy event" do

@@ -4,7 +4,6 @@ entry_qm1_254:
   match: qm1
   frc_team: team_254
   event: championship
-  organization: team_254
   data:
     auton_fuel_made: 5
     auton_fuel_missed: 1
@@ -23,7 +22,6 @@ entry_qm1_1678:
   match: qm1
   frc_team: team_1678
   event: championship
-  organization: team_254
   data:
     auton_fuel_made: 3
     auton_fuel_missed: 2
@@ -42,7 +40,6 @@ entry_qm2_254:
   match: qm2
   frc_team: team_254
   event: championship
-  organization: team_254
   data:
     auton_fuel_made: 6
     auton_fuel_missed: 0
@@ -61,7 +58,6 @@ entry_qm2_1678:
   match: qm2
   frc_team: team_1678
   event: championship
-  organization: team_254
   data:
     auton_fuel_made: 4
     auton_fuel_missed: 1

@@ -6,7 +6,6 @@ class ScoutingEntry < ApplicationRecord
   belongs_to :match, optional: true
   belongs_to :frc_team
   belongs_to :event
-  belongs_to :organization, optional: true
 
   # Enums
   enum :status, { submitted: 0, flagged: 1, rejected: 2 }
@@ -88,7 +87,6 @@ class ScoutingEntry < ApplicationRecord
       match_id: params[:match_id],
       frc_team_id: params[:frc_team_id],
       event_id: params[:event_id],
-      organization_id: params[:organization_id],
       data: params[:data] || {},
       notes: params[:notes],
       photo_url: params[:photo_url],

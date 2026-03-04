@@ -1,18 +1,18 @@
 class SimulationResultPolicy < ApplicationPolicy
   def index?
-    analyst? || admin_or_lead?
+    analyst?
   end
 
   def show?
-    analyst? || admin_or_lead?
+    analyst?
   end
 
   def create?
-    analyst? || admin_or_lead?
+    analyst?
   end
 
   def destroy?
-    admin_or_lead?
+    admin?
   end
 
   class Scope < ApplicationPolicy::Scope

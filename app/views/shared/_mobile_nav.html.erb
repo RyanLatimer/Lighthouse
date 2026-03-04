@@ -62,14 +62,17 @@
           <span class="text-[10px] font-medium">More</span>
         </summary>
         <div class="absolute bottom-full right-0 mb-2 w-48 bg-gray-900 border border-gray-800 rounded-xl shadow-xl overflow-hidden">
-          <%= link_to "Predictions", predictions_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
-          <%= link_to "Simulator", new_match_simulator_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
-          <%= link_to "Compare", team_comparison_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
-          <%= link_to "Pick Lists", pick_lists_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
-          <%= link_to "Reports", reports_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
+          <% if current_user.admin? || current_user.analyst? %>
+            <%= link_to "Predictions", predictions_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
+            <%= link_to "Simulator", new_match_simulator_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
+            <%= link_to "Compare", team_comparison_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
+            <%= link_to "Pick Lists", pick_lists_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
+            <%= link_to "Reports", reports_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
+          <% end %>
           <%= link_to "Entries", scouting_entries_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
-          <% if current_user.has_role?(:admin) || current_user.has_role?(:lead) %>
+          <% if current_user.admin? %>
             <div class="border-t border-gray-800">
+              <%= link_to "Manage Users", users_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
               <%= link_to "Export CSV", exports_csv_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
               <%= link_to "Export Excel", exports_excel_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
               <%= link_to "Export JSON", exports_json_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>

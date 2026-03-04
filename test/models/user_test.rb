@@ -23,39 +23,26 @@ class UserTest < ActiveSupport::TestCase
     assert_includes user.errors[:last_name], "can't be blank"
   end
 
-  test "requires team_number" do
-    user = users(:admin_user)
-    user.team_number = nil
-    assert_not user.valid?
-    assert_includes user.errors[:team_number], "can't be blank"
-  end
-
-  test "requires email" do
-    user = users(:admin_user)
-    user.email = nil
-    assert_not user.valid?
-    assert_includes user.errors[:email], "can't be blank"
-  end
-
-  test "requires unique email" do
+  test "requires unique username" do
     duplicate = users(:admin_user).dup
+    duplicate.email = "other@lighthouse.local"
     assert_not duplicate.valid?
-    assert_includes duplicate.errors[:email], "has already been taken"
+    assert_includes duplicate.errors[:username], "has already been taken"
+  end
+
+  test "auto-generates username from name" do
+    user = User.new(first_name: "Jane", last_name: "Doe", password: "password123")
+    user.valid?
+    assert_equal "Jane Doe", user.username
+  end
+
+  test "auto-generates email when blank" do
+    user = User.new(first_name: "Jane", last_name: "Doe", password: "password123")
+    user.valid?
+    assert_equal "jane-doe@lighthouse.local", user.email
   end
 
   # --- Associations ---
-
-  test "has many memberships" do
-    user = users(:admin_user)
-    assert_respond_to user, :memberships
-    assert_includes user.memberships, memberships(:admin_membership)
-  end
-
-  test "has many organizations through memberships" do
-    user = users(:admin_user)
-    assert_respond_to user, :organizations
-    assert_includes user.organizations, organizations(:team_254)
-  end
 
   test "has many scouting_entries" do
     user = users(:admin_user)
@@ -87,26 +74,36 @@ class UserTest < ActiveSupport::TestCase
     assert_includes user.simulation_results, simulation_results(:sim_254_vs_1678)
   end
 
-  test "destroying user destroys dependent memberships" do
-    user = User.create!(
-      email: "disposable@example.com", password: "password123",
-      first_name: "Disposable", last_name: "User", team_number: 999
-    )
-    membership = Membership.create!(user: user, organization: organizations(:team_254), role: :scout)
-    membership_id = membership.id
-    user.destroy
-    assert_nil Membership.find_by(id: membership_id)
+  # --- Roles ---
+
+  test "role enum values" do
+    assert_equal "admin", users(:admin_user).role
+    assert_equal "analyst", users(:lead_user).role
+    assert_equal "scout", users(:scout_user).role
+  end
+
+  test "admin? returns true for admin users" do
+    assert users(:admin_user).admin?
+    assert_not users(:scout_user).admin?
+  end
+
+  test "analyst? returns true for analyst users" do
+    assert users(:lead_user).analyst?
+    assert_not users(:scout_user).analyst?
+  end
+
+  test "scout? returns true for scout users" do
+    assert users(:scout_user).scout?
+    assert_not users(:admin_user).scout?
   end
 
   # --- Callbacks ---
 
   test "generates api_token before create" do
     user = User.new(
-      email: "newuser@example.com",
       password: "password123",
       first_name: "New",
-      last_name: "User",
-      team_number: 999
+      last_name: "Tokenuser"
     )
     assert_nil user.api_token
     user.save!
@@ -116,11 +113,9 @@ class UserTest < ActiveSupport::TestCase
 
   test "does not overwrite existing api_token on create" do
     user = User.new(
-      email: "tokenuser@example.com",
       password: "password123",
       first_name: "Token",
-      last_name: "User",
-      team_number: 999,
+      last_name: "Keeper",
       api_token: "preexisting_token_value"
     )
     user.save!
@@ -136,77 +131,6 @@ class UserTest < ActiveSupport::TestCase
 
   test "full_name for lead_user" do
     assert_equal "Lead User", users(:lead_user).full_name
-  end
-
-  test "role_name returns highest priority Rolify role" do
-    assert_equal "admin", users(:admin_user).role_name
-    assert_equal "lead", users(:lead_user).role_name
-    assert_equal "scout", users(:scout_user).role_name
-  end
-
-  test "membership_for returns correct membership" do
-    user = users(:admin_user)
-    org = organizations(:team_254)
-    membership = user.membership_for(org)
-    assert_equal memberships(:admin_membership), membership
-  end
-
-  test "membership_for returns nil for non-member organization" do
-    user = users(:admin_user)
-    org = organizations(:team_1678)
-    assert_nil user.membership_for(org)
-  end
-
-  test "membership_for returns nil when organization is nil" do
-    assert_nil users(:admin_user).membership_for(nil)
-  end
-
-  test "role_in returns membership role for organization" do
-    user = users(:admin_user)
-    org = organizations(:team_254)
-    assert_equal "admin", user.role_in(org)
-  end
-
-  test "role_in returns scout for non-member organization" do
-    user = users(:admin_user)
-    org = organizations(:team_1678)
-    assert_equal "scout", user.role_in(org)
-  end
-
-  test "at_least? checks role hierarchy via membership" do
-    admin = users(:admin_user)
-    org = organizations(:team_254)
-
-    assert admin.at_least?(:scout, org)
-    assert admin.at_least?(:lead, org)
-    assert admin.at_least?(:admin, org)
-    assert_not admin.at_least?(:owner, org)
-  end
-
-  test "at_least? returns false for non-member organization" do
-    user = users(:admin_user)
-    org = organizations(:team_1678)
-    assert_not user.at_least?(:scout, org)
-  end
-
-  test "admin_of? returns true for admin membership" do
-    assert users(:admin_user).admin_of?(organizations(:team_254))
-  end
-
-  test "admin_of? returns false for non-admin membership" do
-    assert_not users(:scout_user).admin_of?(organizations(:team_254))
-  end
-
-  test "lead_of? returns true for lead and above" do
-    org = organizations(:team_254)
-    assert users(:admin_user).lead_of?(org)
-    assert users(:lead_user).lead_of?(org)
-    assert_not users(:scout_user).lead_of?(org)
-  end
-
-  test "owner_of? returns false when not owner" do
-    org = organizations(:team_254)
-    assert_not users(:admin_user).owner_of?(org)
   end
 
   test "regenerate_api_token! updates api_token" do

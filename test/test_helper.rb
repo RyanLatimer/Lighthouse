@@ -44,9 +44,4 @@ class ActionDispatch::IntegrationTest
   def select_event(event)
     post select_event_path(event)
   end
-
-  # Switches to an organization by POSTing to the switch endpoint.
-  def switch_organization(org)
-    post switch_organization_path(org)
-  end
 end

@@ -5,6 +5,6 @@ class TeamComparisonPolicy < ApplicationPolicy
   end
 
   def show?
-    true
+    analyst?
   end
 end

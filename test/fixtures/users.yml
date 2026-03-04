@@ -1,32 +1,36 @@
-# Users (Devise-authenticated)
+# Users (authenticated by username = full name)
 owner_user:
-  email: "admin@frc7790.com"
+  username: "Owner User"
+  email: "owner-user@lighthouse.local"
   encrypted_password: "<%= Devise::Encryptor.digest(User, 'password123') %>"
   first_name: "Owner"
   last_name: "User"
-  team_number: 254
+  role: 2
   api_token: "owner_api_token_0123456789abcdef0123456789abcdef"
 
 admin_user:
-  email: "admin@example.com"
+  username: "Admin User"
+  email: "admin-user@lighthouse.local"
   encrypted_password: "<%= Devise::Encryptor.digest(User, 'password123') %>"
   first_name: "Admin"
   last_name: "User"
-  team_number: 254
+  role: 2
   api_token: "admin_api_token_0123456789abcdef0123456789abcdef"
 
 lead_user:
-  email: "lead@example.com"
+  username: "Lead User"
+  email: "lead-user@lighthouse.local"
   encrypted_password: "<%= Devise::Encryptor.digest(User, 'password123') %>"
   first_name: "Lead"
   last_name: "User"
-  team_number: 254
+  role: 1
   api_token: "lead_api_token_0123456789abcdef01234567890abcdef"
 
 scout_user:
-  email: "scout@example.com"
+  username: "Scout User"
+  email: "scout-user@lighthouse.local"
   encrypted_password: "<%= Devise::Encryptor.digest(User, 'password123') %>"
   first_name: "Scout"
   last_name: "User"
-  team_number: 254
+  role: 0
   api_token: "scout_api_token_0123456789abcdef0123456789abcdef"

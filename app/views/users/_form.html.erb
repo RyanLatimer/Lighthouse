@@ -1,0 +1,44 @@
+<%= form_with(model: user, class: "space-y-6") do |f| %>
+  <% if user.errors.any? %>
+    <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-4 animate-slide-down" role="alert">
+      <h3 class="text-sm font-semibold text-red-400 mb-2"><%= pluralize(user.errors.count, "error") %> prevented this user from being saved:</h3>
+      <ul class="text-sm text-red-400/80 list-disc list-inside space-y-1">
+        <% user.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div>
+      <%= f.label :first_name, class: "block text-sm font-medium text-gray-300 mb-1" %>
+      <%= f.text_field :first_name, class: "input-field", placeholder: "First name" %>
+    </div>
+
+    <div>
+      <%= f.label :last_name, class: "block text-sm font-medium text-gray-300 mb-1" %>
+      <%= f.text_field :last_name, class: "input-field", placeholder: "Last name" %>
+    </div>
+
+    <div>
+      <%= f.label :role, class: "block text-sm font-medium text-gray-300 mb-1" %>
+      <%= f.select :role, options_for_select([["Scout", "scout"], ["Analyst", "analyst"], ["Admin", "admin"]], user.role), {}, class: "input-field" %>
+    </div>
+
+    <div>
+      <%= f.label :password, class: "block text-sm font-medium text-gray-300 mb-1" %>
+      <%= f.password_field :password, class: "input-field", placeholder: user.persisted? ? "Leave blank to keep current" : "Password", autocomplete: "new-password" %>
+      <% if user.persisted? %>
+        <p class="text-xs text-gray-500 mt-1">Leave blank to keep current password</p>
+      <% end %>
+    </div>
+  </div>
+
+  <p class="text-xs text-gray-500">Users sign in with their full name (e.g. "Gavin Moceri") and password.</p>
+
+  <div class="flex items-center gap-3 pt-2">
+    <%= f.submit user.persisted? ? "Update User" : "Create User", class: "btn-primary px-6 py-2.5 cursor-pointer" %>
+    <%= link_to "Cancel", users_path, class: "btn-secondary px-6 py-2.5" %>
+  </div>
+<% end %>

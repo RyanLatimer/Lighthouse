@@ -3,7 +3,6 @@ pit_254:
   user: scout_user
   event: championship
   frc_team: team_254
-  organization: team_254
   data:
     drivetrain: "Swerve"
     drive_motor: "Kraken X60"
@@ -34,7 +33,6 @@ pit_1678:
   user: lead_user
   event: championship
   frc_team: team_1678
-  organization: team_254
   data:
     drivetrain: "Swerve"
     drive_motor: "NEO Vortex"

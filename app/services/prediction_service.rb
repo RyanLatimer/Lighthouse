@@ -4,9 +4,8 @@ class PredictionService
   # Minimum scouting entries per team for full scouting weight
   MIN_ENTRIES_FOR_FULL_WEIGHT = 6
 
-  def initialize(event, organization = nil)
+  def initialize(event)
     @event = event
-    @organization = organization
     @aggregation = AggregationService.new(event)
     @statbotics = StatboticsClient.new
     @simulator = MatchSimulatorService.new(event, statbotics: @statbotics)
@@ -62,7 +61,6 @@ class PredictionService
 
     prediction = Prediction.find_or_initialize_by(
       match: match,
-      organization: @organization,
       source: "blended"
     )
 

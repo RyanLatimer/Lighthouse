@@ -1,6 +1,5 @@
 class Event < ApplicationRecord
   # Associations
-  belongs_to :organization, optional: true
   has_many :matches, dependent: :destroy
   has_many :event_teams, dependent: :destroy
   has_many :frc_teams, through: :event_teams
@@ -22,5 +21,4 @@ class Event < ApplicationRecord
     today = Date.current
     where("start_date <= ? AND end_date >= ?", today, today)
   }
-  scope :for_organization, ->(org) { where(organization: org) }
 end

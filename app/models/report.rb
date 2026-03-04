@@ -3,7 +3,6 @@
 class Report < ApplicationRecord
   belongs_to :user
   belongs_to :event
-  belongs_to :organization, optional: true
 
   validates :name, presence: true
 

@@ -5,8 +5,7 @@ require "test_helper"
 class PredictionServiceTest < ActiveSupport::TestCase
   setup do
     @event = events(:championship)
-    @organization = organizations(:team_254)
-    @service = PredictionService.new(@event, @organization)
+    @service = PredictionService.new(@event)
   end
 
   test "predict_match returns a saved Prediction record" do

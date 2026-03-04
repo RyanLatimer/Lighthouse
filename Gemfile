@@ -46,7 +46,6 @@ gem "dotenv-rails", groups: [:development, :test]
 # Authentication & Authorization
 gem "devise"
 gem "pundit"
-gem "rolify"
 
 # API clients
 gem "faraday"

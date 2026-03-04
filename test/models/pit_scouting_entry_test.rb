@@ -33,10 +33,6 @@ class PitScoutingEntryTest < ActiveSupport::TestCase
 
   # --- Associations ---
 
-  test "belongs to organization (optional)" do
-    assert_equal organizations(:team_254), pit_scouting_entries(:pit_254).organization
-  end
-
   test "belongs to event" do
     assert_equal events(:championship), pit_scouting_entries(:pit_254).event
   end
@@ -230,7 +226,6 @@ class PitScoutingEntryTest < ActiveSupport::TestCase
       user_id: users(:admin_user).id,
       event_id: events(:championship).id,
       frc_team_id: frc_teams(:team_118).id,
-      organization_id: organizations(:team_254).id,
       data: { "drivetrain" => "tank" },
       notes: "Offline pit scout",
       client_uuid: "offline-pit-uuid-001",
@@ -242,7 +237,6 @@ class PitScoutingEntryTest < ActiveSupport::TestCase
     assert_equal users(:admin_user).id, entry.user_id
     assert_equal events(:championship).id, entry.event_id
     assert_equal frc_teams(:team_118).id, entry.frc_team_id
-    assert_equal organizations(:team_254).id, entry.organization_id
     assert_equal({ "drivetrain" => "tank" }, entry.data)
     assert_equal "Offline pit scout", entry.notes
     assert_equal "offline-pit-uuid-001", entry.client_uuid

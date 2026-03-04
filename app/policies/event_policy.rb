@@ -12,19 +12,19 @@ class EventPolicy < ApplicationPolicy
   end
 
   def create?
-    admin_or_lead?
+    admin?
   end
 
   def update?
-    admin_or_lead?
+    admin?
   end
 
   def destroy?
-    admin_or_lead?
+    admin?
   end
 
   def sync?
-    admin_or_lead?
+    admin?
   end
 
   class Scope < ApplicationPolicy::Scope

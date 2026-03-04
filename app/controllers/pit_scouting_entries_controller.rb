@@ -29,7 +29,6 @@ class PitScoutingEntriesController < ApplicationController
   def create
     @pit_scouting_entry = current_user.pit_scouting_entries.build(pit_scouting_entry_params)
     @pit_scouting_entry.event = current_event
-    @pit_scouting_entry.organization = current_organization
     authorize @pit_scouting_entry
 
     if @pit_scouting_entry.client_uuid.present?
@@ -84,14 +83,12 @@ class PitScoutingEntriesController < ApplicationController
       if entry
         results << { client_uuid: entry_data[:client_uuid], status: "existing", id: entry.id }
       else
-        # organization_id is forced from the session — not caller-controlled
         permitted = entry_data.permit(:frc_team_id, :event_id, :notes, :client_uuid, :status, data: {})
-                              .merge(user_id: current_user.id, organization_id: current_organization&.id)
+                              .merge(user_id: current_user.id)
 
         # Validate the caller-supplied event_id references a real event
-        # and belongs to the user's current organization
         sync_event = Event.find_by(id: permitted[:event_id])
-        unless sync_event && (sync_event.organization_id.nil? || sync_event.organization_id == current_organization&.id)
+        unless sync_event
           results << { client_uuid: entry_data[:client_uuid], status: "error", errors: [ "Invalid event" ] }
           next
         end

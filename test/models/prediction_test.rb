@@ -41,10 +41,6 @@ class PredictionTest < ActiveSupport::TestCase
     assert_equal events(:championship), predictions(:prediction_qm1).event
   end
 
-  test "belongs to organization (optional)" do
-    assert_equal organizations(:team_254), predictions(:prediction_qm1).organization
-  end
-
   # --- Scopes ---
 
   test "for_event returns predictions for a specific event" do

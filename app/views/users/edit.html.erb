@@ -1,0 +1,12 @@
+<% content_for(:title) { "Edit #{@user.full_name} - Lighthouse" } %>
+
+<div class="max-w-2xl mx-auto">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-white">Edit User</h1>
+    <p class="text-sm text-gray-400 mt-1"><%= @user.full_name %></p>
+  </div>
+
+  <div class="scout-card p-6">
+    <%= render "form", user: @user %>
+  </div>
+</div>

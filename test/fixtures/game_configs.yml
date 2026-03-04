@@ -4,4 +4,3 @@ reefscape_2026:
   year: 2026
   config: '{"scoring": {"fuel_point_value": 2, "climb_points": {"low": 3, "mid": 6, "high": 12}}, "phases": ["auton", "teleop", "endgame"], "fields": ["fuel_made", "fuel_missed", "climb", "defense_rating"]}'
   active: true
-  organization: team_254

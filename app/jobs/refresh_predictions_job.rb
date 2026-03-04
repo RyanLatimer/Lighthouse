@@ -6,12 +6,11 @@ class RefreshPredictionsJob < ApplicationJob
 
   # Regenerates all match predictions for an event using
   # blended scouting + Statbotics EPA data.
-  def perform(event_id, organization_id = nil)
+  def perform(event_id)
     event = Event.find_by(id: event_id)
     return unless event
 
-    organization = Organization.find_by(id: organization_id)
-    service = PredictionService.new(event, organization)
+    service = PredictionService.new(event)
     count = service.generate_all!
 
     Rails.logger.info("[RefreshPredictionsJob] Generated #{count} predictions for event #{event.name}")

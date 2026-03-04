@@ -24,10 +24,6 @@ class PickListTest < ActiveSupport::TestCase
     assert_equal users(:admin_user), pick_lists(:championship_picks).user
   end
 
-  test "belongs to organization (optional)" do
-    assert_equal organizations(:team_254), pick_lists(:championship_picks).organization
-  end
-
   # --- Fixture data ---
 
   test "championship_picks has correct name" do
@@ -42,8 +38,7 @@ class PickListTest < ActiveSupport::TestCase
         { "rank" => 2, "team_number" => 1678, "notes" => "Strong second" }
       ],
       event: events(:championship),
-      user: users(:admin_user),
-      organization: organizations(:team_254)
+      user: users(:admin_user)
     )
     entries = pick_list.reload.entries
     assert_kind_of Array, entries

@@ -5,7 +5,7 @@
     <h1 class="text-2xl font-bold text-white">Events</h1>
     <p class="text-sm text-gray-400 mt-1">Select an event or sync from The Blue Alliance</p>
   </div>
-  <% if current_user.has_role?(:admin) || current_user.has_role?(:lead) %>
+  <% if current_user.admin? %>
     <%= link_to new_event_path, class: "btn-primary" do %>
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -63,7 +63,7 @@
             <%= button_to "Select", select_event_path(event), method: :post, class: "btn-primary flex-1 text-sm" %>
           <% end %>
           <%= link_to "Details", event_path(event), class: "btn-secondary flex-1 text-center text-sm" %>
-          <% if current_user.has_role?(:admin) || current_user.has_role?(:lead) %>
+          <% if current_user.admin? %>
             <%= button_to sync_event_path(event), method: :post, class: "btn-ghost p-2", title: "Sync from TBA", "aria-label": "Sync #{event.name} from The Blue Alliance", form: { data: { controller: "offline-guard", action: "submit->offline-guard#check" } } do %>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -83,7 +83,7 @@
     </svg>
     <p class="text-gray-500 font-medium mb-1">No events found</p>
     <p class="text-gray-600 text-sm mb-4">Create an event to start scouting.</p>
-    <% if current_user.has_role?(:admin) || current_user.has_role?(:lead) %>
+    <% if current_user.admin? %>
       <%= link_to "Create Event", new_event_path, class: "btn-primary text-sm" %>
     <% end %>
   </div>

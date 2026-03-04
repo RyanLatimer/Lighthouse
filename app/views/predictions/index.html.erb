@@ -11,7 +11,7 @@
         <%= @accuracy %>% accuracy
       </span>
     <% end %>
-    <% if current_user.has_role?(:admin) || current_user.has_role?(:lead) %>
+    <% if current_user.admin? %>
       <%= button_to "Generate Predictions", generate_predictions_path, method: :post,
             class: "px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white text-sm font-medium rounded-lg transition",
             form: { data: { controller: "offline-guard", action: "submit->offline-guard#check" } } %>

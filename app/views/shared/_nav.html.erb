@@ -14,12 +14,9 @@
       <%# Current Event + Org %>
       <% if user_signed_in? && current_event %>
         <div class="hidden sm:flex items-center gap-2 text-sm">
-          <% if current_organization %>
-            <%= link_to current_organization.name, organization_path(current_organization), class: "text-gray-500 truncate max-w-24 hover:text-gray-200 transition-colors duration-150 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500" %>
-            <span class="text-gray-700">/</span>
+          <%= link_to events_path, class: "text-orange-400 font-semibold tracking-wide hover:text-orange-300 transition-colors duration-150 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500" do %>
+            <%= current_event.tba_key&.upcase || current_event.name %>
           <% end %>
-          <span class="text-orange-400 font-semibold truncate max-w-48"><%= current_event.name %></span>
-          <%= link_to "Change", events_path, class: "text-xs text-gray-400 hover:text-gray-200 transition-colors duration-150 rounded px-1.5 py-0.5 hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500" %>
         </div>
       <% end %>
 
@@ -46,22 +43,32 @@
               <%= link_to "Teams", teams_path,
                 class: "nav-link #{request.path.include?('teams') ? 'nav-link-active' : 'nav-link-inactive'}",
                 "aria-current": (request.path.include?('teams') ? "page" : nil) %>
-              <%= link_to "Compare", team_comparison_path,
-                class: "nav-link #{request.path.include?('comparison') ? 'nav-link-active' : 'nav-link-inactive'}",
-                "aria-current": (request.path.include?('comparison') ? "page" : nil) %>
-              <%= link_to "Predict", predictions_path,
-                class: "nav-link #{request.path.include?('prediction') ? 'nav-link-active' : 'nav-link-inactive'}",
-                "aria-current": (request.path.include?('prediction') ? "page" : nil) %>
-              <%= link_to "Simulate", new_match_simulator_path,
-                class: "nav-link #{request.path.include?('simulator') ? 'nav-link-active' : 'nav-link-inactive'}",
-                "aria-current": (request.path.include?('simulator') ? "page" : nil) %>
-              <%= link_to "Picks", pick_lists_path,
-                class: "nav-link #{request.path.include?('pick_list') ? 'nav-link-active' : 'nav-link-inactive'}",
-                "aria-current": (request.path.include?('pick_list') ? "page" : nil) %>
+              <% if current_user.admin? || current_user.analyst? %>
+                <%= link_to "Compare", team_comparison_path,
+                  class: "nav-link #{request.path.include?('comparison') ? 'nav-link-active' : 'nav-link-inactive'}",
+                  "aria-current": (request.path.include?('comparison') ? "page" : nil) %>
+                <%= link_to "Predict", predictions_path,
+                  class: "nav-link #{request.path.include?('prediction') ? 'nav-link-active' : 'nav-link-inactive'}",
+                  "aria-current": (request.path.include?('prediction') ? "page" : nil) %>
+                <%= link_to "Simulate", new_match_simulator_path,
+                  class: "nav-link #{request.path.include?('simulator') ? 'nav-link-active' : 'nav-link-inactive'}",
+                  "aria-current": (request.path.include?('simulator') ? "page" : nil) %>
+                <%= link_to "Picks", pick_lists_path,
+                  class: "nav-link #{request.path.include?('pick_list') ? 'nav-link-active' : 'nav-link-inactive'}",
+                  "aria-current": (request.path.include?('pick_list') ? "page" : nil) %>
+              <% end %>
               <%= link_to "Entries", scouting_entries_path,
                 class: "nav-link #{is_entries_active ? 'nav-link-active' : 'nav-link-inactive'}",
                 "aria-current": (is_entries_active ? "page" : nil) %>
             </div>
+          <% end %>
+
+          <% if current_user.admin? %>
+            <%= link_to users_path, class: "text-gray-400 hover:text-white transition-colors duration-150 p-1.5 rounded-lg hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950", title: "Manage Users", "aria-label": "Manage Users" do %>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            <% end %>
           <% end %>
 
           <div class="flex items-center gap-2">

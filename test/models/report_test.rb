@@ -24,10 +24,6 @@ class ReportTest < ActiveSupport::TestCase
     assert_equal events(:championship), reports(:team_summary_report).event
   end
 
-  test "belongs to organization (optional)" do
-    assert_equal organizations(:team_254), reports(:team_summary_report).organization
-  end
-
   # --- Computed Methods ---
   # Fixture config: metrics=["avg_total_points","fuel_accuracy_pct","avg_climb_points"],
   #   filters={teams:[254,1678,118,4414], min_matches:1}, group_by="team",

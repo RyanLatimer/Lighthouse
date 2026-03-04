@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class PitScoutingEntry < ApplicationRecord
-  belongs_to :organization, optional: true
   belongs_to :event
   belongs_to :frc_team
   belongs_to :user
@@ -80,7 +79,6 @@ class PitScoutingEntry < ApplicationRecord
       user_id: params[:user_id],
       event_id: params[:event_id],
       frc_team_id: params[:frc_team_id],
-      organization_id: params[:organization_id],
       data: params[:data] || {},
       notes: params[:notes],
       client_uuid: params[:client_uuid],

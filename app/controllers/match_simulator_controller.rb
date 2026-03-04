@@ -35,7 +35,6 @@ class MatchSimulatorController < ApplicationController
       SimulationResult.create(
         user: current_user,
         event: current_event,
-        organization: current_organization,
         name: params[:simulation_name].presence || "Simulation #{Time.current.strftime('%H:%M')}",
         red_team_ids: red_team_ids.map(&:to_i),
         blue_team_ids: blue_team_ids.map(&:to_i),

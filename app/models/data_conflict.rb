@@ -4,7 +4,6 @@ class DataConflict < ApplicationRecord
   belongs_to :frc_team
   belongs_to :match
   belongs_to :resolved_by, class_name: "User", optional: true
-  belongs_to :organization, optional: true
 
   # Scopes
   scope :unresolved, -> { where(resolved: false) }

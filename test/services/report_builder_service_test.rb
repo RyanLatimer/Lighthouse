@@ -79,7 +79,6 @@ class ReportBuilderServiceTest < ActiveSupport::TestCase
       name: "Filtered Report",
       event: events(:championship),
       user: users(:admin_user),
-      organization: organizations(:team_254),
       config: {
         "metrics" => ["avg_total_points"],
         "filters" => { "teams" => [team_254.id] },
@@ -102,7 +101,6 @@ class ReportBuilderServiceTest < ActiveSupport::TestCase
       name: "Ascending Report",
       event: events(:championship),
       user: users(:admin_user),
-      organization: organizations(:team_254),
       config: {
         "metrics" => ["avg_total_points"],
         "filters" => {},

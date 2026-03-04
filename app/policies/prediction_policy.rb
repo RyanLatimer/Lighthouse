@@ -5,14 +5,14 @@ class PredictionPolicy < ApplicationPolicy
   end
 
   def index?
-    true
+    analyst?
   end
 
   def show?
-    true
+    analyst?
   end
 
   def generate?
-    admin_or_lead?
+    admin?
   end
 end

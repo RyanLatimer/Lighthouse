@@ -115,7 +115,6 @@ class AggregationServiceTest < ActiveSupport::TestCase
       match: matches(:qm1),
       frc_team: frc_teams(:team_254),
       event: @event,
-      organization: organizations(:team_254),
       data: {
         "auton_fuel_made" => 10, # was 5 in original — 66% relative diff
         "auton_fuel_missed" => 1,
