@@ -13,7 +13,7 @@
     </div>
   </div>
 
-  <%= form_with url: match_simulator_path, method: :post, data: { turbo_frame: "simulator_results" } do |f| %>
+  <%= form_with url: match_simulator_path, method: :post, data: { turbo_frame: "simulator_results", controller: "offline-guard", action: "submit->offline-guard#check" } do |f| %>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <%# Red Alliance %>
       <div class="scout-card border-red-500/30 p-5">

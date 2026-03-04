@@ -8,6 +8,8 @@
     <meta name="application-name" content="Lighthouse">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#030712">
+    <meta name="sw-cache-version" content="<%= Rails.application.config.sw_cache_version %>">
+    <meta name="sign-in-url" content="<%= new_user_session_path %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 

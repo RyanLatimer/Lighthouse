@@ -52,7 +52,7 @@
           </div>
 
           <%# Resolve Form %>
-          <%= form_with url: resolve_data_conflict_path(conflict), method: :post, class: "flex flex-col sm:flex-row items-stretch sm:items-end gap-3" do |f| %>
+          <%= form_with url: resolve_data_conflict_path(conflict), method: :post, class: "flex flex-col sm:flex-row items-stretch sm:items-end gap-3", data: { controller: "offline-guard", action: "submit->offline-guard#check" } do |f| %>
             <div class="flex-1">
               <label for="resolution_<%= conflict.id %>" class="block text-xs text-gray-400 mb-1 font-medium">Resolved Value</label>
               <input type="text" name="resolution" id="resolution_<%= conflict.id %>" required

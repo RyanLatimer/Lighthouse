@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { openDB } from "lib/lighthouse_db"
 
 // Scoring constants matching app/models/concerns/scoring.rb
 const FUEL_POINT_VALUE = 1
@@ -33,6 +34,7 @@ export default class extends Controller {
     this.updateDisplay()
     this.#initializeToggleState()
     this.#initializeTeamFilter()
+    this.#cacheReferenceData()
   }
 
   // --- Counter actions ---
@@ -210,7 +212,7 @@ export default class extends Controller {
 
   async #saveToOfflineQueue(payload) {
     try {
-      const db = await this.#openDB()
+      const db = await openDB()
       const form = this.element.closest("form")
 
       const entry = {
@@ -241,21 +243,48 @@ export default class extends Controller {
     }
   }
 
-  #openDB() {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open("lighthouse", 2)
-      request.onupgradeneeded = (event) => {
-        const db = event.target.result
-        if (!db.objectStoreNames.contains("offline_entries")) {
-          db.createObjectStore("offline_entries", { keyPath: "client_uuid" })
-        }
-        if (!db.objectStoreNames.contains("offline_pit_entries")) {
-          db.createObjectStore("offline_pit_entries", { keyPath: "client_uuid" })
-        }
-      }
-      request.onsuccess = () => resolve(request.result)
-      request.onerror = () => reject(request.error)
-    })
+  async #cacheReferenceData() {
+    // Cache match/team dropdown data in IndexedDB for offline form hydration
+    if (!navigator.onLine) return
+    try {
+      const form = this.element.closest("form")
+      const eventId = form?.querySelector("[name*='event_id']")?.value
+      if (!eventId) return
+
+      // Collect team options from the current dropdown
+      const teams = this._allTeamOptions?.filter(o => o.value !== "").map(o => ({
+        value: o.value,
+        text: o.text
+      })) || []
+
+      // matchTeams is already a Stimulus value
+      const matchTeams = this.matchTeamsValue || {}
+
+      // Collect match options from the match dropdown
+      const matches = this.hasMatchSelectTarget
+        ? Array.from(this.matchSelectTarget.options).filter(o => o.value !== "").map(o => ({
+            value: o.value,
+            text: o.text
+          }))
+        : []
+
+      const db = await openDB()
+      const tx = db.transaction("event_data", "readwrite")
+      tx.objectStore("event_data").put({
+        event_id: eventId,
+        teams,
+        matches,
+        match_teams: matchTeams,
+        cached_at: new Date().toISOString()
+      })
+      await new Promise((resolve, reject) => {
+        tx.oncomplete = resolve
+        tx.onerror = () => reject(tx.error)
+      })
+      db.close()
+    } catch (error) {
+      console.warn("[Lighthouse] Failed to cache reference data:", error)
+    }
   }
 
   #showOfflineConfirmation() {

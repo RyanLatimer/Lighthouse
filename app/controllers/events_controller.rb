@@ -1,5 +1,7 @@
 class EventsController < ApplicationController
-  before_action :set_event, only: %i[show edit update destroy sync]
+  MAX_MANIFEST_URLS = 500
+
+  before_action :set_event, only: %i[show edit update destroy sync offline_manifest]
 
   def index
     @events = policy_scope(Event).order(start_date: :desc)
@@ -72,6 +74,57 @@ class EventsController < ApplicationController
 
     session[:current_event_id] = @event.id
     redirect_to root_path, notice: "Switched to #{@event.name}."
+  end
+
+  # GET /events/:id/offline_manifest — returns JSON list of URLs to prefetch for offline use
+  def offline_manifest
+    authorize @event, :show?
+
+    urls = [
+      "/",
+      scouting_entries_path,
+      new_scouting_entry_path,
+      pit_scouting_entries_path,
+      new_pit_scouting_entry_path,
+      teams_path,
+      team_comparison_path,
+      pick_lists_path,
+      data_conflicts_path,
+      predictions_path,
+      new_match_simulator_path,
+      reports_path,
+      event_path(@event)
+    ]
+
+    # Cache resource IDs to avoid repeated queries under concurrent load
+    cached_ids = Rails.cache.fetch("event/#{@event.id}/offline_manifest_ids", expires_in: 5.minutes) do
+      {
+        team_ids: FrcTeam.at_event(@event).pluck(:id),
+        match_ids: @event.matches.pluck(:id),
+        scouting_entry_ids: ScoutingEntry.where(event: @event).pluck(:id),
+        pit_scouting_entry_ids: PitScoutingEntry.where(event: @event).pluck(:id),
+        pick_list_ids: PickList.where(event: @event).pluck(:id),
+        report_ids: Report.where(event: @event).pluck(:id)
+      }
+    end
+
+    urls += cached_ids[:team_ids].map { |id| team_path(id) }
+    urls += cached_ids[:match_ids].map { |id| prediction_path(id) }
+    urls += cached_ids[:scouting_entry_ids].map { |id| scouting_entry_path(id) }
+    urls += cached_ids[:pit_scouting_entry_ids].map { |id| pit_scouting_entry_path(id) }
+    urls += cached_ids[:pick_list_ids].map { |id| pick_list_path(id) }
+    urls += cached_ids[:report_ids].map { |id| report_path(id) }
+
+    expires_in 5.minutes, public: false
+
+    unique_urls = urls.uniq
+    truncated = unique_urls.length > MAX_MANIFEST_URLS
+
+    render json: {
+      urls: unique_urls.first(MAX_MANIFEST_URLS),
+      truncated: truncated,
+      total: unique_urls.length
+    }
   end
 
   # POST /events/:id/sync — triggers TBA sync + Statbotics cache warming + predictions

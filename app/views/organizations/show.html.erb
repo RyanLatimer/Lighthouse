@@ -49,7 +49,7 @@
   <% if current_user.lead_of?(@organization) %>
     <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
       <h3 class="text-sm font-semibold text-white mb-4">Invite Member</h3>
-      <%= form_with url: invite_organization_path(@organization), method: :post, class: "flex flex-col sm:flex-row gap-3" do |f| %>
+      <%= form_with url: invite_organization_path(@organization), method: :post, class: "flex flex-col sm:flex-row gap-3", data: { controller: "offline-guard", action: "submit->offline-guard#check" } do |f| %>
         <div class="flex-1">
           <%= email_field_tag :email, nil, class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition", placeholder: "user@example.com", required: true %>
         </div>

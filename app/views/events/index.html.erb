@@ -64,7 +64,7 @@
           <% end %>
           <%= link_to "Details", event_path(event), class: "btn-secondary flex-1 text-center text-sm" %>
           <% if current_user.has_role?(:admin) || current_user.has_role?(:lead) %>
-            <%= button_to sync_event_path(event), method: :post, class: "btn-ghost p-2", title: "Sync from TBA", "aria-label": "Sync #{event.name} from The Blue Alliance" do %>
+            <%= button_to sync_event_path(event), method: :post, class: "btn-ghost p-2", title: "Sync from TBA", "aria-label": "Sync #{event.name} from The Blue Alliance", form: { data: { controller: "offline-guard", action: "submit->offline-guard#check" } } do %>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>

@@ -20,7 +20,7 @@ class ScoutingEntryPolicy < ApplicationPolicy
   end
 
   def sync?
-    true
+    scout?
   end
 
   private

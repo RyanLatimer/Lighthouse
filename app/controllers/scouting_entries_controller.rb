@@ -1,5 +1,9 @@
 class ScoutingEntriesController < ApplicationController
+  include SyncCsrfProtection
+
   before_action :require_event!, except: :sync
+  skip_forgery_protection only: :sync
+  before_action :verify_sync_origin, only: :sync
   before_action :set_scouting_entry, only: %i[show edit update destroy]
 
   def index
@@ -92,6 +96,7 @@ class ScoutingEntriesController < ApplicationController
 
     entries_params = params.require(:entries)
     results = []
+    created_event_ids = []
 
     entries_params.each do |entry_data|
       entry = ScoutingEntry.find_by(client_uuid: entry_data[:client_uuid])
@@ -99,23 +104,31 @@ class ScoutingEntriesController < ApplicationController
       if entry
         results << { client_uuid: entry_data[:client_uuid], status: "existing", id: entry.id }
       else
-        entry = ScoutingEntry.from_offline_data(
-          entry_data.permit(:match_id, :frc_team_id, :event_id, :notes, :photo_url, :client_uuid, :status, data: {})
-                    .merge(user_id: current_user.id)
-        )
+        # organization_id is forced from the session — not caller-controlled
+        permitted = entry_data.permit(:match_id, :frc_team_id, :event_id, :notes, :photo_url, :client_uuid, :status, data: {})
+                              .merge(user_id: current_user.id, organization_id: current_organization&.id)
+
+        # Validate the caller-supplied event_id references a real event
+        # and belongs to the user's current organization
+        sync_event = Event.find_by(id: permitted[:event_id])
+        unless sync_event && (sync_event.organization_id.nil? || sync_event.organization_id == current_organization&.id)
+          results << { client_uuid: entry_data[:client_uuid], status: "error", errors: [ "Invalid event" ] }
+          next
+        end
+
+        entry = ScoutingEntry.from_offline_data(permitted)
 
         if entry.save
           results << { client_uuid: entry_data[:client_uuid], status: "created", id: entry.id }
+          created_event_ids << permitted[:event_id].to_i if permitted[:event_id].present?
         else
           results << { client_uuid: entry_data[:client_uuid], status: "error", errors: entry.errors.full_messages }
         end
       end
     end
 
-    # Refresh summaries if any entries were created
-    if results.any? { |r| r[:status] == "created" } && current_event
-      RefreshSummariesJob.perform_later(current_event.id)
-    end
+    # Refresh summaries for the events that actually received new entries
+    created_event_ids.uniq.each { |eid| RefreshSummariesJob.perform_later(eid) }
 
     render json: { results: results }
   end
@@ -146,7 +159,7 @@ class ScoutingEntriesController < ApplicationController
   def build_match_teams_map(matches)
     matches.each_with_object({}) do |match, map|
       map[match.id] = match.match_alliances
-        .sort_by { |ma| [ma.alliance_color, ma.station] }
+        .sort_by { |ma| [ ma.alliance_color, ma.station ] }
         .map do |ma|
           {
             id: ma.frc_team.id,

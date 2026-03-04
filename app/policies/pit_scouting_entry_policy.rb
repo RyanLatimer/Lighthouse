@@ -19,6 +19,10 @@ class PitScoutingEntryPolicy < ApplicationPolicy
     admin_or_lead?
   end
 
+  def sync?
+    scout?
+  end
+
   private
 
   def owner?

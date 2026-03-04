@@ -1,23 +1,49 @@
-const CACHE_VERSION = "lighthouse-v3"
+const CACHE_VERSION = "<%= Rails.application.config.sw_cache_version %>"
 
 const PRECACHE_URLS = [
   "/",
-  "/manifest.json"
+  "/manifest.json",
+  "/icon.png",
+  "/icon.svg",
+  "<%= asset_path('application.js') rescue '/assets/application.js' %>",
+  "<%= asset_path('turbo.min.js') rescue '/assets/turbo.min.js' %>",
+  "<%= asset_path('stimulus.min.js') rescue '/assets/stimulus.min.js' %>",
+  "<%= asset_path('stimulus-loading.js') rescue '/assets/stimulus-loading.js' %>",
+  "<%= asset_path('chartkick.js') rescue '/assets/chartkick.js' %>",
+  "<%= asset_path('Chart.bundle.js') rescue '/assets/Chart.bundle.js' %>",
+  "<%= asset_path('tailwind.css') rescue '/assets/tailwind.css' %>"
 ]
 
+// IMPORTANT: These must stay in sync with app/javascript/lib/lighthouse_db.js.
+// Service workers cannot import ES modules, so we duplicate the constants here.
 const DB_NAME = "lighthouse"
-const DB_VERSION = 2
+const DB_VERSION = 3
 const SCOUTING_STORE = "offline_entries"
 const PIT_STORE = "offline_pit_entries"
+const EVENT_DATA_STORE = "event_data"
 const MAX_SYNC_RETRIES = 3
 const RETRY_DELAYS = [1000, 5000, 15000]
+
+// Session-based sync endpoints (cookies are sent automatically for same-origin)
+const SCOUTING_SYNC_URL = "/scouting_entries/sync"
+const PIT_SYNC_URL = "/pit_scouting_entries/sync"
+
+// Cached CSRF token (sent by the page via postMessage)
+let csrfToken = null
 
 // --- Install: precache core shell ---
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_VERSION).then((cache) => {
-      return cache.addAll(PRECACHE_URLS)
+      // Use addAll but don't fail install if some assets aren't available yet
+      return cache.addAll(PRECACHE_URLS).catch((err) => {
+        console.warn("[Lighthouse SW] Some precache URLs failed:", err)
+        // Fall back to caching what we can
+        return Promise.allSettled(
+          PRECACHE_URLS.map((url) => cache.add(url).catch(() => null))
+        )
+      })
     }).then(() => self.skipWaiting())
   )
 })
@@ -34,6 +60,21 @@ self.addEventListener("activate", (event) => {
       )
     }).then(() => self.clients.claim())
   )
+})
+
+// --- Message handler: CSRF token + prefetch ---
+
+self.addEventListener("message", (event) => {
+  const data = event.data
+  if (!data) return
+
+  if (data.type === "csrf-token") {
+    csrfToken = data.token
+  }
+
+  if (data.type === "prefetch-urls") {
+    event.waitUntil(prefetchUrls(data.urls || []))
+  }
 })
 
 // --- Fetch: strategy varies by request type ---
@@ -112,20 +153,40 @@ async function staleWhileRevalidate(request) {
 function offlineFallback() {
   return new Response(
     `<!DOCTYPE html>
-    <html>
-      <head><title>Lighthouse - Offline</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <style>
-        body { font-family: system-ui; background: #111827; color: #f3f4f6; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-        .container { text-align: center; padding: 2rem; }
-        h1 { color: #F97316; }
-        p { color: #9ca3af; }
-      </style></head>
+    <html lang="en" class="dark">
+      <head>
+        <title>Lighthouse - Offline</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#030712">
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: system-ui, -apple-system, sans-serif; background: #030712; color: #f3f4f6; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+          .container { text-align: center; padding: 2rem; max-width: 28rem; }
+          .icon { width: 4rem; height: 4rem; margin: 0 auto 1.5rem; color: #F97316; }
+          h1 { color: #F97316; font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
+          .subtitle { color: #9ca3af; font-size: 0.875rem; margin-bottom: 2rem; line-height: 1.5; }
+          .actions { display: flex; flex-direction: column; gap: 0.75rem; }
+          .btn { display: block; padding: 0.75rem 1.5rem; border-radius: 0.5rem; text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: all 0.15s; }
+          .btn-primary { background: #F97316; color: white; }
+          .btn-primary:hover { background: #ea580c; }
+          .btn-secondary { background: #1f2937; color: #d1d5db; border: 1px solid #374151; }
+          .btn-secondary:hover { background: #374151; color: white; }
+          .hint { color: #6b7280; font-size: 0.75rem; margin-top: 2rem; line-height: 1.5; }
+        </style>
+      </head>
       <body>
         <div class="container">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 5.636a9 9 0 010 12.728M5.636 5.636a9 9 0 000 12.728M12 12v.01" />
+          </svg>
           <h1>Lighthouse</h1>
-          <p>You are currently offline.</p>
-          <p>Any scouting entries you submitted are saved and will sync automatically when you reconnect.</p>
+          <p class="subtitle">This page hasn't been cached for offline use yet. Navigate to a page you've visited before, or try these:</p>
+          <div class="actions">
+            <a href="/" class="btn btn-primary">Go to Dashboard</a>
+            <a href="/scouting_entries/new" class="btn btn-secondary">Scout a Match</a>
+            <a href="/pit_scouting_entries/new" class="btn btn-secondary">Pit Scout</a>
+          </div>
+          <p class="hint">Any scouting entries you've submitted offline are safely saved and will sync automatically when you reconnect.</p>
         </div>
       </body>
     </html>`,
@@ -133,14 +194,56 @@ function offlineFallback() {
   )
 }
 
+// --- Prefetch: bulk-cache URLs for offline use ---
+
+async function prefetchUrls(urls) {
+  const cache = await caches.open(CACHE_VERSION)
+  let completed = 0
+  const total = urls.length
+  const concurrency = 3
+
+  // Process in batches of `concurrency`
+  for (let i = 0; i < urls.length; i += concurrency) {
+    const batch = urls.slice(i, i + concurrency)
+    const results = await Promise.allSettled(
+      batch.map(async (url) => {
+        try {
+          const response = await fetch(url, { credentials: "same-origin" })
+          if (response.ok) {
+            // Guard against auth redirects: avoid caching the sign-in page
+            const finalUrl = response.url || ""
+            if (response.redirected && finalUrl.includes("/users/sign_in")) return
+            await cache.put(url, response)
+          }
+        } catch {
+          // Silently skip failed prefetches
+        }
+        completed++
+      })
+    )
+
+    // Notify clients of progress
+    await notifyClients({
+      type: "prefetch-progress",
+      completed,
+      total
+    })
+  }
+
+  await notifyClients({
+    type: "prefetch-complete",
+    total
+  })
+}
+
 // --- Background sync for offline form submissions ---
 
 self.addEventListener("sync", (event) => {
   if (event.tag === "sync-scouting-entries") {
-    event.waitUntil(syncOfflineEntries(SCOUTING_STORE, "/api/v1/scouting_entries/bulk_sync"))
+    event.waitUntil(syncOfflineEntries(SCOUTING_STORE, SCOUTING_SYNC_URL))
   }
   if (event.tag === "sync-pit-scouting-entries") {
-    event.waitUntil(syncOfflineEntries(PIT_STORE, "/api/v1/pit_scouting_entries/bulk_sync"))
+    event.waitUntil(syncOfflineEntries(PIT_STORE, PIT_SYNC_URL))
   }
 })
 
@@ -269,16 +372,36 @@ async function syncOfflineEntries(storeName, syncUrl) {
 async function fetchWithRetry(url, entries) {
   for (let attempt = 0; attempt < MAX_SYNC_RETRIES; attempt++) {
     try {
+      const headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      }
+      // Include CSRF token if available (skip_forgery_protection is a server-side
+      // fallback, but we send the token when we have it for defense in depth)
+      if (csrfToken) {
+        headers["X-CSRF-Token"] = csrfToken
+      }
+
       const response = await fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
+        headers,
+        credentials: "same-origin",
         body: JSON.stringify({ entries })
       })
 
-      if (response.ok) return response
+      if (response.ok) {
+        // Guard against auth redirects: when the session expires, Rails
+        // redirects to the login page (302 → 200 HTML). The fetch follows
+        // the redirect transparently, so response.ok is true but the body
+        // is HTML instead of JSON. Detect this and treat it as an auth error.
+        const contentType = response.headers.get("Content-Type") || ""
+        if (!contentType.includes("application/json")) {
+          console.warn("[Lighthouse SW] Sync response is not JSON (possible auth redirect)")
+          await notifyClients({ type: "sync-auth-expired" })
+          return null
+        }
+        return response
+      }
 
       // 4xx errors are not retryable
       if (response.status >= 400 && response.status < 500) {
@@ -318,6 +441,9 @@ function openDB() {
       }
       if (!db.objectStoreNames.contains(PIT_STORE)) {
         db.createObjectStore(PIT_STORE, { keyPath: "client_uuid" })
+      }
+      if (!db.objectStoreNames.contains(EVENT_DATA_STORE)) {
+        db.createObjectStore(EVENT_DATA_STORE, { keyPath: "event_id" })
       }
     }
     request.onsuccess = () => resolve(request.result)

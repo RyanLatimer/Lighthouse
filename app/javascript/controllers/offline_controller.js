@@ -1,11 +1,9 @@
 import { Controller } from "@hotwired/stimulus"
+import { openDB, SCOUTING_STORE, PIT_STORE } from "lib/lighthouse_db"
 
-const DB_NAME = "lighthouse"
-const DB_VERSION = 2
-const SCOUTING_STORE = "offline_entries"
-const PIT_STORE = "offline_pit_entries"
-const SCOUTING_SYNC_URL = "/api/v1/scouting_entries/bulk_sync"
-const PIT_SYNC_URL = "/api/v1/pit_scouting_entries/bulk_sync"
+// Session-based sync endpoints (cookies sent automatically, no Bearer token needed)
+const SCOUTING_SYNC_URL = "/scouting_entries/sync"
+const PIT_SYNC_URL = "/pit_scouting_entries/sync"
 const MAX_RETRIES = 3
 const RETRY_DELAYS = [1000, 5000, 15000]
 
@@ -72,7 +70,7 @@ export default class extends Controller {
     const result = { synced: 0, failed: 0 }
 
     try {
-      const db = await this.#openDB()
+      const db = await openDB()
 
       if (!db.objectStoreNames.contains(storeName)) {
         db.close()
@@ -142,17 +140,44 @@ export default class extends Controller {
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
+        const headers = {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        }
+        if (csrfToken) {
+          headers["X-CSRF-Token"] = csrfToken
+        }
+
         const response = await fetch(url, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-Token": csrfToken || "",
-            "Accept": "application/json"
-          },
+          headers,
+          credentials: "same-origin",
           body: JSON.stringify({ entries })
         })
 
-        if (response.ok) return response
+        if (response.ok) {
+          const contentType = response.headers.get("Content-Type") || ""
+          if (!contentType.includes("application/json")) {
+            console.warn("[Lighthouse] Sync response is not JSON (possible auth redirect)")
+            this.#showSessionExpiredBanner()
+            return null
+          }
+          return response
+        }
+
+        // Session expired — user needs to sign in again
+        if (response.status === 401) {
+          console.warn("[Lighthouse] Session expired, please sign in to sync entries")
+          this.#showSessionExpiredBanner()
+          return null
+        }
+
+        // CSRF / authorization failure — token may be stale
+        if (response.status === 403) {
+          console.warn("[Lighthouse] Sync returned 403 (forbidden) — CSRF token may be stale. Please reload the page.")
+          this.#showSessionExpiredBanner()
+          return null
+        }
 
         // 4xx errors are not retryable (client error)
         if (response.status >= 400 && response.status < 500) {
@@ -176,25 +201,8 @@ export default class extends Controller {
     return null
   }
 
-  #openDB() {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION)
-      request.onupgradeneeded = (event) => {
-        const db = event.target.result
-        if (!db.objectStoreNames.contains(SCOUTING_STORE)) {
-          db.createObjectStore(SCOUTING_STORE, { keyPath: "client_uuid" })
-        }
-        if (!db.objectStoreNames.contains(PIT_STORE)) {
-          db.createObjectStore(PIT_STORE, { keyPath: "client_uuid" })
-        }
-      }
-      request.onsuccess = () => resolve(request.result)
-      request.onerror = () => reject(request.error)
-    })
-  }
-
   async #removeSyncedEntries(storeName, uuids) {
-    const db = await this.#openDB()
+    const db = await openDB()
     const tx = db.transaction(storeName, "readwrite")
     const store = tx.objectStore(storeName)
 
@@ -212,7 +220,7 @@ export default class extends Controller {
 
   async #markEntriesFailed(storeName, failedEntries) {
     try {
-      const db = await this.#openDB()
+      const db = await openDB()
       const tx = db.transaction(storeName, "readwrite")
       const store = tx.objectStore(storeName)
 
@@ -238,6 +246,30 @@ export default class extends Controller {
     } catch (error) {
       console.error("[Lighthouse] Failed to mark entries as failed:", error)
     }
+  }
+
+  #showSessionExpiredBanner() {
+    const banner = document.createElement("div")
+    banner.className = "fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-amber-600 text-white px-6 py-3 rounded-lg shadow-lg font-medium flex items-center gap-3"
+
+    const span = document.createElement("span")
+    span.textContent = "Session expired \u2014 please sign in to sync your offline entries."
+
+    const signInUrl = document.querySelector("meta[name='sign-in-url']")?.content || "/users/sign_in"
+    const link = document.createElement("a")
+    link.href = signInUrl
+    link.className = "underline font-semibold whitespace-nowrap"
+    link.textContent = "Sign in"
+
+    banner.appendChild(span)
+    banner.appendChild(link)
+    document.body.appendChild(banner)
+
+    setTimeout(() => {
+      banner.style.transition = "opacity 0.5s"
+      banner.style.opacity = "0"
+      setTimeout(() => banner.remove(), 500)
+    }, 10000)
   }
 
   #showSyncBanner(synced, failed) {

@@ -1,9 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-
-const DB_NAME = "lighthouse"
-const DB_VERSION = 2
-const SCOUTING_STORE = "offline_entries"
-const PIT_STORE = "offline_pit_entries"
+import { openDB, PIT_STORE } from "lib/lighthouse_db"
 
 /**
  * Handles offline form submission for pit scouting entries.
@@ -58,7 +54,7 @@ export default class extends Controller {
         created_at: new Date().toISOString()
       }
 
-      const db = await this.#openDB()
+      const db = await openDB()
       const tx = db.transaction(PIT_STORE, "readwrite")
       tx.objectStore(PIT_STORE).add(entry)
       await new Promise((resolve, reject) => {
@@ -87,23 +83,6 @@ export default class extends Controller {
     if (meta) return meta.content
 
     return null
-  }
-
-  #openDB() {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION)
-      request.onupgradeneeded = (event) => {
-        const db = event.target.result
-        if (!db.objectStoreNames.contains(SCOUTING_STORE)) {
-          db.createObjectStore(SCOUTING_STORE, { keyPath: "client_uuid" })
-        }
-        if (!db.objectStoreNames.contains(PIT_STORE)) {
-          db.createObjectStore(PIT_STORE, { keyPath: "client_uuid" })
-        }
-      }
-      request.onsuccess = () => resolve(request.result)
-      request.onerror = () => reject(request.error)
-    })
   }
 
   #showOfflineConfirmation() {

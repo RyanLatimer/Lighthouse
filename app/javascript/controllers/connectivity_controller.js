@@ -1,9 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-
-const DB_NAME = "lighthouse"
-const DB_VERSION = 2
-const SCOUTING_STORE = "offline_entries"
-const PIT_STORE = "offline_pit_entries"
+import { openDB, SCOUTING_STORE, PIT_STORE } from "lib/lighthouse_db"
 
 /**
  * Manages the offline connectivity indicator banner, sync queue count,
@@ -90,33 +86,36 @@ export default class extends Controller {
 
   async clearFailed() {
     try {
-      const db = await this.#openDB()
+      const db = await openDB()
 
-      for (const storeName of [SCOUTING_STORE, PIT_STORE]) {
-        if (!db.objectStoreNames.contains(storeName)) continue
+      try {
+        for (const storeName of [SCOUTING_STORE, PIT_STORE]) {
+          if (!db.objectStoreNames.contains(storeName)) continue
 
-        const tx = db.transaction(storeName, "readwrite")
-        const store = tx.objectStore(storeName)
+          const tx = db.transaction(storeName, "readwrite")
+          const store = tx.objectStore(storeName)
 
-        const entries = await new Promise((resolve, reject) => {
-          const req = store.getAll()
-          req.onsuccess = () => resolve(req.result)
-          req.onerror = () => reject(req.error)
-        })
+          const entries = await new Promise((resolve, reject) => {
+            const req = store.getAll()
+            req.onsuccess = () => resolve(req.result)
+            req.onerror = () => reject(req.error)
+          })
 
-        for (const entry of entries) {
-          if (entry._syncFailed) {
-            store.delete(entry.client_uuid)
+          for (const entry of entries) {
+            if (entry._syncFailed) {
+              store.delete(entry.client_uuid)
+            }
           }
-        }
 
-        await new Promise((resolve, reject) => {
-          tx.oncomplete = resolve
-          tx.onerror = () => reject(tx.error)
-        })
+          await new Promise((resolve, reject) => {
+            tx.oncomplete = resolve
+            tx.onerror = () => reject(tx.error)
+          })
+        }
+      } finally {
+        db.close()
       }
 
-      db.close()
       this.#updateQueueCount()
 
       if (this.hasDetailsTarget) {
@@ -170,6 +169,10 @@ export default class extends Controller {
       this.#handleSyncProgress(data)
     } else if (data.type === "sync-complete") {
       this.#handleSyncComplete(data)
+    } else if (data.type === "prefetch-progress") {
+      this.#handlePrefetchProgress(data)
+    } else if (data.type === "prefetch-complete") {
+      this.#handlePrefetchComplete(data)
     }
   }
 
@@ -214,32 +217,34 @@ export default class extends Controller {
 
   async #updateQueueCount() {
     try {
-      const db = await this.#openDB()
+      const db = await openDB()
       let total = 0
       let pendingCount = 0
       let failedCount = 0
 
-      for (const storeName of [SCOUTING_STORE, PIT_STORE]) {
-        if (!db.objectStoreNames.contains(storeName)) continue
+      try {
+        for (const storeName of [SCOUTING_STORE, PIT_STORE]) {
+          if (!db.objectStoreNames.contains(storeName)) continue
 
-        const entries = await new Promise((resolve, reject) => {
-          const tx = db.transaction(storeName, "readonly")
-          const req = tx.objectStore(storeName).getAll()
-          req.onsuccess = () => resolve(req.result)
-          req.onerror = () => reject(req.error)
-        })
+          const entries = await new Promise((resolve, reject) => {
+            const tx = db.transaction(storeName, "readonly")
+            const req = tx.objectStore(storeName).getAll()
+            req.onsuccess = () => resolve(req.result)
+            req.onerror = () => reject(req.error)
+          })
 
-        for (const entry of entries) {
-          total++
-          if (entry._syncFailed) {
-            failedCount++
-          } else {
-            pendingCount++
+          for (const entry of entries) {
+            total++
+            if (entry._syncFailed) {
+              failedCount++
+            } else {
+              pendingCount++
+            }
           }
         }
+      } finally {
+        db.close()
       }
-
-      db.close()
 
       if (this.hasQueueCountTarget) {
         if (total > 0) {
@@ -279,34 +284,36 @@ export default class extends Controller {
     if (!this.hasDetailsListTarget) return
 
     try {
-      const db = await this.#openDB()
+      const db = await openDB()
       const items = []
 
-      for (const storeName of [SCOUTING_STORE, PIT_STORE]) {
-        if (!db.objectStoreNames.contains(storeName)) continue
+      try {
+        for (const storeName of [SCOUTING_STORE, PIT_STORE]) {
+          if (!db.objectStoreNames.contains(storeName)) continue
 
-        const entries = await new Promise((resolve, reject) => {
-          const tx = db.transaction(storeName, "readonly")
-          const req = tx.objectStore(storeName).getAll()
-          req.onsuccess = () => resolve(req.result)
-          req.onerror = () => reject(req.error)
-        })
-
-        const type = storeName === SCOUTING_STORE ? "Match" : "Pit"
-
-        for (const entry of entries) {
-          items.push({
-            type,
-            uuid: entry.client_uuid,
-            team: entry.frc_team_id || "?",
-            createdAt: entry.created_at,
-            failed: entry._syncFailed || false,
-            errors: entry._syncErrors || []
+          const entries = await new Promise((resolve, reject) => {
+            const tx = db.transaction(storeName, "readonly")
+            const req = tx.objectStore(storeName).getAll()
+            req.onsuccess = () => resolve(req.result)
+            req.onerror = () => reject(req.error)
           })
-        }
-      }
 
-      db.close()
+          const type = storeName === SCOUTING_STORE ? "Match" : "Pit"
+
+          for (const entry of entries) {
+            items.push({
+              type,
+              uuid: entry.client_uuid,
+              team: entry.frc_team_id || "?",
+              createdAt: entry.created_at,
+              failed: entry._syncFailed || false,
+              errors: entry._syncErrors || []
+            })
+          }
+        }
+      } finally {
+        db.close()
+      }
 
       if (items.length === 0) {
         this.detailsListTarget.innerHTML = `
@@ -338,20 +345,44 @@ export default class extends Controller {
     }
   }
 
-  #openDB() {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION)
-      request.onupgradeneeded = (event) => {
-        const db = event.target.result
-        if (!db.objectStoreNames.contains(SCOUTING_STORE)) {
-          db.createObjectStore(SCOUTING_STORE, { keyPath: "client_uuid" })
-        }
-        if (!db.objectStoreNames.contains(PIT_STORE)) {
-          db.createObjectStore(PIT_STORE, { keyPath: "client_uuid" })
-        }
-      }
-      request.onsuccess = () => resolve(request.result)
-      request.onerror = () => reject(request.error)
-    })
+  #handlePrefetchProgress(data) {
+    // Cancel any pending auto-hide from a prior prefetch-complete
+    if (this._prefetchBannerTimeout) {
+      clearTimeout(this._prefetchBannerTimeout)
+      this._prefetchBannerTimeout = null
+    }
+
+    if (this.hasBannerTarget) {
+      this.bannerTarget.classList.remove("hidden")
+    }
+    if (this.hasStatusTarget) {
+      this.statusTarget.textContent = `Downloading for offline: ${data.completed}/${data.total} pages`
+    }
+    if (this.hasProgressTarget) {
+      this.progressTarget.classList.remove("hidden")
+    }
+    if (this.hasProgressBarTarget) {
+      const pct = data.total > 0 ? Math.round((data.completed / data.total) * 100) : 0
+      this.progressBarTarget.style.width = `${pct}%`
+    }
+    if (this.hasProgressTextTarget) {
+      this.progressTextTarget.textContent = `${data.completed} of ${data.total} pages cached`
+    }
   }
+
+  #handlePrefetchComplete(data) {
+    this.#hideProgress()
+    if (this.hasStatusTarget) {
+      this.statusTarget.textContent = `Event data ready for offline use (${data.total} pages cached)`
+    }
+    if (this.hasBannerTarget) {
+      this.bannerTarget.classList.remove("hidden")
+      // Auto-hide the success banner after 4 seconds
+      this._prefetchBannerTimeout = setTimeout(() => {
+        this._prefetchBannerTimeout = null
+        this.#updateQueueCount()
+      }, 4000)
+    }
+  }
+
 }
