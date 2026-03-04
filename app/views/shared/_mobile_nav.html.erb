@@ -70,9 +70,6 @@
             <%= link_to "Reports", reports_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
           <% end %>
           <%= link_to "Entries", scouting_entries_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
-          <% if current_user.admin? || current_user.analyst? %>
-            <%= link_to "QR Scanner", scanner_qr_imports_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
-          <% end %>
           <% if current_user.admin? %>
             <div class="border-t border-gray-800">
               <%= link_to "Manage Users", users_path, class: "block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors duration-150" %>
