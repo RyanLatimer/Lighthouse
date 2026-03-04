@@ -136,11 +136,11 @@
     @apply inline-flex items-center gap-1 text-gray-400 hover:text-white text-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 rounded-lg;
   }
 
-  /* Turbo progress bar */
+  /* Turbo progress bar — !important to override Turbo's inline styles */
   .turbo-progress-bar {
-    background: linear-gradient(to right, theme(--color-orange-400), theme(--color-orange-500));
-    height: 3px;
-    box-shadow: 0 0 10px theme(--color-orange-500 / 50%), 0 0 5px theme(--color-orange-500 / 30%);
+    background: linear-gradient(to right, theme(--color-orange-400), theme(--color-orange-500)) !important;
+    height: 3px !important;
+    box-shadow: 0 0 10px theme(--color-orange-500 / 50%), 0 0 5px theme(--color-orange-500 / 30%) !important;
   }
 
   /* Safe area bottom for iPhone notch */

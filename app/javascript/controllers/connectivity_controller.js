@@ -2,18 +2,8 @@ import { Controller } from "@hotwired/stimulus"
 import { openDB, SCOUTING_STORE, PIT_STORE } from "lib/lighthouse_db"
 
 /**
- * Manages the offline connectivity indicator banner, sync queue count,
+ * Manages the offline connectivity toast, sync queue count,
  * progress reporting, and failed entry details.
- *
- * Targets:
- *   - banner: the offline status bar element
- *   - status: text element showing online/offline/syncing status
- *   - queueCount: element showing number of queued entries
- *   - progress: progress bar container (shown during sync)
- *   - progressBar: the inner progress bar element
- *   - progressText: text showing "Syncing X of Y..."
- *   - details: expandable details panel for queue breakdown
- *   - detailsList: list element for individual entry statuses
  */
 export default class extends Controller {
   static targets = [
@@ -35,7 +25,6 @@ export default class extends Controller {
     window.addEventListener("lighthouse:entry-queued", this._onEntryQueued)
     navigator.serviceWorker?.addEventListener("message", this._onMessage)
 
-    // Initial check
     if (navigator.onLine) {
       this.#goOnline()
     } else {
@@ -51,6 +40,8 @@ export default class extends Controller {
     window.removeEventListener("lighthouse:sync-complete", this._onSyncComplete)
     window.removeEventListener("lighthouse:entry-queued", this._onEntryQueued)
     navigator.serviceWorker?.removeEventListener("message", this._onMessage)
+    if (this._autoDismissTimeout) clearTimeout(this._autoDismissTimeout)
+    if (this._prefetchBannerTimeout) clearTimeout(this._prefetchBannerTimeout)
   }
 
   // --- Actions ---
@@ -61,17 +52,15 @@ export default class extends Controller {
     this.#showSyncing()
 
     try {
-      // Trigger background sync if available
       const reg = await navigator.serviceWorker?.ready
       if (reg?.sync) {
         await reg.sync.register("sync-scouting-entries")
         await reg.sync.register("sync-pit-scouting-entries")
       }
     } catch {
-      // Background sync not available, offline_controller handles it
+      // Background sync not available
     }
 
-    // Fallback: update count after a delay
     setTimeout(() => this.#updateQueueCount(), 3000)
   }
 
@@ -128,15 +117,53 @@ export default class extends Controller {
 
   // --- Private ---
 
+  #showBanner() {
+    if (!this.hasBannerTarget) return
+    const el = this.bannerTarget
+    el.classList.remove("hidden")
+    el.style.opacity = "0"
+    el.style.transform = "translateX(-1rem)"
+    el.style.transition = "opacity 0.2s ease-out, transform 0.2s ease-out"
+
+    requestAnimationFrame(() => {
+      el.style.opacity = "1"
+      el.style.transform = "translateX(0)"
+    })
+  }
+
+  #hideBanner() {
+    if (!this.hasBannerTarget) return
+    const el = this.bannerTarget
+
+    el.style.transition = "opacity 0.2s ease-out, transform 0.2s ease-out"
+    el.style.opacity = "0"
+    el.style.transform = "translateX(-1rem)"
+
+    setTimeout(() => {
+      el.classList.add("hidden")
+      el.style.opacity = ""
+      el.style.transform = ""
+      if (this.hasDetailsTarget) {
+        this.detailsTarget.classList.add("hidden")
+      }
+    }, 200)
+  }
+
+  #autoDismissAfter(ms) {
+    if (this._autoDismissTimeout) clearTimeout(this._autoDismissTimeout)
+    this._autoDismissTimeout = setTimeout(() => {
+      this._autoDismissTimeout = null
+      this.#updateQueueCount()
+    }, ms)
+  }
+
   #goOnline() {
     this.#hideProgress()
     this.#updateQueueCount()
   }
 
   #goOffline() {
-    if (this.hasBannerTarget) {
-      this.bannerTarget.classList.remove("hidden")
-    }
+    this.#showBanner()
     if (this.hasStatusTarget) {
       this.statusTarget.textContent = "You are offline"
     }
@@ -178,6 +205,7 @@ export default class extends Controller {
 
   #handleSyncProgress(data) {
     if (data.phase === "start") {
+      this.#showBanner()
       this.#showSyncing()
       if (this.hasProgressTextTarget) {
         this.progressTextTarget.textContent = `Syncing ${data.total} ${data.total === 1 ? "entry" : "entries"}...`
@@ -206,7 +234,6 @@ export default class extends Controller {
       }
     }
 
-    // Store last sync result for the details panel
     this._lastSyncResult = {
       ...this._lastSyncResult,
       [data.store]: { synced: data.synced, failed: data.failed, total: data.total, at: new Date().toISOString() }
@@ -259,9 +286,9 @@ export default class extends Controller {
         }
       }
 
-      // Show/hide the banner based on queue state
-      if (total > 0 && navigator.onLine && this.hasBannerTarget) {
-        this.bannerTarget.classList.remove("hidden")
+      // Show/hide based on queue state
+      if (total > 0 && navigator.onLine) {
+        this.#showBanner()
         if (this.hasStatusTarget && !this.statusTarget.textContent.includes("Syncing")) {
           if (failedCount > 0 && pendingCount === 0) {
             this.statusTarget.textContent = `${failedCount} failed ${failedCount === 1 ? "entry" : "entries"}`
@@ -269,11 +296,8 @@ export default class extends Controller {
             this.statusTarget.textContent = "Entries queued for sync"
           }
         }
-      } else if (total === 0 && navigator.onLine && this.hasBannerTarget) {
-        this.bannerTarget.classList.add("hidden")
-        if (this.hasDetailsTarget) {
-          this.detailsTarget.classList.add("hidden")
-        }
+      } else if (total === 0 && navigator.onLine) {
+        this.#hideBanner()
       }
     } catch {
       // IndexedDB not available
@@ -317,7 +341,7 @@ export default class extends Controller {
 
       if (items.length === 0) {
         this.detailsListTarget.innerHTML = `
-          <li class="text-xs text-gray-500 py-2 text-center">No queued entries</li>
+          <li class="text-xs text-gray-500 py-1.5 text-center">No queued entries</li>
         `
         return
       }
@@ -326,17 +350,17 @@ export default class extends Controller {
         const statusClass = item.failed ? "text-red-400" : "text-amber-400"
         const statusLabel = item.failed ? "Failed" : "Pending"
         const time = item.createdAt ? new Date(item.createdAt).toLocaleTimeString() : ""
-        const errorMsg = item.errors.length > 0 ? `<div class="text-xs text-red-400/70 mt-0.5">${item.errors[0]}</div>` : ""
+        const errorMsg = item.errors.length > 0 ? `<div class="text-[10px] text-red-400/70 mt-0.5">${item.errors[0]}</div>` : ""
 
         return `
           <li class="flex items-center justify-between py-1.5 border-b border-gray-800/50 last:border-0">
             <div class="min-w-0">
               <span class="text-xs font-medium text-gray-300">${item.type}</span>
               <span class="text-xs text-gray-500 ml-1">Team ${item.team}</span>
-              <span class="text-xs text-gray-600 ml-1">${time}</span>
+              <span class="text-[10px] text-gray-600 ml-1">${time}</span>
               ${errorMsg}
             </div>
-            <span class="text-xs font-medium ${statusClass} shrink-0 ml-2">${statusLabel}</span>
+            <span class="text-[10px] font-medium ${statusClass} shrink-0 ml-2">${statusLabel}</span>
           </li>
         `
       }).join("")
@@ -346,17 +370,14 @@ export default class extends Controller {
   }
 
   #handlePrefetchProgress(data) {
-    // Cancel any pending auto-hide from a prior prefetch-complete
     if (this._prefetchBannerTimeout) {
       clearTimeout(this._prefetchBannerTimeout)
       this._prefetchBannerTimeout = null
     }
 
-    if (this.hasBannerTarget) {
-      this.bannerTarget.classList.remove("hidden")
-    }
+    this.#showBanner()
     if (this.hasStatusTarget) {
-      this.statusTarget.textContent = `Downloading for offline: ${data.completed}/${data.total} pages`
+      this.statusTarget.textContent = `Caching for offline: ${data.completed}/${data.total}`
     }
     if (this.hasProgressTarget) {
       this.progressTarget.classList.remove("hidden")
@@ -366,23 +387,19 @@ export default class extends Controller {
       this.progressBarTarget.style.width = `${pct}%`
     }
     if (this.hasProgressTextTarget) {
-      this.progressTextTarget.textContent = `${data.completed} of ${data.total} pages cached`
+      this.progressTextTarget.textContent = `${data.completed} of ${data.total} pages`
     }
   }
 
   #handlePrefetchComplete(data) {
     this.#hideProgress()
     if (this.hasStatusTarget) {
-      this.statusTarget.textContent = `Event data ready for offline use (${data.total} pages cached)`
+      this.statusTarget.textContent = `Offline ready (${data.total} pages cached)`
     }
-    if (this.hasBannerTarget) {
-      this.bannerTarget.classList.remove("hidden")
-      // Auto-hide the success banner after 4 seconds
-      this._prefetchBannerTimeout = setTimeout(() => {
-        this._prefetchBannerTimeout = null
-        this.#updateQueueCount()
-      }, 4000)
-    }
+    this.#showBanner()
+    this._prefetchBannerTimeout = setTimeout(() => {
+      this._prefetchBannerTimeout = null
+      this.#updateQueueCount()
+    }, 4000)
   }
-
 }

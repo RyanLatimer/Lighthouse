@@ -2,9 +2,18 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   connect() {
-    this.timeout = setTimeout(() => this.dismiss(), 5000)
+    // Slide in from the left
+    this.element.style.opacity = "0"
+    this.element.style.transform = "translateX(-1rem)"
+    this.element.style.transition = "opacity 0.2s ease-out, transform 0.2s ease-out"
 
-    // Pause auto-dismiss on hover/focus
+    requestAnimationFrame(() => {
+      this.element.style.opacity = "1"
+      this.element.style.transform = "translateX(0)"
+    })
+
+    this.timeout = setTimeout(() => this.dismiss(), 4000)
+
     this.element.addEventListener("mouseenter", this.#pause)
     this.element.addEventListener("mouseleave", this.#resume)
     this.element.addEventListener("focusin", this.#pause)
@@ -22,32 +31,11 @@ export default class extends Controller {
   dismiss() {
     clearTimeout(this.timeout)
 
-    const el = this.element
-    const height = el.offsetHeight
-    const marginBottom = parseInt(getComputedStyle(el).marginBottom, 10)
+    this.element.style.transition = "opacity 0.2s ease-out, transform 0.2s ease-out"
+    this.element.style.opacity = "0"
+    this.element.style.transform = "translateX(-1rem)"
 
-    // Phase 1: Fade out and slide up
-    el.style.transition = "opacity 0.2s ease-out, transform 0.2s ease-out"
-    el.style.opacity = "0"
-    el.style.transform = "translateY(-8px)"
-
-    // Phase 2: Collapse height smoothly
-    setTimeout(() => {
-      el.style.transition = "max-height 0.2s ease-out, margin 0.2s ease-out, padding 0.2s ease-out, border-width 0.2s ease-out"
-      el.style.maxHeight = height + "px"
-      el.style.overflow = "hidden"
-
-      // Force layout to register the maxHeight before animating
-      el.offsetHeight
-      el.style.maxHeight = "0"
-      el.style.marginTop = "0"
-      el.style.marginBottom = "0"
-      el.style.paddingTop = "0"
-      el.style.paddingBottom = "0"
-      el.style.borderWidth = "0"
-
-      setTimeout(() => el.remove(), 200)
-    }, 200)
+    setTimeout(() => this.element.remove(), 200)
   }
 
   #pause = () => {
@@ -55,6 +43,6 @@ export default class extends Controller {
   }
 
   #resume = () => {
-    this.timeout = setTimeout(() => this.dismiss(), 3000)
+    this.timeout = setTimeout(() => this.dismiss(), 2000)
   }
 }

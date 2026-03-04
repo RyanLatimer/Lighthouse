@@ -322,24 +322,30 @@ export default class extends Controller {
   }
 
   #showOfflineConfirmation() {
-    const banner = document.createElement("div")
-    banner.className = "fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-amber-600 text-white px-6 py-3 rounded-lg shadow-lg font-medium animate-slide-down"
-    banner.innerHTML = `
-      <div class="flex items-center gap-2">
-        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span>Entry saved offline. It will sync when you reconnect.</span>
-      </div>
+    const container = document.getElementById("toast-stack") || document.body
+    const toast = document.createElement("div")
+    toast.className = "px-4 py-3 rounded-lg bg-gray-900 border border-amber-500/30 shadow-lg shadow-black/30 text-sm flex items-center gap-2"
+    toast.style.opacity = "0"
+    toast.style.transform = "translateX(-1rem)"
+    toast.style.transition = "opacity 0.2s ease-out, transform 0.2s ease-out"
+    toast.innerHTML = `
+      <svg class="w-4 h-4 shrink-0 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span class="text-gray-200">Entry saved offline. It will sync when you reconnect.</span>
     `
-    document.body.appendChild(banner)
+    container.appendChild(toast)
+
+    requestAnimationFrame(() => {
+      toast.style.opacity = "1"
+      toast.style.transform = "translateX(0)"
+    })
 
     setTimeout(() => {
-      banner.style.transition = "opacity 0.3s ease-out, transform 0.3s ease-out"
-      banner.style.opacity = "0"
-      banner.style.transform = "translate(-50%, -8px)"
-      setTimeout(() => banner.remove(), 300)
-    }, 3000)
+      toast.style.opacity = "0"
+      toast.style.transform = "translateX(-1rem)"
+      setTimeout(() => toast.remove(), 200)
+    }, 4000)
   }
 
   #incrementValue(phase, suffix) {
