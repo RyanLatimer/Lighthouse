@@ -10,10 +10,10 @@ set -euo pipefail
 # Prerequisites:
 #   - SSH access to the Pi (key-based auth recommended)
 #   - Set PI_HOST env var or edit the default below
-#   - .env.production must exist on the Pi at ~/lighthouse/.env.production
+#   - .env.production must exist on the Pi at ~/Lighthouse/.env.production
 
 PI_HOST="${PI_HOST:-deploy.frc7790.com}"
-REMOTE_DIR="${REMOTE_DIR:-~/lighthouse}"
+REMOTE_DIR="${REMOTE_DIR:-~/Lighthouse}"
 
 deploy_remote() {
   echo "==> Deploying to ${PI_HOST}:${REMOTE_DIR}..."
