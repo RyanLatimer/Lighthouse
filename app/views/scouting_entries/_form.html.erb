@@ -346,9 +346,21 @@
 
       <%# Defense Rating Selector %>
       <p class="text-xs text-gray-400 uppercase tracking-wider mb-2 font-medium">Defense Rating</p>
-      <div class="grid grid-cols-5 gap-2 mb-4" role="radiogroup" aria-label="Rate defense quality">
-        <% defense_labels = { 1 => "Weak", 2 => "Below Avg", 3 => "Average", 4 => "Strong", 5 => "Dominant" } %>
+      <div class="grid grid-cols-6 gap-2 mb-4" role="radiogroup" aria-label="Rate defense quality">
+        <% defense_labels = { 0 => "No Defense", 1 => "Weak", 2 => "Below Avg", 3 => "Average", 4 => "Strong", 5 => "Dominant" } %>
         <% current_defense = (scouting_entry.data&.dig("defense_rating") || 0).to_i %>
+        <button type="button"
+                class="py-3 rounded-xl border-2 text-center transition-all duration-200 active:scale-95 select-none
+                       <%= current_defense == 0 ? 'ring-2 ring-orange-400 bg-orange-500/15 border-orange-500 shadow-lg shadow-orange-500/10 scale-[1.02]' : 'bg-gray-800 border-gray-700 hover:border-gray-600 hover:bg-gray-700/50' %>"
+                data-action="click->scouting#selectDefense"
+                data-defense-card
+                data-rating="0"
+                role="radio"
+                aria-checked="<%= current_defense == 0 %>"
+                aria-label="No defense played">
+          <p class="text-lg font-bold <%= current_defense == 0 ? 'text-orange-400' : 'text-gray-300' %>">&#x2715;</p>
+          <p class="text-[10px] text-gray-500 leading-tight">No Defense</p>
+        </button>
         <% (1..5).each do |rating| %>
           <% is_selected = rating == current_defense %>
           <button type="button"
