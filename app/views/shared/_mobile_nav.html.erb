@@ -1,5 +1,5 @@
 <% if user_signed_in? && current_event %>
-  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-sm border-t border-gray-800 md:hidden safe-area-bottom" aria-label="Mobile navigation">
+  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-sm border-t border-gray-800 lg:hidden safe-area-bottom" aria-label="Mobile navigation">
     <div class="flex items-center justify-around h-16 px-2">
       <%# Dashboard (Home - first position) %>
       <% dashboard_active = request.path == '/' %>

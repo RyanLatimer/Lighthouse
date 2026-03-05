@@ -12,7 +12,7 @@ set -euo pipefail
 #   - Set PI_HOST env var or edit the default below
 #   - .env.production must exist on the Pi at ~/lighthouse/.env.production
 
-PI_HOST="${PI_HOST:-pi@lighthouse-pi}"
+PI_HOST="${PI_HOST:-deploy.frc7790.com}"
 REMOTE_DIR="${REMOTE_DIR:-~/lighthouse}"
 
 deploy_remote() {
