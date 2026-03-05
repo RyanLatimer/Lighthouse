@@ -37,6 +37,13 @@ export default class extends Controller {
     this.#initializeTeamFilter()
     this.#initializeMatchFilter()
     this.#cacheReferenceData()
+
+    this._onKeydown = (event) => this.#handleKeydown(event)
+    document.addEventListener("keydown", this._onKeydown)
+  }
+
+  disconnect() {
+    document.removeEventListener("keydown", this._onKeydown)
   }
 
   // --- Counter actions ---
@@ -346,6 +353,52 @@ export default class extends Controller {
       toast.style.transform = "translateX(-1rem)"
       setTimeout(() => toast.remove(), 200)
     }, 4000)
+  }
+
+  #handleKeydown(event) {
+    // Ignore when typing in inputs, textareas, or selects
+    const tag = event.target.tagName
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return
+    if (event.target.isContentEditable) return
+
+    // Ignore if any modifier key is held
+    if (event.metaKey || event.ctrlKey || event.altKey) return
+
+    const key = event.key.toLowerCase()
+    const phase = this.#activePhase()
+    if (!phase) return
+
+    switch (key) {
+      case "q":
+      case "w":
+        this.#incrementValue(phase, "Made")
+        this.updateDisplay()
+        break
+      case "e":
+      case "r":
+        this.#incrementValue(phase, "Missed")
+        this.updateDisplay()
+        break
+      case "a":
+      case "s":
+        this.#decrementValue(phase, "Made")
+        this.updateDisplay()
+        break
+      case "d":
+      case "f":
+        this.#decrementValue(phase, "Missed")
+        this.updateDisplay()
+        break
+      default:
+        return
+    }
+
+    event.preventDefault()
+  }
+
+  #activePhase() {
+    const activeTab = this.element.querySelector("[data-tab-button][aria-selected='true']")
+    return activeTab?.dataset.tab || "auton"
   }
 
   #incrementValue(phase, suffix) {
