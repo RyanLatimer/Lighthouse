@@ -17,6 +17,11 @@ class DashboardController < ApplicationController
     @total_teams_at_event = FrcTeam.at_event(@event).count
     @pit_scouted_count = PitScoutingEntry.where(event: @event).distinct.count(:frc_team_id)
 
+    # Flagged (inaccurate) entries grouped by match
+    @flagged_entries = ScoutingEntry.where(event: @event, status: :flagged)
+                                    .includes(:frc_team, :match, :user)
+                                    .order(created_at: :desc)
+
     # Scout accuracy leaderboard
     @scout_accuracy = ScoutAccuracyService.new(@event).call
 

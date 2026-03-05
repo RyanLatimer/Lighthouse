@@ -72,6 +72,45 @@
     </div>
   </div>
 
+  <%# Flagged Matches — entries marked as inaccurate %>
+  <% flagged_by_match = @flagged_entries.select(&:match).group_by(&:match) %>
+  <% if flagged_by_match.any? %>
+    <div class="bg-gray-900 border border-red-900/50 rounded-xl p-4 sm:p-6 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-red-500/20 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.27 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-sm font-semibold text-white uppercase tracking-wider">Inaccurate Matches</h2>
+            <p class="text-xs text-gray-500"><%= flagged_by_match.size %> <%= flagged_by_match.size == 1 ? "match" : "matches" %> with flagged data</p>
+          </div>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <% flagged_by_match.each do |match, entries| %>
+          <div class="bg-gray-800/50 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-bold text-white font-mono"><%= match.display_name %></span>
+              <span class="badge-amber text-[10px]"><%= entries.size %> <%= entries.size == 1 ? "entry" : "entries" %></span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <% entries.each do |entry| %>
+                <%= link_to scouting_entry_path(entry), class: "flex items-center gap-1.5 px-2 py-1 bg-gray-900/80 rounded-md hover:bg-gray-700 transition-colors duration-150 group" do %>
+                  <span class="text-xs font-bold text-orange-400 font-mono"><%= entry.frc_team.team_number %></span>
+                  <span class="text-xs text-gray-500 group-hover:text-gray-300"><%= entry.user.first_name %></span>
+                  <span class="text-xs font-mono text-red-400"><%= entry.total_points %> pts</span>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
   <%# Pit Scouting Progress + Quick Links %>
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
     <%# Pit Scouting Progress %>
