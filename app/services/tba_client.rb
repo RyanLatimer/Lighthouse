@@ -41,7 +41,7 @@ class TbaClient
       f.headers["X-TBA-Auth-Key"] = @api_key
       f.headers["Accept"] = "application/json"
       f.request :retry, max: 3, interval: 0.5, backoff_factor: 2,
-                        exceptions: [Faraday::TimeoutError, Faraday::ConnectionFailed]
+                        exceptions: [ Faraday::TimeoutError, Faraday::ConnectionFailed ]
       f.response :json, parser_options: { symbolize_names: false }
       f.adapter Faraday.default_adapter
     end

@@ -108,7 +108,7 @@ class QrImportsController < ApplicationController
       rescue ActiveRecord::RecordNotUnique
         render json: {
           status: "error",
-          errors: ["You already have an entry for Team #{entry.frc_team.team_number} in #{entry.match&.display_name || 'this match'}"]
+          errors: [ "You already have an entry for Team #{entry.frc_team.team_number} in #{entry.match&.display_name || 'this match'}" ]
         }, status: :unprocessable_entity
       end
     end

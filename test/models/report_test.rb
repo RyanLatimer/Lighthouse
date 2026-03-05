@@ -31,7 +31,7 @@ class ReportTest < ActiveSupport::TestCase
 
   test "metrics returns array from config" do
     report = reports(:team_summary_report)
-    assert_equal ["avg_total_points", "fuel_accuracy_pct", "avg_climb_points"], report.metrics
+    assert_equal [ "avg_total_points", "fuel_accuracy_pct", "avg_climb_points" ], report.metrics
   end
 
   test "filters returns hash from config" do

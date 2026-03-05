@@ -1,5 +1,4 @@
 class GameConfig < ApplicationRecord
-
   # Validations
   validates :year, presence: true
   validates :game_name, presence: true

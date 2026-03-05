@@ -9,8 +9,8 @@ class MatchSimulatorServiceTest < ActiveSupport::TestCase
   end
 
   test "simulate returns expected hash keys" do
-    red_teams = [frc_teams(:team_254)]
-    blue_teams = [frc_teams(:team_1678)]
+    red_teams = [ frc_teams(:team_254) ]
+    blue_teams = [ frc_teams(:team_1678) ]
 
     result = @service.simulate(red_teams, blue_teams)
 
@@ -22,8 +22,8 @@ class MatchSimulatorServiceTest < ActiveSupport::TestCase
   end
 
   test "simulate scores are non-negative" do
-    red_teams = [frc_teams(:team_254)]
-    blue_teams = [frc_teams(:team_1678)]
+    red_teams = [ frc_teams(:team_254) ]
+    blue_teams = [ frc_teams(:team_1678) ]
 
     result = @service.simulate(red_teams, blue_teams)
 
@@ -32,8 +32,8 @@ class MatchSimulatorServiceTest < ActiveSupport::TestCase
   end
 
   test "simulate win percentages sum to approximately 100" do
-    red_teams = [frc_teams(:team_254)]
-    blue_teams = [frc_teams(:team_1678)]
+    red_teams = [ frc_teams(:team_254) ]
+    blue_teams = [ frc_teams(:team_1678) ]
 
     result = @service.simulate(red_teams, blue_teams)
 
@@ -42,8 +42,8 @@ class MatchSimulatorServiceTest < ActiveSupport::TestCase
   end
 
   test "simulate margin_of_victory matches score difference" do
-    red_teams = [frc_teams(:team_254)]
-    blue_teams = [frc_teams(:team_1678)]
+    red_teams = [ frc_teams(:team_254) ]
+    blue_teams = [ frc_teams(:team_1678) ]
 
     result = @service.simulate(red_teams, blue_teams)
 
@@ -53,8 +53,8 @@ class MatchSimulatorServiceTest < ActiveSupport::TestCase
 
   test "simulate with full 3v3 alliances from fixtures" do
     # qm1: red = 254, 4414, 118  vs  blue = 1678
-    red_teams = [frc_teams(:team_254), frc_teams(:team_4414), frc_teams(:team_118)]
-    blue_teams = [frc_teams(:team_1678)]
+    red_teams = [ frc_teams(:team_254), frc_teams(:team_4414), frc_teams(:team_118) ]
+    blue_teams = [ frc_teams(:team_1678) ]
 
     result = @service.simulate(red_teams, blue_teams)
 
@@ -68,8 +68,8 @@ class MatchSimulatorServiceTest < ActiveSupport::TestCase
 
   test "simulate with unscouted teams uses default stddev" do
     # team_4414 has no entries => avg=0, stddev defaults to 5.0
-    red_teams = [frc_teams(:team_4414)]
-    blue_teams = [frc_teams(:team_4414)]
+    red_teams = [ frc_teams(:team_4414) ]
+    blue_teams = [ frc_teams(:team_4414) ]
 
     result = @service.simulate(red_teams, blue_teams)
 
@@ -81,8 +81,8 @@ class MatchSimulatorServiceTest < ActiveSupport::TestCase
   test "simulate is deterministic-ish: stronger team wins more often" do
     # team_254 avg ~58.5 vs team_1678 avg ~39.0
     # Run multiple simulations and check the average trend to reduce flakiness
-    red_teams = [frc_teams(:team_254)]
-    blue_teams = [frc_teams(:team_1678)]
+    red_teams = [ frc_teams(:team_254) ]
+    blue_teams = [ frc_teams(:team_1678) ]
 
     red_win_sum = 0.0
     runs = 5

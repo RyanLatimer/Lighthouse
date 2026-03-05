@@ -68,7 +68,7 @@ class MatchAllianceTest < ActiveSupport::TestCase
   test "qm1 red alliance has 254, 4414, 118" do
     qm1_red = MatchAlliance.where(match: matches(:qm1), alliance_color: "red")
     team_numbers = qm1_red.map { |a| a.frc_team.team_number }.sort
-    assert_equal [118, 254, 4414], team_numbers
+    assert_equal [ 118, 254, 4414 ], team_numbers
   end
 
   test "qm1 blue alliance has 1678" do

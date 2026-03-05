@@ -44,8 +44,8 @@ class MatchSimulatorControllerTest < ActionDispatch::IntegrationTest
   # --- Create ---
 
   test "should create simulation with team IDs" do
-    red_teams = [frc_teams(:team_254).id, frc_teams(:team_4414).id, frc_teams(:team_118).id]
-    blue_teams = [frc_teams(:team_1678).id]
+    red_teams = [ frc_teams(:team_254).id, frc_teams(:team_4414).id, frc_teams(:team_118).id ]
+    blue_teams = [ frc_teams(:team_1678).id ]
 
     post match_simulator_path, params: {
       red_team_ids: red_teams.map(&:to_s),
@@ -61,8 +61,8 @@ class MatchSimulatorControllerTest < ActionDispatch::IntegrationTest
     select_event(@event)
 
     post match_simulator_path, params: {
-      red_team_ids: [frc_teams(:team_254).id.to_s],
-      blue_team_ids: [frc_teams(:team_1678).id.to_s],
+      red_team_ids: [ frc_teams(:team_254).id.to_s ],
+      blue_team_ids: [ frc_teams(:team_1678).id.to_s ],
       iterations: 100
     }
     assert_response :success
@@ -74,8 +74,8 @@ class MatchSimulatorControllerTest < ActionDispatch::IntegrationTest
     select_event(@event)
 
     post match_simulator_path, params: {
-      red_team_ids: [frc_teams(:team_254).id.to_s],
-      blue_team_ids: [frc_teams(:team_1678).id.to_s]
+      red_team_ids: [ frc_teams(:team_254).id.to_s ],
+      blue_team_ids: [ frc_teams(:team_1678).id.to_s ]
     }
     assert_response :redirect
   end

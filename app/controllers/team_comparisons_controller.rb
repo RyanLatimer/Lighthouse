@@ -51,7 +51,8 @@ class TeamComparisonsController < ApplicationController
     @radar_teams = @teams.each_with_index.map do |team, i|
       summary = @summaries[team.id]
       values = RADAR_METRICS.index_with do |metric|
-        summary&.public_send(metric).to_f
+        val = summary&.public_send(metric)
+        val.nil? ? nil : val.to_f
       end
       { name: "##{team.team_number}", color: TEAM_COLORS[i % TEAM_COLORS.size], values: values }
     end

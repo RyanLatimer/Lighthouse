@@ -10,8 +10,8 @@ class PredictionServiceTest < ActiveSupport::TestCase
 
   test "predict_match returns a saved Prediction record" do
     match = matches(:qm1)
-    red_teams = [frc_teams(:team_254)]
-    blue_teams = [frc_teams(:team_1678)]
+    red_teams = [ frc_teams(:team_254) ]
+    blue_teams = [ frc_teams(:team_1678) ]
 
     prediction = @service.predict_match(match, red_teams, blue_teams)
 
@@ -24,8 +24,8 @@ class PredictionServiceTest < ActiveSupport::TestCase
 
   test "predict_match sets score and probability fields" do
     match = matches(:qm1)
-    red_teams = [frc_teams(:team_254)]
-    blue_teams = [frc_teams(:team_1678)]
+    red_teams = [ frc_teams(:team_254) ]
+    blue_teams = [ frc_teams(:team_1678) ]
 
     prediction = @service.predict_match(match, red_teams, blue_teams)
 
@@ -39,8 +39,8 @@ class PredictionServiceTest < ActiveSupport::TestCase
 
   test "predict_match stores scouting details" do
     match = matches(:qm1)
-    red_teams = [frc_teams(:team_254)]
-    blue_teams = [frc_teams(:team_1678)]
+    red_teams = [ frc_teams(:team_254) ]
+    blue_teams = [ frc_teams(:team_1678) ]
 
     prediction = @service.predict_match(match, red_teams, blue_teams)
     details = prediction.details
@@ -53,8 +53,8 @@ class PredictionServiceTest < ActiveSupport::TestCase
 
   test "predict_match falls back to scouting-only when statbotics is unavailable" do
     match = matches(:qm1)
-    red_teams = [frc_teams(:team_254)]
-    blue_teams = [frc_teams(:team_1678)]
+    red_teams = [ frc_teams(:team_254) ]
+    blue_teams = [ frc_teams(:team_1678) ]
 
     prediction = @service.predict_match(match, red_teams, blue_teams)
 
@@ -65,8 +65,8 @@ class PredictionServiceTest < ActiveSupport::TestCase
 
   test "predict_match is idempotent — updates existing prediction" do
     match = matches(:qm1)
-    red_teams = [frc_teams(:team_254)]
-    blue_teams = [frc_teams(:team_1678)]
+    red_teams = [ frc_teams(:team_254) ]
+    blue_teams = [ frc_teams(:team_1678) ]
 
     prediction1 = @service.predict_match(match, red_teams, blue_teams)
     prediction2 = @service.predict_match(match, red_teams, blue_teams)
@@ -90,8 +90,8 @@ class PredictionServiceTest < ActiveSupport::TestCase
 
   test "prediction win probabilities sum to approximately 100" do
     match = matches(:qm1)
-    red_teams = [frc_teams(:team_254)]
-    blue_teams = [frc_teams(:team_1678)]
+    red_teams = [ frc_teams(:team_254) ]
+    blue_teams = [ frc_teams(:team_1678) ]
 
     prediction = @service.predict_match(match, red_teams, blue_teams)
 

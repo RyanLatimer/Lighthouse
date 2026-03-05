@@ -120,7 +120,7 @@ end
 scout3.add_role(:scout) unless scout3.has_role?(:scout)
 Membership.find_or_create_by!(user: scout3, organization: org) { |m| m.role = :scout }
 
-analysts = [admin, scout, scout2, scout3]
+analysts = [ admin, scout, scout2, scout3 ]
 
 # --- 12 FRC Teams ---
 team_data = [
@@ -135,7 +135,7 @@ team_data = [
   { team_number: 6328, nickname: "Mechanical Advantage", city: "Littleton", state_prov: "MA", country: "USA", rookie_year: 2017 },
   { team_number: 1323, nickname: "MadTown Robotics",   city: "Madera",       state_prov: "CA", country: "USA", rookie_year: 2004 },
   { team_number: 3310, nickname: "Black Hawk Robotics", city: "Pearland",    state_prov: "TX", country: "USA", rookie_year: 2010 },
-  { team_number: 5940, nickname: "BREAD",              city: "Palm Beach",   state_prov: "FL", country: "USA", rookie_year: 2016 },
+  { team_number: 5940, nickname: "BREAD",              city: "Palm Beach",   state_prov: "FL", country: "USA", rookie_year: 2016 }
 ]
 
 teams = team_data.map do |td|
@@ -174,18 +174,18 @@ puts "  EventTeams: #{EventTeam.where(event: event).count} linked"
 # Each team plays ~6 matches (like a real regional schedule)
 match_assignments = [
   # [match#, [red1, red2, red3], [blue1, blue2, blue3]] (by team index 0-11)
-  [1,  [0, 3, 6],   [1, 4, 7]],
-  [2,  [2, 5, 8],   [9, 10, 11]],
-  [3,  [0, 4, 8],   [2, 6, 10]],
-  [4,  [1, 5, 9],   [3, 7, 11]],
-  [5,  [0, 5, 10],  [1, 6, 11]],
-  [6,  [2, 3, 9],   [4, 8, 7]],
-  [7,  [0, 7, 9],   [2, 4, 11]],
-  [8,  [1, 3, 8],   [5, 6, 10]],
-  [9,  [0, 2, 11],  [1, 9, 8]],
-  [10, [3, 4, 5],   [6, 7, 10]],
-  [11, [0, 1, 10],  [3, 8, 11]],
-  [12, [2, 7, 9],   [4, 5, 6]],
+  [ 1,  [ 0, 3, 6 ],   [ 1, 4, 7 ] ],
+  [ 2,  [ 2, 5, 8 ],   [ 9, 10, 11 ] ],
+  [ 3,  [ 0, 4, 8 ],   [ 2, 6, 10 ] ],
+  [ 4,  [ 1, 5, 9 ],   [ 3, 7, 11 ] ],
+  [ 5,  [ 0, 5, 10 ],  [ 1, 6, 11 ] ],
+  [ 6,  [ 2, 3, 9 ],   [ 4, 8, 7 ] ],
+  [ 7,  [ 0, 7, 9 ],   [ 2, 4, 11 ] ],
+  [ 8,  [ 1, 3, 8 ],   [ 5, 6, 10 ] ],
+  [ 9,  [ 0, 2, 11 ],  [ 1, 9, 8 ] ],
+  [ 10, [ 3, 4, 5 ],   [ 6, 7, 10 ] ],
+  [ 11, [ 0, 1, 10 ],  [ 3, 8, 11 ] ],
+  [ 12, [ 2, 7, 9 ],   [ 4, 5, 6 ] ]
 ]
 
 matches = match_assignments.map do |match_num, red_indices, blue_indices|
@@ -229,7 +229,7 @@ profiles = {
   6328 => { auton: 5, teleop: 13, endgame: 2, miss_pct: 0.13, climb_wt: { "L3" => 0.6, "L2" => 0.3, "L1" => 0.1 }, auton_climb: 0.8 },
   1323 => { auton: 3, teleop: 8,  endgame: 1, miss_pct: 0.25, climb_wt: { "L1" => 0.5, "None" => 0.3, "L2" => 0.2 }, auton_climb: 0.3 },
   3310 => { auton: 3, teleop: 7,  endgame: 1, miss_pct: 0.28, climb_wt: { "L1" => 0.4, "None" => 0.4, "L2" => 0.2 }, auton_climb: 0.2 },
-  5940 => { auton: 2, teleop: 6,  endgame: 0, miss_pct: 0.30, climb_wt: { "None" => 0.5, "L1" => 0.4, "L2" => 0.1 }, auton_climb: 0.1 },
+  5940 => { auton: 2, teleop: 6,  endgame: 0, miss_pct: 0.30, climb_wt: { "None" => 0.5, "L1" => 0.4, "L2" => 0.1 }, auton_climb: 0.1 }
 }
 
 def weighted_pick(weights)
@@ -244,7 +244,7 @@ end
 
 def vary(value, pct = 0.3)
   delta = (value * pct).ceil
-  [value + rand(-delta..delta), 0].max
+  [ value + rand(-delta..delta), 0 ].max
 end
 
 # --- Create scouting entries for every team in every match they play ---
@@ -289,7 +289,7 @@ match_assignments.each_with_index do |(match_num, red_indices, blue_indices), mi
           "defense_rating" => defense,
           "auton_actions" => [
             { "action" => "Mobility", "timestamp" => Time.now.to_i },
-            auton_made > 3 ? { "action" => "Preload", "timestamp" => Time.now.to_i } : nil,
+            auton_made > 3 ? { "action" => "Preload", "timestamp" => Time.now.to_i } : nil
           ].compact
         }
         se.notes = [
@@ -323,10 +323,10 @@ teams.each_with_index do |team, i|
       "robot_length" => (28 + rand(0..6)).to_s,
       "robot_height" => (36 + rand(0..18)).to_s,
       "robot_weight" => (110 + rand(0..15)).to_s,
-      "mechanisms" => (["Intake", "Shooter", "Climber"] + (rand < 0.5 ? ["Elevator"] : []) + (rand < 0.3 ? ["Turret"] : [])),
-      "auto_capabilities" => (["Leave", "Scoring"] + (profile[:auton_climb] > 0.5 ? ["Climbing"] : []) + (profile[:auton] > 4 ? ["Multi-piece"] : [])),
-      "strengths" => ["Fast cycle time", "Reliable climber", "Strong defense", "Accurate shooter", "Flexible autonomous"].sample(2).join(". ") + ".",
-      "weaknesses" => ["Occasional intake jams", "Slow to recover from defense", "Limited auto", "Tippy when pushed", "Inconsistent climb"].sample(1).first + "."
+      "mechanisms" => ([ "Intake", "Shooter", "Climber" ] + (rand < 0.5 ? [ "Elevator" ] : []) + (rand < 0.3 ? [ "Turret" ] : [])),
+      "auto_capabilities" => ([ "Leave", "Scoring" ] + (profile[:auton_climb] > 0.5 ? [ "Climbing" ] : []) + (profile[:auton] > 4 ? [ "Multi-piece" ] : [])),
+      "strengths" => [ "Fast cycle time", "Reliable climber", "Strong defense", "Accurate shooter", "Flexible autonomous" ].sample(2).join(". ") + ".",
+      "weaknesses" => [ "Occasional intake jams", "Slow to recover from defense", "Limited auto", "Tippy when pushed", "Inconsistent climb" ].sample(1).first + "."
     }
     pe.notes = "Pit scouted at #{event.name}. Team was cooperative and well-organized."
   end
@@ -362,7 +362,7 @@ puts "  Pick list: created with #{ranked_teams.size} teams"
 Report.find_or_create_by!(event: event, user: admin, name: "Top Scorers") do |r|
   r.organization = org
   r.config = {
-    "metrics" => ["avg_total_points", "fuel_accuracy_pct", "avg_climb_points"],
+    "metrics" => [ "avg_total_points", "fuel_accuracy_pct", "avg_climb_points" ],
     "filters" => { "min_matches" => 2 },
     "sort_by" => "avg_total_points",
     "sort_dir" => "desc",
@@ -373,7 +373,7 @@ end
 Report.find_or_create_by!(event: event, user: admin, name: "Accuracy Report") do |r|
   r.organization = org
   r.config = {
-    "metrics" => ["fuel_accuracy_pct", "avg_fuel_made", "avg_fuel_missed"],
+    "metrics" => [ "fuel_accuracy_pct", "avg_fuel_made", "avg_fuel_missed" ],
     "filters" => { "min_matches" => 2 },
     "sort_by" => "fuel_accuracy_pct",
     "sort_dir" => "desc",

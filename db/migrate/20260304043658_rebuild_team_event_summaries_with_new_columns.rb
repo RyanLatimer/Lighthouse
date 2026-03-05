@@ -106,7 +106,7 @@ class RebuildTeamEventSummariesWithNewColumns < ActiveRecord::Migration[8.1]
       WITH NO DATA
     SQL
 
-    add_index :team_event_summaries, [:event_id, :frc_team_id],
+    add_index :team_event_summaries, [ :event_id, :frc_team_id ],
               unique: true, name: "idx_team_event_summaries"
 
     # Populate the view
@@ -197,7 +197,7 @@ class RebuildTeamEventSummariesWithNewColumns < ActiveRecord::Migration[8.1]
       WITH NO DATA
     SQL
 
-    add_index :team_event_summaries, [:event_id, :frc_team_id],
+    add_index :team_event_summaries, [ :event_id, :frc_team_id ],
               unique: true, name: "idx_team_event_summaries"
   end
 end

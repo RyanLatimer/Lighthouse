@@ -92,7 +92,7 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
       post reports_path, params: {
         report: {
           name: "Test Report",
-          config: { metrics: ["avg_total_points"], sort_by: "avg_total_points" }
+          config: { metrics: [ "avg_total_points" ], sort_by: "avg_total_points" }
         }
       }
     end

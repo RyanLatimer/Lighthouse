@@ -80,8 +80,8 @@ class ReportBuilderServiceTest < ActiveSupport::TestCase
       event: events(:championship),
       user: users(:admin_user),
       config: {
-        "metrics" => ["avg_total_points"],
-        "filters" => { "teams" => [team_254.id] },
+        "metrics" => [ "avg_total_points" ],
+        "filters" => { "teams" => [ team_254.id ] },
         "sort_by" => "avg_total_points",
         "sort_dir" => "desc",
         "chart_type" => "table"
@@ -102,7 +102,7 @@ class ReportBuilderServiceTest < ActiveSupport::TestCase
       event: events(:championship),
       user: users(:admin_user),
       config: {
-        "metrics" => ["avg_total_points"],
+        "metrics" => [ "avg_total_points" ],
         "filters" => {},
         "sort_by" => "avg_total_points",
         "sort_dir" => "asc",

@@ -63,8 +63,8 @@ class SimulationResultTest < ActiveSupport::TestCase
 
   test "red_teams returns FrcTeam relation" do
     sim = SimulationResult.new(
-      red_team_ids: [frc_teams(:team_254).id, frc_teams(:team_4414).id],
-      blue_team_ids: [frc_teams(:team_1678).id],
+      red_team_ids: [ frc_teams(:team_254).id, frc_teams(:team_4414).id ],
+      blue_team_ids: [ frc_teams(:team_1678).id ],
       results: {},
       event: events(:championship),
       user: users(:admin_user)
@@ -77,8 +77,8 @@ class SimulationResultTest < ActiveSupport::TestCase
 
   test "blue_teams returns FrcTeam relation" do
     sim = SimulationResult.new(
-      red_team_ids: [frc_teams(:team_254).id],
-      blue_team_ids: [frc_teams(:team_1678).id],
+      red_team_ids: [ frc_teams(:team_254).id ],
+      blue_team_ids: [ frc_teams(:team_1678).id ],
       results: {},
       event: events(:championship),
       user: users(:admin_user)
@@ -119,8 +119,8 @@ class SimulationResultTest < ActiveSupport::TestCase
 
   def build_simulation_result
     SimulationResult.new(
-      red_team_ids: [254, 4414, 118],
-      blue_team_ids: [1678],
+      red_team_ids: [ 254, 4414, 118 ],
+      blue_team_ids: [ 1678 ],
       results: {
         "red_avg" => 87.3,
         "blue_avg" => 71.5,

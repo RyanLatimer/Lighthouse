@@ -61,7 +61,14 @@ export default class extends Controller {
 
     const datasets = teams.map(team => {
       const percentiles = AXES.map(axis => {
-        const teamVal = parseFloat(team.values[axis.key]) || 0
+        const rawValue = team.values[axis.key]
+        if (rawValue === null || rawValue === undefined || rawValue === "") {
+          return 0
+        }
+        const teamVal = parseFloat(rawValue)
+        if (isNaN(teamVal)) {
+          return 0
+        }
         const allVals = (allValues[axis.key] || []).map(Number).filter(v => !isNaN(v))
         return this.#percentileRank(teamVal, allVals)
       })
@@ -126,16 +133,22 @@ export default class extends Controller {
               label: (ctx) => {
                 const axisKey = AXES[ctx.dataIndex].key
                 const team = teams[ctx.datasetIndex]
-                const raw = parseFloat(team.values[axisKey]) || 0
+                const rawValue = team.values[axisKey]
+                const isMissing = rawValue === null || rawValue === undefined || rawValue === ""
+                const raw = isMissing ? 0 : parseFloat(rawValue) || 0
                 const pct = ctx.parsed.r.toFixed(0)
                 let rawStr
-                if (axisKey === "fuel_accuracy_pct") {
+                
+                if (isMissing) {
+                  rawStr = "N/A"
+                } else if (axisKey === "fuel_accuracy_pct") {
                   rawStr = `${raw.toFixed(1)}%`
                 } else if (axisKey === "avg_defense_rating") {
                   rawStr = `${raw.toFixed(1)}/5`
                 } else {
                   rawStr = raw.toFixed(1)
                 }
+                
                 return `${team.name}: ${rawStr} (${pct}%)`
               }
             }

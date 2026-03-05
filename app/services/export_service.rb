@@ -59,7 +59,7 @@ class ExportService
   end
 
   def render_table(pdf, aggregations)
-    table_data = [CSV_HEADERS]
+    table_data = [ CSV_HEADERS ]
 
     aggregations.each_with_index do |agg, index|
       team = agg[:frc_team]
@@ -86,8 +86,8 @@ class ExportService
       t.row(0).text_color = "FFFFFF"
       t.row(0).size = 9
       t.cells.size = 8
-      t.cells.padding = [4, 6]
-      t.cells.borders = [:bottom]
+      t.cells.padding = [ 4, 6 ]
+      t.cells.borders = [ :bottom ]
       t.cells.border_width = 0.5
       t.cells.border_color = "CCCCCC"
 
@@ -97,7 +97,7 @@ class ExportService
       end
 
       # Right-align numeric columns (all except rank, nickname, confidence)
-      numeric_columns = [0, 1, 3, 4, 5, 6, 7, 8, 9]
+      numeric_columns = [ 0, 1, 3, 4, 5, 6, 7, 8, 9 ]
       numeric_columns.each do |col|
         t.column(col).align = :right
       end
@@ -106,7 +106,7 @@ class ExportService
 
   def render_footer(pdf)
     pdf.number_pages "Page <page> of <total>",
-                     at: [pdf.bounds.right - 100, 0],
+                     at: [ pdf.bounds.right - 100, 0 ],
                      size: 8
   end
 end

@@ -18,7 +18,7 @@ class CreatePredictions < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :predictions, [:match_id, :organization_id, :source],
+    add_index :predictions, [ :match_id, :organization_id, :source ],
               unique: true, name: "idx_predictions_unique"
   end
 end

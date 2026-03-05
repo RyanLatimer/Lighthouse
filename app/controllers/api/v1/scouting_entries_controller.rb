@@ -29,7 +29,7 @@ module Api
 
         entries_data.each do |entry_data|
           permitted = entry_data.permit(
-            :match_id, :frc_team_id, :event_id, 
+            :match_id, :frc_team_id, :event_id,
             :notes, :photo_url, :client_uuid, :status,
             data: {}
           ).merge(user_id: current_api_user.id)
@@ -55,7 +55,7 @@ module Api
 
       def entry_params
         params.require(:scouting_entry).permit(
-          :match_id, :frc_team_id, :event_id, 
+          :match_id, :frc_team_id, :event_id,
           :notes, :photo_url, :client_uuid, :status,
           data: {}
         )

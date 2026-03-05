@@ -65,7 +65,7 @@ class AggregationService
                     .where(status: 0)
                     .where.not(match_id: nil)
                     .includes(:user)
-                    .group_by { |e| [e.frc_team_id, e.match_id] }
+                    .group_by { |e| [ e.frc_team_id, e.match_id ] }
 
     grouped.each do |(frc_team_id, match_id), entries|
       next if entries.size < 2

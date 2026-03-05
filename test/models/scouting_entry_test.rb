@@ -264,12 +264,12 @@ class ScoutingEntryTest < ActiveSupport::TestCase
 
   test "auton_actions returns data from JSONB" do
     entry = ScoutingEntry.new(
-      data: { "auton_actions" => ["move", "shoot", "intake"] },
+      data: { "auton_actions" => [ "move", "shoot", "intake" ] },
       event: events(:championship),
       frc_team: frc_teams(:team_254),
       user: users(:admin_user)
     )
-    assert_equal ["move", "shoot", "intake"], entry.auton_actions
+    assert_equal [ "move", "shoot", "intake" ], entry.auton_actions
   end
 
   # --- Class Methods ---

@@ -38,7 +38,7 @@ gem "thruster", require: false
 gem "image_processing", "~> 1.2"
 
 # Environment variables
-gem "dotenv-rails", groups: [:development, :test]
+gem "dotenv-rails", groups: [ :development, :test ]
 
 # Authentication & Authorization
 gem "devise"

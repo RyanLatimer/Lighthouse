@@ -17,7 +17,7 @@ class CreatePitScoutingEntries < ActiveRecord::Migration[8.1]
 
     add_index :pit_scouting_entries, :client_uuid, unique: true
     add_index :pit_scouting_entries, :data, using: :gin
-    add_index :pit_scouting_entries, [:event_id, :frc_team_id, :user_id],
+    add_index :pit_scouting_entries, [ :event_id, :frc_team_id, :user_id ],
               unique: true, name: "idx_pit_scouting_entries_unique"
   end
 end

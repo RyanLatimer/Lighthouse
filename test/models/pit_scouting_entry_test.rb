@@ -86,7 +86,7 @@ class PitScoutingEntryTest < ActiveSupport::TestCase
   end
 
   test "intake_types for pit_254" do
-    assert_equal ["over_bumper"], pit_scouting_entries(:pit_254).intake_types
+    assert_equal [ "over_bumper" ], pit_scouting_entries(:pit_254).intake_types
   end
 
   test "intake_mechanism for pit_254" do
@@ -94,7 +94,7 @@ class PitScoutingEntryTest < ActiveSupport::TestCase
   end
 
   test "shooter_types for pit_254" do
-    assert_equal ["Turret"], pit_scouting_entries(:pit_254).shooter_types
+    assert_equal [ "Turret" ], pit_scouting_entries(:pit_254).shooter_types
   end
 
   test "shooter_hood for pit_254" do
@@ -102,7 +102,7 @@ class PitScoutingEntryTest < ActiveSupport::TestCase
   end
 
   test "climber_levels for pit_254" do
-    assert_equal ["L2", "L3"], pit_scouting_entries(:pit_254).climber_levels
+    assert_equal [ "L2", "L3" ], pit_scouting_entries(:pit_254).climber_levels
   end
 
   test "climber_type for pit_254" do
@@ -128,7 +128,7 @@ class PitScoutingEntryTest < ActiveSupport::TestCase
   end
 
   test "intake_types for pit_1678" do
-    assert_equal ["over_bumper", "through_bumper"], pit_scouting_entries(:pit_1678).intake_types
+    assert_equal [ "over_bumper", "through_bumper" ], pit_scouting_entries(:pit_1678).intake_types
   end
 
   test "indexer for pit_1678" do
@@ -136,11 +136,11 @@ class PitScoutingEntryTest < ActiveSupport::TestCase
   end
 
   test "shooter_types for pit_1678" do
-    assert_equal ["Dual Shooter"], pit_scouting_entries(:pit_1678).shooter_types
+    assert_equal [ "Dual Shooter" ], pit_scouting_entries(:pit_1678).shooter_types
   end
 
   test "climber_levels for pit_1678" do
-    assert_equal ["L1", "L2", "L3"], pit_scouting_entries(:pit_1678).climber_levels
+    assert_equal [ "L1", "L2", "L3" ], pit_scouting_entries(:pit_1678).climber_levels
   end
 
   test "climber_type for pit_1678" do
