@@ -34,6 +34,7 @@ Rails.application.routes.draw do
     collection do
       post :bulk_create
       post :bulk_destroy
+      post :toggle
     end
   end
 

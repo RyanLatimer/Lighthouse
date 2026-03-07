@@ -1,0 +1,47 @@
+<div id="cell_<%= user.id %>_<%= match.id %>" class="h-full">
+  <% if is_admin %>
+    <%= button_to toggle_scouting_assignments_path,
+        params: { user_id: user.id, match_id: match.id },
+        class: "w-full text-left cursor-pointer group block",
+        form_class: "h-full" do %>
+      <% if assignment %>
+        <div class="rounded-md border px-2 py-1.5 min-h-12 transition-colors
+                    <%= is_shift_start ? 'border-orange-500/40 bg-orange-500/15 border-l-[3px] border-l-orange-400' : 'border-orange-500/25 bg-orange-500/10' %>
+                    group-hover:bg-red-500/20 group-hover:border-red-500/40">
+          <div class="flex items-center justify-between gap-1">
+            <span class="text-[10px] font-semibold <%= is_shift_start ? 'text-orange-300' : 'text-orange-400/60' %>">
+              <%= is_shift_start ? "Shift start" : is_admin ? "\u00B7 \u00B7 \u00B7" : "" %>
+            </span>
+            <span class="text-[10px] text-red-400 opacity-0 group-hover:opacity-100 transition-opacity font-medium">&times;</span>
+          </div>
+          <% if assignment.notes.present? && is_shift_start %>
+            <div class="text-[10px] text-gray-400 truncate mt-0.5" title="<%= assignment.notes %>"><%= assignment.notes %></div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="rounded-md border border-dashed border-gray-800 bg-gray-900/40 px-2 py-1.5 min-h-12
+                    flex items-center justify-center transition-colors
+                    group-hover:border-emerald-500/40 group-hover:bg-emerald-500/10">
+          <span class="text-[10px] text-gray-600 group-hover:hidden">--</span>
+          <span class="text-[10px] text-emerald-400 font-medium hidden group-hover:inline">+ assign</span>
+        </div>
+      <% end %>
+    <% end %>
+  <% else %>
+    <% if assignment %>
+      <div class="rounded-md border px-2 py-1.5 min-h-12
+                  <%= is_shift_start ? 'border-orange-500/40 bg-orange-500/15 border-l-[3px] border-l-orange-400' : 'border-orange-500/25 bg-orange-500/10' %>">
+        <span class="text-[10px] font-semibold <%= is_shift_start ? 'text-orange-300' : 'text-orange-400/60' %>">
+          <%= is_shift_start ? "Shift start" : "\u00B7 \u00B7 \u00B7" %>
+        </span>
+        <% if assignment.notes.present? && is_shift_start %>
+          <div class="text-[10px] text-gray-400 truncate mt-0.5" title="<%= assignment.notes %>"><%= assignment.notes %></div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="rounded-md border border-dashed border-gray-800 bg-gray-900/40 px-2 py-1.5 min-h-12 text-[10px] text-gray-600 flex items-center justify-center">
+        --
+      </div>
+    <% end %>
+  <% end %>
+</div>

@@ -107,7 +107,7 @@ export default class extends Controller {
       this.buttonTarget.textContent = "Disable Push Notifications"
       this.buttonTarget.classList.remove("btn-primary")
       this.buttonTarget.classList.add("btn-secondary")
-      this.statusTarget.textContent = "Enabled. You will get reminders at 5, 2, and 1 match ahead."
+      this.statusTarget.textContent = "Enabled. You\u2019ll be notified when your scouting shifts are approaching."
       if (this.hasTestButtonTarget) {
         this.testButtonTarget.disabled = false
       }
@@ -115,7 +115,7 @@ export default class extends Controller {
       this.buttonTarget.textContent = "Enable Push Notifications"
       this.buttonTarget.classList.remove("btn-secondary")
       this.buttonTarget.classList.add("btn-primary")
-      this.statusTarget.textContent = "Disabled. Enable notifications to get 5/2/1 match reminders."
+      this.statusTarget.textContent = "Disabled. Enable to get push reminders before your scouting shifts."
       if (this.hasTestButtonTarget) {
         this.testButtonTarget.disabled = true
       }

@@ -1,0 +1,23 @@
+<%= turbo_stream.replace "cell_#{@user.id}_#{@match.id}" do %>
+  <%= render "assignment_cell",
+      assignment: @assignment,
+      user: @user,
+      match: @match,
+      is_admin: @is_admin,
+      is_shift_start: @is_shift_start %>
+<% end %>
+
+<% if @next_assignment %>
+  <%= turbo_stream.replace "cell_#{@user.id}_#{@next_match.id}" do %>
+    <%= render "assignment_cell",
+        assignment: @next_assignment,
+        user: @user,
+        match: @next_match,
+        is_admin: @is_admin,
+        is_shift_start: @next_is_shift_start %>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.replace "coverage_#{@match.id}" do %>
+  <%= render "coverage_header", match: @match, count: @coverage_count %>
+<% end %>

@@ -11,6 +11,10 @@ class ScoutingAssignmentPolicy < ApplicationPolicy
     admin?
   end
 
+  def toggle?
+    admin?
+  end
+
   def destroy?
     admin?
   end

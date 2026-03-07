@@ -18,10 +18,44 @@ class ScoutingAssignmentsController < ApplicationController
       @assignments = scoped_assignments.where(user_id: current_user.id)
     end
 
-    @assignment_lookup = @assignments.index_by { |assignment| [ assignment.user_id, assignment.match_id ] }
+    @assignment_lookup = @assignments.index_by { |a| [ a.user_id, a.match_id ] }
     @coverage_counts = ScoutingAssignment.where(event: current_event, match_id: @matches.map(&:id)).group(:match_id).count
     @match_position = @matches.each_with_index.to_h
     @current_match_index = latest_completed_match_index(@matches) || 0
+    @shift_starts = compute_shift_starts(@assignments)
+    @is_admin = current_user.admin?
+  end
+
+  def toggle
+    authorize ScoutingAssignment, :toggle?
+
+    @user = User.find(params[:user_id])
+    @match = current_event.matches.find(params[:match_id])
+
+    @assignment = ScoutingAssignment.find_by(event: current_event, user: @user, match: @match)
+
+    if @assignment
+      @assignment.destroy!
+      @assignment = nil
+    else
+      @assignment = ScoutingAssignment.create!(event: current_event, user: @user, match: @match)
+    end
+
+    @coverage_count = ScoutingAssignment.where(event: current_event, match: @match).count
+    @is_shift_start = shift_start?(@user, @match)
+    @is_admin = true
+
+    # The next cell's shift-start status may have changed
+    @next_match = current_event.matches.find_by(comp_level: "qm", match_number: @match.match_number + 1)
+    if @next_match
+      @next_assignment = ScoutingAssignment.find_by(event: current_event, user: @user, match: @next_match)
+      @next_is_shift_start = @next_assignment ? shift_start?(@user, @next_match) : false
+    end
+
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to scouting_assignments_path, notice: "Assignment updated." }
+    end
   end
 
   def bulk_create
@@ -119,5 +153,33 @@ class ScoutingAssignmentsController < ApplicationController
 
   def latest_completed_match_index(matches)
     matches.rindex { |match| match.red_score.present? && match.blue_score.present? }
+  end
+
+  # Returns a Set of [user_id, match_id] pairs that are the first match in a
+  # contiguous block of assignments (i.e. "shift starts").
+  def compute_shift_starts(assignments)
+    starts = Set.new
+
+    assignments.group_by(&:user_id).each do |user_id, user_assignments|
+      sorted = user_assignments.sort_by { |a| a.match.match_number }
+      sorted.each_with_index do |a, i|
+        if i == 0 || a.match.match_number != sorted[i - 1].match.match_number + 1
+          starts.add([ user_id, a.match_id ])
+        end
+      end
+    end
+
+    starts
+  end
+
+  # Checks whether a specific user+match assignment is a shift start by
+  # looking at the previous match number.
+  def shift_start?(user, match)
+    return false unless ScoutingAssignment.exists?(event: current_event, user: user, match: match)
+
+    prev_match = current_event.matches.find_by(comp_level: "qm", match_number: match.match_number - 1)
+    return true if prev_match.nil?
+
+    !ScoutingAssignment.exists?(event: current_event, user: user, match: prev_match)
   end
 end

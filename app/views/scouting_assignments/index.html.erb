@@ -1,81 +1,48 @@
 <% content_for(:title) { "Scouting Schedule - Lighthouse" } %>
 
 <div class="space-y-4">
-  <div class="flex items-start justify-between gap-4">
+  <div class="flex items-start justify-between gap-4 flex-wrap">
     <div>
       <h1 class="text-2xl font-bold text-white">Scouting Schedule</h1>
       <p class="text-sm text-gray-400 mt-1">
-        Timeline for <%= current_event.name %>. Coverage target is 3 scouts per match.
+        <%= current_event.name %> &mdash; coverage target is 3 scouts per match.
       </p>
     </div>
     <div class="flex items-center gap-2 text-xs">
-      <span class="badge-red">&lt; 3 scouts</span>
-      <span class="badge-emerald">= 3 scouts</span>
-      <span class="badge-amber">&gt; 3 scouts</span>
+      <span class="badge-red">&lt; 3</span>
+      <span class="badge-emerald">= 3</span>
+      <span class="badge-amber">&gt; 3</span>
     </div>
   </div>
 
-  <div class="scout-card p-4" data-controller="push-subscription" data-push-subscription-vapid-key-value="<%= ENV.fetch('VAPID_PUBLIC_KEY', '') %>">
+  <%# --- Push Notification Card --- %>
+  <div class="scout-card p-3" data-controller="push-subscription" data-push-subscription-vapid-key-value="<%= ENV.fetch('VAPID_PUBLIC_KEY', '') %>">
     <div class="flex items-center justify-between gap-4 flex-wrap">
       <div>
-        <h2 class="text-sm font-semibold text-white">Match Reminder Notifications</h2>
-        <p class="text-xs text-gray-400 mt-1" data-push-subscription-target="status">
-          Disabled. Enable notifications to get 5/2/1 match reminders.
-        </p>
-        <p class="text-[11px] text-gray-500 mt-2">
-          Requires a secure context and browser Push API support. On Linux, support depends on your browser build.
+        <h2 class="text-sm font-semibold text-white">Shift Reminders</h2>
+        <p class="text-xs text-gray-400 mt-0.5" data-push-subscription-target="status">
+          Disabled. Enable to get push reminders before your scouting shifts.
         </p>
       </div>
       <div class="flex items-center gap-2">
-        <button type="button" class="btn-primary" data-push-subscription-target="button" data-action="click->push-subscription#toggle">
+        <button type="button" class="btn-primary text-xs" data-push-subscription-target="button" data-action="click->push-subscription#toggle">
           Enable Push Notifications
         </button>
-        <button type="button" class="btn-secondary" data-push-subscription-target="testButton" data-action="click->push-subscription#sendTestNotification" disabled>
-          Send Test Notification
+        <button type="button" class="btn-secondary text-xs" data-push-subscription-target="testButton" data-action="click->push-subscription#sendTestNotification" disabled>
+          Test
         </button>
       </div>
     </div>
   </div>
 
-  <% if current_user.admin? %>
+  <%# --- Admin Bulk Panel (consolidated single form) --- %>
+  <% if @is_admin %>
     <div class="scout-card p-4">
-      <h2 class="text-sm font-semibold text-white mb-3">Bulk Assign Range</h2>
+      <h2 class="text-sm font-semibold text-white mb-3">Bulk Assignment Manager</h2>
+      <p class="text-xs text-gray-500 mb-3">Select scouts and a match range, then assign or clear. You can also click individual cells in the grid below.</p>
+
       <%= form_with url: bulk_create_scouting_assignments_path, method: :post, class: "grid grid-cols-1 lg:grid-cols-12 gap-3 items-end" do %>
-        <div class="lg:col-span-4">
-          <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Scouts</label>
-          <%= select_tag "user_ids[]",
-              options_from_collection_for_select(@users, :id, :full_name),
-              multiple: true,
-              class: "input-field h-28" %>
-        </div>
-
-        <div class="lg:col-span-2">
-          <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Start Match</label>
-          <%= number_field_tag :start_match_number, nil, min: 1, class: "input-field", required: true %>
-        </div>
-
-        <div class="lg:col-span-2">
-          <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">End Match</label>
-          <%= number_field_tag :end_match_number, nil, min: 1, class: "input-field" %>
-        </div>
-
-        <div class="lg:col-span-2">
-          <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Or Count</label>
-          <%= number_field_tag :match_count, nil, min: 1, class: "input-field", placeholder: "10" %>
-        </div>
-
-        <div class="lg:col-span-2">
-          <%= submit_tag "Assign", class: "btn-primary w-full" %>
-        </div>
-
-        <div class="lg:col-span-10">
-          <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Notes</label>
-          <%= text_field_tag :notes, nil, class: "input-field", placeholder: "Optional assignment note" %>
-        </div>
-      <% end %>
-
-      <%= form_with url: bulk_destroy_scouting_assignments_path, method: :post, class: "grid grid-cols-1 lg:grid-cols-12 gap-3 items-end mt-4 pt-4 border-t border-gray-800" do %>
-        <div class="lg:col-span-4">
+        <div class="lg:col-span-3">
           <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Scouts</label>
           <%= select_tag "user_ids[]",
               options_from_collection_for_select(@users, :id, :full_name),
@@ -85,38 +52,42 @@
 
         <div class="lg:col-span-2">
           <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Start Match</label>
-          <%= number_field_tag :start_match_number, nil, min: 1, class: "input-field", required: true %>
+          <%= number_field_tag :start_match_number, nil, min: 1, class: "input-field", required: true, placeholder: "1" %>
         </div>
 
         <div class="lg:col-span-2">
           <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">End Match</label>
-          <%= number_field_tag :end_match_number, nil, min: 1, class: "input-field" %>
+          <%= number_field_tag :end_match_number, nil, min: 1, class: "input-field", placeholder: "10" %>
         </div>
 
         <div class="lg:col-span-2">
-          <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Or Count</label>
-          <%= number_field_tag :match_count, nil, min: 1, class: "input-field", placeholder: "10" %>
+          <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Notes</label>
+          <%= text_field_tag :notes, nil, class: "input-field", placeholder: "Optional" %>
         </div>
 
-        <div class="lg:col-span-2">
-          <%= submit_tag "Clear", class: "btn-danger w-full" %>
+        <div class="lg:col-span-3 flex gap-2">
+          <%= submit_tag "Assign Range", class: "btn-primary flex-1 text-sm" %>
+          <%= submit_tag "Clear Range",
+              formaction: bulk_destroy_scouting_assignments_path,
+              class: "btn-danger flex-1 text-sm",
+              data: { turbo_confirm: "Clear all assignments in this range?" } %>
         </div>
       <% end %>
     </div>
   <% end %>
 
+  <%# --- Schedule Grid --- %>
   <% if @matches.any? %>
     <div class="scout-card overflow-hidden">
       <div class="overflow-x-auto">
         <table class="min-w-max w-full text-xs">
           <thead>
             <tr class="border-b border-gray-800">
-              <th class="sticky left-0 z-20 bg-gray-900 text-left p-2 text-gray-400 uppercase tracking-wider">Scout</th>
+              <th class="sticky left-0 z-20 bg-gray-900 text-left p-2 text-gray-400 uppercase tracking-wider min-w-28">Scout</th>
               <% @matches.each do |match| %>
                 <% count = @coverage_counts[match.id].to_i %>
-                <th class="p-2 min-w-20 border-l border-gray-800 <%= timeline_coverage_classes(count) %>">
-                  <div class="text-white font-semibold"><%= match.display_name %></div>
-                  <div class="text-[10px] text-gray-400">COV <%= count %></div>
+                <th class="p-2 min-w-[4.5rem] border-l border-gray-800 text-center">
+                  <%= render "coverage_header", match: match, count: count %>
                 </th>
               <% end %>
             </tr>
@@ -125,8 +96,8 @@
             <% @users.each do |user| %>
               <tr class="border-b border-gray-800/60">
                 <td class="sticky left-0 z-10 bg-gray-900 p-2 border-r border-gray-800">
-                  <div class="font-semibold text-white"><%= user.full_name %></div>
-                  <% if current_user.admin? %>
+                  <div class="font-semibold text-white whitespace-nowrap"><%= user.full_name %></div>
+                  <% if @is_admin %>
                     <div class="text-[10px] text-gray-500"><%= user.role.humanize %></div>
                   <% else %>
                     <div class="text-[10px] text-gray-500">My lane</div>
@@ -135,34 +106,14 @@
 
                 <% @matches.each do |match| %>
                   <% assignment = @assignment_lookup[[user.id, match.id]] %>
-                  <% position = @match_position[match] || 0 %>
-                  <% ahead = position - @current_match_index %>
-                  <% ahead_label = [5, 2, 1].include?(ahead) ? "#{ahead} ahead" : nil %>
-                  <td class="p-1 border-l border-gray-800 align-top">
-                    <% if assignment %>
-                      <div class="rounded-md border border-orange-500/40 bg-orange-500/15 px-2 py-1 min-h-14">
-                        <div class="text-[10px] text-orange-300 font-semibold">Assigned</div>
-                        <div class="text-[10px] text-gray-300">Push: <%= assignment_notification_badge(assignment) %></div>
-                        <% if ahead_label.present? %>
-                          <div class="text-[10px] text-amber-300"><%= ahead_label %></div>
-                        <% end %>
-                        <% if assignment.notes.present? %>
-                          <div class="text-[10px] text-gray-400 truncate" title="<%= assignment.notes %>"><%= assignment.notes %></div>
-                        <% end %>
-
-                        <% if current_user.admin? %>
-                          <div class="mt-1">
-                            <%= button_to "Remove", scouting_assignment_path(assignment), method: :delete,
-                                  class: "text-[10px] text-red-300 hover:text-red-200",
-                                  form: { data: { turbo_confirm: "Remove this assignment?" } } %>
-                          </div>
-                        <% end %>
-                      </div>
-                    <% else %>
-                      <div class="rounded-md border border-gray-800 bg-gray-900/60 px-2 py-1 min-h-14 text-[10px] text-gray-600">
-                        --
-                      </div>
-                    <% end %>
+                  <% is_shift_start = @shift_starts.include?([user.id, match.id]) %>
+                  <td class="p-0.5 border-l border-gray-800 align-top">
+                    <%= render "assignment_cell",
+                        assignment: assignment,
+                        user: user,
+                        match: match,
+                        is_admin: @is_admin,
+                        is_shift_start: is_shift_start %>
                   </td>
                 <% end %>
               </tr>

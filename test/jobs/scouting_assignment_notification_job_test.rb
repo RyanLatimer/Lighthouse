@@ -6,7 +6,10 @@ class ScoutingAssignmentNotificationJobTest < ActiveJob::TestCase
     @assignment = scouting_assignments(:admin_qm2)
   end
 
-  test "marks 1-match-ahead notification timestamp" do
+  test "marks 1-match-ahead notification timestamp for shift start" do
+    # Remove Q1 assignment so Q2 becomes a shift start (not mid-shift)
+    scouting_assignments(:admin_qm1).destroy!
+
     @assignment.update!(notified_1_at: nil)
     matches(:qm2).update!(red_score: nil, blue_score: nil)
     ENV["VAPID_PUBLIC_KEY"] = "public"
@@ -24,7 +27,27 @@ class ScoutingAssignmentNotificationJobTest < ActiveJob::TestCase
     ENV.delete("VAPID_PRIVATE_KEY")
   end
 
+  test "skips notification for mid-shift assignment" do
+    # admin_qm1 and admin_qm2 are contiguous — Q2 is mid-shift, not a shift start
+    @assignment.update!(notified_1_at: nil)
+    matches(:qm2).update!(red_score: nil, blue_score: nil)
+    ENV["VAPID_PUBLIC_KEY"] = "public"
+    ENV["VAPID_PRIVATE_KEY"] = "private"
+
+    captured = []
+    with_stubbed_webpush(captured) do
+      ScoutingAssignmentNotificationJob.perform_now(@event.id)
+    end
+
+    assert_equal 0, captured.length
+    assert_nil @assignment.reload.notified_1_at
+  ensure
+    ENV.delete("VAPID_PUBLIC_KEY")
+    ENV.delete("VAPID_PRIVATE_KEY")
+  end
+
   test "does not mark notification when delivery fails" do
+    scouting_assignments(:admin_qm1).destroy!
     @assignment.update!(notified_1_at: nil)
     matches(:qm2).update!(red_score: nil, blue_score: nil)
     ENV["VAPID_PUBLIC_KEY"] = "public"

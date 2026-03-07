@@ -51,13 +51,13 @@ class PushNotificationService
 
   def build_payload(assignment, matches_ahead)
     {
-      title: "Scouting reminder",
-      body: "#{assignment.match.display_name} is #{matches_ahead} match#{"es" unless matches_ahead == 1} away.",
+      title: "Scouting shift reminder",
+      body: "Your shift starting at #{assignment.match.display_name} is #{matches_ahead} match#{"es" unless matches_ahead == 1} away.",
       url: Rails.application.routes.url_helpers.new_scouting_entry_path(
         match_id: assignment.match_id,
         frc_team_id: assignment.frc_team_id
       ),
-      tag: "assignment-#{assignment.id}-#{matches_ahead}",
+      tag: "shift-#{assignment.id}-#{matches_ahead}",
       icon: "/icon.png"
     }
   end
