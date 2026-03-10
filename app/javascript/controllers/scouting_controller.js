@@ -5,6 +5,8 @@ import { openDB } from "lib/lighthouse_db"
 const FUEL_POINT_VALUE = 1
 const AUTON_CLIMB_POINTS = 15
 const CLIMB_POINTS = { None: 0, L1: 10, L2: 20, L3: 30 }
+const HOLD_REPEAT_DELAY = 250
+const HOLD_REPEAT_INTERVAL = 75
 
 export default class extends Controller {
   static targets = [
@@ -37,39 +39,62 @@ export default class extends Controller {
     this.#initializeTeamFilter()
     this.#initializeMatchFilter()
     this.#cacheReferenceData()
+    this._holdTimeout = null
+    this._holdInterval = null
+    this._holdTarget = null
+    this._suppressedClick = null
 
     this._onKeydown = (event) => this.#handleKeydown(event)
     document.addEventListener("keydown", this._onKeydown)
   }
 
   disconnect() {
+    this.#stopCounterHold()
     document.removeEventListener("keydown", this._onKeydown)
   }
 
   // --- Counter actions ---
 
-  incrementMade(event) {
-    const phase = event.currentTarget.dataset.phase
-    this.#incrementValue(phase, "Made")
-    this.updateDisplay()
+  handleCounterClick(event) {
+    if (this.#shouldSuppressClick(event)) return
+
+    this.#applyCounterAction(event.currentTarget)
   }
 
-  incrementMissed(event) {
-    const phase = event.currentTarget.dataset.phase
-    this.#incrementValue(phase, "Missed")
-    this.updateDisplay()
+  startCounterHold(event) {
+    if (event.pointerType === "mouse" && event.button !== 0) return
+
+    const target = event.currentTarget
+    event.preventDefault()
+
+    this.#stopCounterHold()
+    this.#applyCounterAction(target)
+
+    this._holdTarget = target
+    this._suppressedClick = {
+      target,
+      expiresAt: Date.now() + 500
+    }
+
+    if (typeof target.setPointerCapture === "function") {
+      try {
+        target.setPointerCapture(event.pointerId)
+      } catch {
+        // Ignore browsers that reject pointer capture for this interaction.
+      }
+    }
+
+    this._holdTimeout = window.setTimeout(() => {
+      this._holdInterval = window.setInterval(() => {
+        this.#applyCounterAction(target)
+      }, HOLD_REPEAT_INTERVAL)
+    }, HOLD_REPEAT_DELAY)
   }
 
-  undoMade(event) {
-    const phase = event.currentTarget.dataset.phase
-    this.#decrementValue(phase, "Made")
-    this.updateDisplay()
-  }
+  stopCounterHold(event) {
+    if (event && this._holdTarget && event.currentTarget !== this._holdTarget) return
 
-  undoMissed(event) {
-    const phase = event.currentTarget.dataset.phase
-    this.#decrementValue(phase, "Missed")
-    this.updateDisplay()
+    this.#stopCounterHold()
   }
 
   // --- Climb actions ---
@@ -399,6 +424,62 @@ export default class extends Controller {
   #activePhase() {
     const activeTab = this.element.querySelector("[data-tab-button][aria-selected='true']")
     return activeTab?.dataset.tab || "auton"
+  }
+
+  #applyCounterAction(target) {
+    const phase = target.dataset.phase
+    const counterAction = target.dataset.counterAction
+
+    switch (counterAction) {
+      case "incrementMade":
+        this.#incrementValue(phase, "Made")
+        break
+      case "incrementMissed":
+        this.#incrementValue(phase, "Missed")
+        break
+      case "undoMade":
+        this.#decrementValue(phase, "Made")
+        break
+      case "undoMissed":
+        this.#decrementValue(phase, "Missed")
+        break
+      default:
+        return
+    }
+
+    this.updateDisplay()
+  }
+
+  #shouldSuppressClick(event) {
+    if (!this._suppressedClick) return false
+
+    const { target, expiresAt } = this._suppressedClick
+    const isExpired = Date.now() > expiresAt
+    const isMatchingTarget = event.currentTarget === target
+
+    if (isExpired || isMatchingTarget) {
+      this._suppressedClick = null
+    }
+
+    if (!isMatchingTarget || isExpired) return false
+
+    event.preventDefault()
+    event.stopPropagation()
+    return true
+  }
+
+  #stopCounterHold() {
+    if (this._holdTimeout) {
+      window.clearTimeout(this._holdTimeout)
+      this._holdTimeout = null
+    }
+
+    if (this._holdInterval) {
+      window.clearInterval(this._holdInterval)
+      this._holdInterval = null
+    }
+
+    this._holdTarget = null
   }
 
   #incrementValue(phase, suffix) {

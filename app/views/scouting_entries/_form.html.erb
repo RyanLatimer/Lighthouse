@@ -143,14 +143,16 @@
       <div class="grid grid-cols-2 gap-3 mb-3">
         <button type="button"
                 class="h-20 w-full text-4xl font-black rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white select-none touch-manipulation"
-                data-action="click->scouting#incrementMade"
+                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
+                data-counter-action="incrementMade"
                 data-phase="auton"
                 aria-label="Score made fuel in autonomous">
           +MAKE
         </button>
         <button type="button"
                 class="h-20 w-full text-4xl font-black rounded-xl bg-red-600 hover:bg-red-500 active:bg-red-700 text-white select-none touch-manipulation"
-                data-action="click->scouting#incrementMissed"
+                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
+                data-counter-action="incrementMissed"
                 data-phase="auton"
                 aria-label="Score missed fuel in autonomous">
           +MISS
@@ -161,13 +163,15 @@
       <div class="grid grid-cols-2 gap-3 mb-4">
         <button type="button"
                 class="py-2 text-xs font-medium rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-300 transition-all duration-150 active:scale-95 select-none touch-manipulation"
-                data-action="click->scouting#undoMade"
+                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
+                data-counter-action="undoMade"
                 data-phase="auton">
           Undo Make
         </button>
         <button type="button"
                 class="py-2 text-xs font-medium rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-300 transition-all duration-150 active:scale-95 select-none touch-manipulation"
-                data-action="click->scouting#undoMissed"
+                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
+                data-counter-action="undoMissed"
                 data-phase="auton">
           Undo Miss
         </button>
@@ -243,14 +247,16 @@
       <div class="grid grid-cols-2 gap-3 mb-3">
         <button type="button"
                 class="h-20 w-full text-4xl font-black rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white select-none touch-manipulation"
-                data-action="click->scouting#incrementMade"
+                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
+                data-counter-action="incrementMade"
                 data-phase="teleop"
                 aria-label="Score made fuel in teleop">
           +MAKE
         </button>
         <button type="button"
                 class="h-20 w-full text-4xl font-black rounded-xl bg-red-600 hover:bg-red-500 active:bg-red-700 text-white select-none touch-manipulation"
-                data-action="click->scouting#incrementMissed"
+                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
+                data-counter-action="incrementMissed"
                 data-phase="teleop"
                 aria-label="Score missed fuel in teleop">
           +MISS
@@ -261,13 +267,15 @@
       <div class="grid grid-cols-2 gap-3 mb-4">
         <button type="button"
                 class="py-2 text-xs font-medium rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-300 transition-all duration-150 active:scale-95 select-none touch-manipulation"
-                data-action="click->scouting#undoMade"
+                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
+                data-counter-action="undoMade"
                 data-phase="teleop">
           Undo Make
         </button>
         <button type="button"
                 class="py-2 text-xs font-medium rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-300 transition-all duration-150 active:scale-95 select-none touch-manipulation"
-                data-action="click->scouting#undoMissed"
+                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
+                data-counter-action="undoMissed"
                 data-phase="teleop">
           Undo Miss
         </button>
@@ -302,14 +310,16 @@
       <div class="grid grid-cols-2 gap-3 mb-3">
         <button type="button"
                 class="h-20 w-full text-4xl font-black rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white select-none touch-manipulation"
-                data-action="click->scouting#incrementMade"
+                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
+                data-counter-action="incrementMade"
                 data-phase="endgame"
                 aria-label="Score made fuel in endgame">
           +MAKE
         </button>
         <button type="button"
                 class="h-20 w-full text-4xl font-black rounded-xl bg-red-600 hover:bg-red-500 active:bg-red-700 text-white select-none touch-manipulation"
-                data-action="click->scouting#incrementMissed"
+                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
+                data-counter-action="incrementMissed"
                 data-phase="endgame"
                 aria-label="Score missed fuel in endgame">
           +MISS
@@ -320,13 +330,15 @@
       <div class="grid grid-cols-2 gap-3 mb-4">
         <button type="button"
                 class="py-2 text-xs font-medium rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-300 transition-all duration-150 active:scale-95 select-none touch-manipulation"
-                data-action="click->scouting#undoMade"
+                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
+                data-counter-action="undoMade"
                 data-phase="endgame">
           Undo Make
         </button>
         <button type="button"
                 class="py-2 text-xs font-medium rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-300 transition-all duration-150 active:scale-95 select-none touch-manipulation"
-                data-action="click->scouting#undoMissed"
+                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
+                data-counter-action="undoMissed"
                 data-phase="endgame">
           Undo Miss
         </button>
