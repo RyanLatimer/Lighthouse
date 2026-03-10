@@ -39,18 +39,44 @@
       <p class="text-3xl font-bold text-white font-mono"><%= @recent_entries.unscope(:limit).count %></p>
     </div>
 
-    <%# Avg Accuracy %>
+    <%# My Shift %>
     <div class="stat-card group">
       <div class="flex items-center gap-2 mb-2">
         <div class="stat-card-icon bg-amber-500/20">
           <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10m-11 9h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v11a2 2 0 002 2z" />
           </svg>
         </div>
-        <span class="text-xs text-gray-400 uppercase tracking-wider font-medium">Avg Accuracy</span>
+        <span class="text-xs text-gray-400 uppercase tracking-wider font-medium">My Shift</span>
       </div>
-      <% avg_accuracy = @team_summaries.any? ? (@team_summaries.average(:fuel_accuracy_pct) || 0).round(1) : 0 %>
-      <p class="text-3xl font-bold text-white font-mono"><%= avg_accuracy %>%</p>
+      <p class="text-xs text-gray-500 mb-1 truncate"><%= current_user.full_name %></p>
+      <% case @shift_status[:state] %>
+      <% when :active %>
+        <% shift_label = @shift_status[:shift_start] == @shift_status[:shift_end] ? @shift_status[:shift_start].display_name : "#{@shift_status[:shift_start].display_name}-#{@shift_status[:shift_end].display_name}" %>
+        <p class="text-3xl font-bold text-white font-mono"><%= @shift_status[:matches_left_in_shift] %> left</p>
+        <p class="text-xs text-gray-400 mt-1">Current: <%= @shift_status[:current_match].display_name %></p>
+        <p class="text-xs text-amber-300 mt-1"><%= pluralize(@shift_status[:matches_left_in_shift], "match") %> left in shift (<%= shift_label %>)</p>
+      <% when :upcoming %>
+        <% shift_label = @shift_status[:shift_start] == @shift_status[:shift_end] ? @shift_status[:shift_start].display_name : "#{@shift_status[:shift_start].display_name}-#{@shift_status[:shift_end].display_name}" %>
+        <p class="text-3xl font-bold text-white font-mono"><%= @shift_status[:shift_start].display_name %></p>
+        <p class="text-xs text-gray-400 mt-1">Current: <%= @shift_status[:current_match].display_name %></p>
+        <p class="text-xs text-amber-300 mt-1">Starts in <%= pluralize(@shift_status[:matches_until_start], "match") %> (<%= shift_label %>)</p>
+      <% when :unassigned %>
+        <p class="text-3xl font-bold text-white font-mono">None</p>
+        <% if @shift_status[:current_match] %>
+          <p class="text-xs text-gray-400 mt-1">Current: <%= @shift_status[:current_match].display_name %></p>
+        <% end %>
+        <p class="text-xs text-gray-500 mt-1">No assigned shifts yet</p>
+      <% when :completed %>
+        <p class="text-3xl font-bold text-white font-mono">Done</p>
+        <% if @shift_status[:current_match] %>
+          <p class="text-xs text-gray-400 mt-1">Last completed: <%= @shift_status[:current_match].display_name %></p>
+        <% end %>
+        <p class="text-xs text-gray-500 mt-1">No upcoming shifts</p>
+      <% else %>
+        <p class="text-3xl font-bold text-white font-mono">--</p>
+        <p class="text-xs text-gray-500 mt-1">No qualification matches available</p>
+      <% end %>
     </div>
 
     <%# Conflicts %>
