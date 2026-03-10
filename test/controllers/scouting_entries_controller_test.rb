@@ -68,6 +68,10 @@ class ScoutingEntriesControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Q1"
   end
 
+  test "replay page route does not require a scouting entry id" do
+    assert_routing "/scouting_entries/replay", controller: "scouting_entries", action: "replay"
+  end
+
   test "edit replay entry renders replay workflow" do
     entry = ScoutingEntry.create!(
       user: @user,
