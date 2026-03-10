@@ -449,11 +449,20 @@
           <p class="text-sm font-medium text-white">Camera</p>
           <p data-pit-photo-target="status" class="text-sm text-gray-400">Open the camera to take a photo.</p>
         </div>
-        <button type="button"
-                class="rounded-lg border border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-300 transition hover:border-gray-600 hover:text-white"
-                data-action="pit-photo#closeCamera">
-          Done
-        </button>
+        <div class="flex items-center gap-2">
+          <button type="button"
+                  class="rounded-lg border border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-300 transition hover:border-gray-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  data-pit-photo-target="switchButton"
+                  data-action="pit-photo#switchCamera"
+                  disabled>
+            Switch Camera
+          </button>
+          <button type="button"
+                  class="rounded-lg border border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-300 transition hover:border-gray-600 hover:text-white"
+                  data-action="pit-photo#closeCamera">
+            Done
+          </button>
+        </div>
       </div>
 
       <div class="relative overflow-hidden rounded-xl border border-gray-800 bg-black">

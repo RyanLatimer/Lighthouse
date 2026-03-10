@@ -16,7 +16,7 @@ class DataConflictsController < ApplicationController
     @data_conflict.update!(
       resolved: true,
       resolved_by: current_user,
-      resolution: params[:resolution]
+      resolution_value: params[:resolution]
     )
 
     redirect_to data_conflicts_path, notice: "Conflict resolved."

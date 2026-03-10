@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import {
   cameraErrorMessage,
   getCameraPermissionState,
+  listVideoInputs,
   requestCameraStream,
   stopCameraStream,
 } from "lib/camera_access"
@@ -17,11 +18,15 @@ export default class extends Controller {
     "status",
     "captureButton",
     "previews",
+    "switchButton",
   ]
 
   connect() {
     this.stream = null
     this.previewUrls = []
+    this.availableCameras = []
+    this.activeCameraIndex = 0
+    this.preferredFacingMode = "environment"
     this.updateSummary()
   }
 
@@ -40,13 +45,10 @@ export default class extends Controller {
     this.cameraPanelTarget.classList.remove("hidden")
     this.#setStatus("Opening camera...", "text-sm text-gray-400")
     this.#setCaptureEnabled(false)
+    this.#setSwitchEnabled(false)
 
     try {
-      this.stream = await requestCameraStream()
-      this.videoTarget.srcObject = this.stream
-      this.videoTarget.setAttribute("playsinline", true)
-      await this.videoTarget.play()
-
+      await this.#startCamera()
       this.#setCaptureEnabled(true)
       this.#setStatus("Camera is live. Capture a photo when you're ready.", "text-sm text-emerald-400")
     } catch (error) {
@@ -54,11 +56,25 @@ export default class extends Controller {
     }
   }
 
-  closeCamera() {
-    if (this.stream) {
-      stopCameraStream(this.stream)
-      this.stream = null
+  async switchCamera() {
+    if (this.availableCameras.length < 2) return
+
+    this.activeCameraIndex = (this.activeCameraIndex + 1) % this.availableCameras.length
+    this.#setStatus("Switching camera...", "text-sm text-gray-400")
+    this.#setCaptureEnabled(false)
+    this.#setSwitchEnabled(false)
+
+    try {
+      await this.#startCamera({ preserveSelection: true })
+      this.#setCaptureEnabled(true)
+      this.#setStatus("Camera switched. Capture a photo when you're ready.", "text-sm text-emerald-400")
+    } catch (error) {
+      this.#setStatus(cameraErrorMessage(error, await getCameraPermissionState()), "text-sm text-red-400")
     }
+  }
+
+  closeCamera() {
+    this.#stopStream()
 
     if (this.hasVideoTarget) {
       this.videoTarget.pause()
@@ -70,6 +86,7 @@ export default class extends Controller {
     }
 
     this.#setCaptureEnabled(false)
+    this.#setSwitchEnabled(this.availableCameras.length > 1)
   }
 
   async capturePhoto() {
@@ -125,6 +142,71 @@ export default class extends Controller {
     input.files = transfer.files
   }
 
+  async #startCamera({ preserveSelection = false } = {}) {
+    this.#stopStream()
+
+    let stream = await requestCameraStream(this.#cameraRequestOptions())
+    this.stream = stream
+    this.videoTarget.srcObject = stream
+    this.videoTarget.setAttribute("playsinline", true)
+    await this.videoTarget.play()
+
+    this.availableCameras = await listVideoInputs()
+
+    if (!preserveSelection) {
+      this.activeCameraIndex = this.#defaultCameraIndex()
+
+      const desiredCamera = this.availableCameras[this.activeCameraIndex]
+      const activeDeviceId = this.stream?.getVideoTracks?.()[0]?.getSettings?.().deviceId
+
+      if (desiredCamera?.deviceId && desiredCamera.deviceId !== activeDeviceId) {
+        this.#stopStream()
+        stream = await requestCameraStream({ deviceId: desiredCamera.deviceId })
+        this.stream = stream
+        this.videoTarget.srcObject = stream
+        await this.videoTarget.play()
+      }
+    } else {
+      this.activeCameraIndex = this.#matchingCameraIndex() ?? this.activeCameraIndex
+    }
+
+    this.#setSwitchEnabled(this.availableCameras.length > 1)
+  }
+
+  #stopStream() {
+    if (!this.stream) return
+
+    stopCameraStream(this.stream)
+    this.stream = null
+  }
+
+  #cameraRequestOptions() {
+    const selectedCamera = this.availableCameras[this.activeCameraIndex]
+    if (selectedCamera?.deviceId) {
+      return { deviceId: selectedCamera.deviceId }
+    }
+
+    return { facingMode: this.preferredFacingMode }
+  }
+
+  #defaultCameraIndex() {
+    const backCameraIndex = this.availableCameras.findIndex((camera) => {
+      const label = camera.label.toLowerCase()
+      return label.includes("back") || label.includes("rear") || label.includes("environment")
+    })
+
+    return backCameraIndex >= 0 ? backCameraIndex : 0
+  }
+
+  #matchingCameraIndex() {
+    const activeTrack = this.stream?.getVideoTracks?.()[0]
+    const activeDeviceId = activeTrack?.getSettings?.().deviceId
+    if (!activeDeviceId) return null
+
+    const matchingIndex = this.availableCameras.findIndex((camera) => camera.deviceId === activeDeviceId)
+    return matchingIndex >= 0 ? matchingIndex : null
+  }
+
   #selectedFiles() {
     return [
       ...(this.hasUploadInputTarget ? Array.from(this.uploadInputTarget.files || []) : []),
@@ -177,5 +259,13 @@ export default class extends Controller {
     this.captureButtonTarget.disabled = !enabled
     this.captureButtonTarget.classList.toggle("opacity-50", !enabled)
     this.captureButtonTarget.classList.toggle("cursor-not-allowed", !enabled)
+  }
+
+  #setSwitchEnabled(enabled) {
+    if (!this.hasSwitchButtonTarget) return
+
+    this.switchButtonTarget.disabled = !enabled
+    this.switchButtonTarget.classList.toggle("opacity-50", !enabled)
+    this.switchButtonTarget.classList.toggle("cursor-not-allowed", !enabled)
   }
 }

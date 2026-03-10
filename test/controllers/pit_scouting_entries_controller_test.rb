@@ -49,6 +49,7 @@ class PitScoutingEntriesControllerTest < ActionDispatch::IntegrationTest
     assert_select "button", text: /Take Photos/
     assert_select "video[data-pit-photo-target='video']"
     assert_select "button", text: /Capture Photo/
+    assert_select "button", text: /Switch Camera/
   end
 
   test "scout can get new" do

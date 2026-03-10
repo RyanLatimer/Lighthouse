@@ -13,19 +13,32 @@ export async function getCameraPermissionState() {
   }
 }
 
-export async function requestCameraStream() {
+export async function requestCameraStream(options = {}) {
   if (!cameraSupported()) {
     throw new Error("CameraUnsupported")
   }
 
+  const constraints = buildVideoConstraints(options)
+
   try {
     return await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: "environment" } },
+      video: constraints,
     })
   } catch (error) {
-    if (!["NotFoundError", "OverconstrainedError"].includes(error?.name)) throw error
+    if (options.deviceId || !["NotFoundError", "OverconstrainedError"].includes(error?.name)) throw error
 
     return navigator.mediaDevices.getUserMedia({ video: true })
+  }
+}
+
+export async function listVideoInputs() {
+  if (!navigator.mediaDevices?.enumerateDevices) return []
+
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices()
+    return devices.filter((device) => device.kind === "videoinput")
+  } catch {
+    return []
   }
 }
 
@@ -52,5 +65,15 @@ export function cameraErrorMessage(error, permissionState = "unknown") {
       return "Camera is unavailable right now. Close other apps using it and try again."
     default:
       return "Unable to access the camera right now. Please try again."
+  }
+}
+
+function buildVideoConstraints(options) {
+  if (options.deviceId) {
+    return { deviceId: { exact: options.deviceId } }
+  }
+
+  return {
+    facingMode: { ideal: options.facingMode || "environment" },
   }
 }
