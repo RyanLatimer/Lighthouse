@@ -15,26 +15,6 @@
     </div>
   </div>
 
-  <%# --- Push Notification Card --- %>
-  <div class="scout-card p-3" data-controller="push-subscription" data-push-subscription-vapid-key-value="<%= ENV.fetch('VAPID_PUBLIC_KEY', '') %>">
-    <div class="flex items-center justify-between gap-4 flex-wrap">
-      <div>
-        <h2 class="text-sm font-semibold text-white">Shift Reminders</h2>
-        <p class="text-xs text-gray-400 mt-0.5" data-push-subscription-target="status">
-          Disabled. Enable to get push reminders before your scouting shifts.
-        </p>
-      </div>
-      <div class="flex items-center gap-2">
-        <button type="button" class="btn-primary text-xs" data-push-subscription-target="button" data-action="click->push-subscription#toggle">
-          Enable Push Notifications
-        </button>
-        <button type="button" class="btn-secondary text-xs" data-push-subscription-target="testButton" data-action="click->push-subscription#sendTestNotification" disabled>
-          Test
-        </button>
-      </div>
-    </div>
-  </div>
-
   <%# --- Admin Bulk Panel (consolidated single form) --- %>
   <% if @is_admin %>
     <div class="scout-card p-4">
