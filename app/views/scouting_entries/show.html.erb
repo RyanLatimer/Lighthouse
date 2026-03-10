@@ -144,18 +144,18 @@
         <h3 class="text-xs text-gray-400 uppercase tracking-wider font-medium">Teleop</h3>
       </div>
       <div class="space-y-3">
+        <% teleop_made = (@scouting_entry.data&.dig("teleop_fuel_made") || 0).to_i + (@scouting_entry.data&.dig("endgame_fuel_made") || 0).to_i
+           teleop_missed = (@scouting_entry.data&.dig("teleop_fuel_missed") || 0).to_i + (@scouting_entry.data&.dig("endgame_fuel_missed") || 0).to_i
+           teleop_total = teleop_made + teleop_missed
+           teleop_acc = teleop_total > 0 ? (teleop_made.to_f / teleop_total * 100).round(1) : 0 %>
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-400">Fuel Made</span>
-          <span class="text-sm font-bold text-emerald-400 font-mono"><%= @scouting_entry.data&.dig("teleop_fuel_made") || 0 %></span>
+          <span class="text-sm font-bold text-emerald-400 font-mono"><%= teleop_made %></span>
         </div>
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-400">Fuel Missed</span>
-          <span class="text-sm font-bold text-red-400 font-mono"><%= @scouting_entry.data&.dig("teleop_fuel_missed") || 0 %></span>
+          <span class="text-sm font-bold text-red-400 font-mono"><%= teleop_missed %></span>
         </div>
-        <% teleop_made = (@scouting_entry.data&.dig("teleop_fuel_made") || 0).to_i
-           teleop_missed = (@scouting_entry.data&.dig("teleop_fuel_missed") || 0).to_i
-           teleop_total = teleop_made + teleop_missed
-           teleop_acc = teleop_total > 0 ? (teleop_made.to_f / teleop_total * 100).round(1) : 0 %>
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-400">Accuracy</span>
           <span class="text-sm font-bold text-amber-400 font-mono"><%= teleop_acc %>%</span>
@@ -172,14 +172,6 @@
         <h3 class="text-xs text-gray-400 uppercase tracking-wider font-medium">Endgame</h3>
       </div>
       <div class="space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="text-sm text-gray-400">Fuel Made</span>
-          <span class="text-sm font-bold text-emerald-400 font-mono"><%= @scouting_entry.data&.dig("endgame_fuel_made") || 0 %></span>
-        </div>
-        <div class="flex items-center justify-between">
-          <span class="text-sm text-gray-400">Fuel Missed</span>
-          <span class="text-sm font-bold text-red-400 font-mono"><%= @scouting_entry.data&.dig("endgame_fuel_missed") || 0 %></span>
-        </div>
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-400">Climb Level</span>
           <% climb = @scouting_entry.data&.dig("endgame_climb") || "None" %>
@@ -239,7 +231,7 @@
   <%# Notes %>
   <% if @scouting_entry.notes.present? %>
     <div class="scout-card p-4 mb-4">
-      <h3 class="text-xs text-gray-400 uppercase tracking-wider mb-2 font-medium">Notes</h3>
+      <h3 class="text-xs text-gray-400 uppercase tracking-wider mb-2 font-medium">Post-match review</h3>
       <p class="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed"><%= @scouting_entry.notes %></p>
     </div>
   <% end %>

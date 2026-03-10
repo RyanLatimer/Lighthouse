@@ -10,11 +10,11 @@ export default class extends Controller {
   static targets = [
     "autonMade", "autonMissed",
     "teleopMade", "teleopMissed",
-    "endgameMade", "endgameMissed",
     "autonClimb",
     "summaryAccuracy",
     "totalPoints", "totalMade", "totalMissed",
-    "dataField", "tabContent", "questionPanel"
+    "dataField", "tabContent", "questionPanel",
+    "teamSelect", "teamField", "teamCard", "teamRequiredState", "teamFormState"
   ]
 
   static values = {
@@ -22,8 +22,6 @@ export default class extends Controller {
     autonMissed: { type: Number, default: 0 },
     teleopMade: { type: Number, default: 0 },
     teleopMissed: { type: Number, default: 0 },
-    endgameMade: { type: Number, default: 0 },
-    endgameMissed: { type: Number, default: 0 },
     autonClimb: { type: Boolean, default: false },
     endgameClimb: { type: String, default: "None" },
     defenseRating: { type: Number, default: 0 }
@@ -32,6 +30,7 @@ export default class extends Controller {
   connect() {
     this.updateDisplay()
     this.#updateToggleVisual()
+    this.#syncSelectedTeam()
     this._holdTimeout = null
     this._holdInterval = null
     this._holdTarget = null
@@ -135,6 +134,15 @@ export default class extends Controller {
     this.element.scrollIntoView({ behavior: "smooth", block: "start" })
   }
 
+  selectTeam(event) {
+    event.preventDefault()
+    this.#setSelectedTeam(event.currentTarget.dataset.teamId)
+  }
+
+  selectTeamFromDropdown(event) {
+    this.#setSelectedTeam(event.currentTarget.value)
+  }
+
   toggleAutonClimb() {
     this.autonClimbValue = !this.autonClimbValue
     this.#updateToggleVisual()
@@ -196,8 +204,8 @@ export default class extends Controller {
   }
 
   updateDisplay() {
-    const made = this.autonMadeValue + this.teleopMadeValue + this.endgameMadeValue
-    const missed = this.autonMissedValue + this.teleopMissedValue + this.endgameMissedValue
+    const made = this.autonMadeValue + this.teleopMadeValue
+    const missed = this.autonMissedValue + this.teleopMissedValue
     const total = made + missed
     const accuracy = total > 0 ? ((made / total) * 100).toFixed(1) : "0.0"
 
@@ -209,8 +217,6 @@ export default class extends Controller {
     this.#setTargetText("autonMissed", this.autonMissedValue)
     this.#setTargetText("teleopMade", this.teleopMadeValue)
     this.#setTargetText("teleopMissed", this.teleopMissedValue)
-    this.#setTargetText("endgameMade", this.endgameMadeValue)
-    this.#setTargetText("endgameMissed", this.endgameMissedValue)
     this.#setTargetText("totalMade", made)
     this.#setTargetText("totalMissed", missed)
     this.#setTargetText("summaryAccuracy", `${accuracy}%`)
@@ -231,8 +237,8 @@ export default class extends Controller {
       auton_fuel_missed: this.autonMissedValue,
       teleop_fuel_made: this.teleopMadeValue,
       teleop_fuel_missed: this.teleopMissedValue,
-      endgame_fuel_made: this.endgameMadeValue,
-      endgame_fuel_missed: this.endgameMissedValue,
+      endgame_fuel_made: 0,
+      endgame_fuel_missed: 0,
       auton_climb: this.autonClimbValue,
       endgame_climb: this.endgameClimbValue,
       defense_rating: this.defenseRatingValue,
@@ -333,5 +339,49 @@ export default class extends Controller {
       knob.style.left = this.autonClimbValue ? "auto" : "4px"
       knob.style.right = this.autonClimbValue ? "4px" : "auto"
     }
+  }
+
+  #setSelectedTeam(teamId) {
+    const normalizedTeamId = `${teamId || ""}`
+
+    if (this.hasTeamSelectTarget) {
+      this.teamSelectTarget.value = normalizedTeamId
+    }
+
+    if (this.hasTeamFieldTarget) {
+      this.teamFieldTarget.value = normalizedTeamId
+    }
+
+    this.teamCardTargets.forEach(card => {
+      const selected = card.dataset.teamId === normalizedTeamId && normalizedTeamId !== ""
+      const selectedClasses = (card.dataset.selectedClasses || "").split(" ").filter(Boolean)
+      const unselectedClasses = (card.dataset.unselectedClasses || "").split(" ").filter(Boolean)
+      const status = card.querySelector("[data-team-status]")
+
+      card.dataset.replayTeamSelected = selected
+      card.classList.remove(...selectedClasses, ...unselectedClasses)
+      card.classList.add(...(selected ? selectedClasses : unselectedClasses))
+
+      if (status) {
+        status.textContent = selected ? status.dataset.selectedLabel : status.dataset.defaultLabel
+      }
+    })
+
+    this.#toggleTeamSelectionState(normalizedTeamId !== "")
+  }
+
+  #syncSelectedTeam() {
+    const teamId = this.hasTeamFieldTarget ? this.teamFieldTarget.value : this.hasTeamSelectTarget ? this.teamSelectTarget.value : ""
+    this.#setSelectedTeam(teamId)
+  }
+
+  #toggleTeamSelectionState(selected) {
+    if (this.hasTeamRequiredStateTarget) {
+      this.teamRequiredStateTarget.classList.toggle("hidden", selected)
+    }
+
+    this.teamFormStateTargets.forEach(section => {
+      section.classList.toggle("hidden", !selected)
+    })
   }
 }

@@ -7,10 +7,8 @@
                 scouting_match_teams_value: @match_teams.to_json,
                 scouting_auton_made_value: scouting_entry.data&.dig("auton_fuel_made") || 0,
                 scouting_auton_missed_value: scouting_entry.data&.dig("auton_fuel_missed") || 0,
-                scouting_teleop_made_value: scouting_entry.data&.dig("teleop_fuel_made") || 0,
-                scouting_teleop_missed_value: scouting_entry.data&.dig("teleop_fuel_missed") || 0,
-                scouting_endgame_made_value: scouting_entry.data&.dig("endgame_fuel_made") || 0,
-                scouting_endgame_missed_value: scouting_entry.data&.dig("endgame_fuel_missed") || 0,
+                scouting_teleop_made_value: scouting_entry.data&.dig("teleop_fuel_made").to_i + scouting_entry.data&.dig("endgame_fuel_made").to_i,
+                scouting_teleop_missed_value: scouting_entry.data&.dig("teleop_fuel_missed").to_i + scouting_entry.data&.dig("endgame_fuel_missed").to_i,
                 scouting_auton_climb_value: scouting_entry.data&.dig("auton_climb") || false,
                 scouting_endgame_climb_value: scouting_entry.data&.dig("endgame_climb") || "None",
                 scouting_defense_rating_value: scouting_entry.data&.dig("defense_rating") || 0,
@@ -294,54 +292,10 @@
         <h3 class="text-xs text-gray-400 uppercase tracking-wider font-medium">Endgame</h3>
       </div>
 
-      <%# Score display %>
-      <div class="grid grid-cols-2 gap-3 mb-4 text-center">
-        <div class="bg-gray-800 rounded-lg p-3">
-          <p class="text-3xl font-bold text-emerald-400 font-mono" data-scouting-target="endgameMade">0</p>
-          <p class="text-xs text-gray-400">Made</p>
-        </div>
-        <div class="bg-gray-800 rounded-lg p-3">
-          <p class="text-3xl font-bold text-red-400 font-mono" data-scouting-target="endgameMissed">0</p>
-          <p class="text-xs text-gray-400">Missed</p>
-        </div>
-      </div>
-
-      <%# HUGE MAKE / MISS buttons %>
-      <div class="grid grid-cols-2 gap-3 mb-3">
-        <button type="button"
-                class="h-20 w-full text-4xl font-black rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white select-none touch-manipulation"
-                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
-                data-counter-action="incrementMade"
-                data-phase="endgame"
-                aria-label="Score made fuel in endgame">
-          +MAKE
-        </button>
-        <button type="button"
-                class="h-20 w-full text-4xl font-black rounded-xl bg-red-600 hover:bg-red-500 active:bg-red-700 text-white select-none touch-manipulation"
-                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
-                data-counter-action="incrementMissed"
-                data-phase="endgame"
-                aria-label="Score missed fuel in endgame">
-          +MISS
-        </button>
-      </div>
-
-      <%# Undo buttons %>
-      <div class="grid grid-cols-2 gap-3 mb-4">
-        <button type="button"
-                class="py-2 text-xs font-medium rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-300 transition-all duration-150 active:scale-95 select-none touch-manipulation"
-                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
-                data-counter-action="undoMade"
-                data-phase="endgame">
-          Undo Make
-        </button>
-        <button type="button"
-                class="py-2 text-xs font-medium rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-300 transition-all duration-150 active:scale-95 select-none touch-manipulation"
-                data-action="pointerdown->scouting#startCounterHold pointerup->scouting#stopCounterHold pointercancel->scouting#stopCounterHold pointerleave->scouting#stopCounterHold click->scouting#handleCounterClick"
-                data-counter-action="undoMissed"
-                data-phase="endgame">
-          Undo Miss
-        </button>
+      <div class="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 mb-4">
+        <p class="text-xs uppercase tracking-[0.2em] text-amber-300/80">Post-match review</p>
+        <p class="text-sm text-gray-200 mt-2">Endgame is for climb, defense, and final observations only.</p>
+        <p class="text-sm text-gray-400 mt-1">Track any late-match make/miss attempts in the Teleop tab.</p>
       </div>
 
       <%# Climb Level Selector - Large Tappable Cards %>
@@ -397,14 +351,11 @@
           </button>
         <% end %>
       </div>
-    </div>
-  </div>
 
-  <%# ===== NOTES ===== %>
-  <div class="mt-4">
-    <div class="scout-card p-4">
-      <%= f.label :notes, class: "block text-xs text-gray-400 uppercase tracking-wider mb-2 font-medium" %>
-      <%= f.text_area :notes, rows: 3, class: "input-field text-sm resize-none", placeholder: "Defense quality, robot issues, strategy observations..." %>
+      <div>
+        <%= f.label :notes, "Post-match review", class: "block text-xs text-gray-400 uppercase tracking-wider mb-2 font-medium" %>
+        <%= f.text_area :notes, rows: 4, class: "input-field text-sm resize-none", placeholder: "Climb details, defense quality, robot issues, or final observations..." %>
+      </div>
     </div>
   </div>
 

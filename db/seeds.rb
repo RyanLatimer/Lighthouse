@@ -13,7 +13,7 @@ puts "Seeding database..."
 game_config = GameConfig.find_or_create_by!(year: 2026) do |gc|
   gc.game_name = "REBUILT presented by Haas"
   gc.active = true
-  
+
   gc.config = {
     year: 2026,
     game_name: "REBUILT presented by Haas",
@@ -44,9 +44,9 @@ game_config = GameConfig.find_or_create_by!(year: 2026) do |gc|
       },
       endgame: {
         fields: [
-          { key: "endgame_fuel_made", type: "counter", label: "Fuel Made", color: "green" },
-          { key: "endgame_fuel_missed", type: "counter", label: "Fuel Missed", color: "red" },
-          { key: "endgame_climb", type: "select", label: "Climb Level", options: %w[None L1 L2 L3], default: "None" }
+          { key: "endgame_climb", type: "select", label: "Climb Level", options: %w[None L1 L2 L3], default: "None" },
+          { key: "defense_rating", type: "rating", label: "Defense Rating", range: [ 0, 5 ], default: 0 },
+          { key: "notes", type: "textarea", label: "Post-match review" }
         ]
       }
     },
@@ -144,7 +144,6 @@ event = Event.find_or_create_by!(tba_key: "2026txhou") do |e|
   e.state_prov = "TX"
   e.country = "USA"
   e.week = 1
-  
 end
 puts "  Event: #{event.name} (#{event.tba_key})"
 
@@ -250,8 +249,8 @@ match_assignments.each_with_index do |(match_num, red_indices, blue_indices), mi
       auton_missed = (auton_made * profile[:miss_pct] / (1.0 - profile[:miss_pct])).round + rand(0..1)
       teleop_made = vary(profile[:teleop])
       teleop_missed = (teleop_made * profile[:miss_pct] / (1.0 - profile[:miss_pct])).round + rand(0..2)
-      endgame_made = vary(profile[:endgame], 0.5)
-      endgame_missed = rand(0..1)
+      teleop_made += vary(profile[:endgame], 0.5)
+      teleop_missed += rand(0..1)
       climb = weighted_pick(profile[:climb_wt])
       auton_climb = rand < profile[:auton_climb]
       defense = rand(1..5)
@@ -259,15 +258,14 @@ match_assignments.each_with_index do |(match_num, red_indices, blue_indices), mi
       entry = ScoutingEntry.find_or_create_by!(
         event: event, frc_team: team, match: match, user: scouter
       ) do |se|
-        
         se.status = :submitted
         se.data = {
           "auton_fuel_made" => auton_made,
           "auton_fuel_missed" => auton_missed,
           "teleop_fuel_made" => teleop_made,
           "teleop_fuel_missed" => teleop_missed,
-          "endgame_fuel_made" => endgame_made,
-          "endgame_fuel_missed" => endgame_missed,
+          "endgame_fuel_made" => 0,
+          "endgame_fuel_missed" => 0,
           "endgame_climb" => climb,
           "auton_climb" => auton_climb,
           "defense_rating" => defense,
@@ -299,7 +297,6 @@ pit_count = 0
 teams.each_with_index do |team, i|
   profile = profiles[team.team_number]
   PitScoutingEntry.find_or_create_by!(event: event, frc_team: team, user: analysts.sample) do |pe|
-    
     pe.status = :submitted
     pe.data = {
       "drivetrain" => drivetrains[i],
@@ -337,7 +334,6 @@ end
 # --- Pick list ---
 ranked_teams = TeamEventSummary.where(event: event).order(avg_total_points: :desc).pluck(:frc_team_id)
 PickList.find_or_create_by!(event: event, user: admin, name: "Houston Regional Draft Board") do |pl|
-  
   pl.entries = ranked_teams
 end
 puts "  Pick list: created with #{ranked_teams.size} teams"
@@ -351,7 +347,6 @@ DataConflict.find_or_create_by!(
   match: conflict_match,
   field_name: "endgame_climb"
 ) do |dc|
-  
   dc.values = { scout.id.to_s => "L3", scout2.id.to_s => "L2" }
   dc.resolved = false
 end
@@ -362,7 +357,6 @@ DataConflict.find_or_create_by!(
   match: matches[1],
   field_name: "auton_climb"
 ) do |dc|
-  
   dc.values = { scout.id.to_s => "true", scout3.id.to_s => "false" }
   dc.resolved = false
 end

@@ -27,12 +27,12 @@ class ScoutingEntry < ApplicationRecord
 
   # --- Computed methods reading from JSONB data column ---
 
-  # Total fuel scored across all phases
+  # Total fuel scored across auton and teleop.
   def total_fuel_made
     dig_int("auton_fuel_made") + dig_int("teleop_fuel_made") + dig_int("endgame_fuel_made")
   end
 
-  # Total fuel missed across all phases
+  # Total fuel missed across auton and teleop.
   def total_fuel_missed
     dig_int("auton_fuel_missed") + dig_int("teleop_fuel_missed") + dig_int("endgame_fuel_missed")
   end

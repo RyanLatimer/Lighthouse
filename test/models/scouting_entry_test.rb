@@ -119,7 +119,7 @@ class ScoutingEntryTest < ActiveSupport::TestCase
 
   # --- Computed Methods: entry_qm1_254 ---
   # Data: auton_fuel_made=5, auton_fuel_missed=1, teleop_fuel_made=12, teleop_fuel_missed=3,
-  #        endgame_fuel_made=0, endgame_fuel_missed=0, endgame_climb=L3, auton_climb=true
+  #       endgame is reserved for climb/review, so endgame fuel stays at 0, endgame_climb=L3, auton_climb=true
 
   test "total_fuel_made for entry_qm1_254" do
     entry = scouting_entries(:entry_qm1_254)
@@ -150,7 +150,7 @@ class ScoutingEntryTest < ActiveSupport::TestCase
 
   # --- Computed Methods: entry_qm1_1678 ---
   # Data: auton_fuel_made=3, auton_fuel_missed=2, teleop_fuel_made=10, teleop_fuel_missed=4,
-  #        endgame_fuel_made=0, endgame_fuel_missed=0, endgame_climb=L2, auton_climb=false
+  #       endgame is reserved for climb/review, so endgame fuel stays at 0, endgame_climb=L2, auton_climb=false
 
   test "total_fuel_made for entry_qm1_1678" do
     entry = scouting_entries(:entry_qm1_1678)
@@ -181,7 +181,7 @@ class ScoutingEntryTest < ActiveSupport::TestCase
 
   # --- Computed Methods: entry_qm2_254 ---
   # Data: auton_fuel_made=6, auton_fuel_missed=0, teleop_fuel_made=14, teleop_fuel_missed=2,
-  #        endgame_fuel_made=0, endgame_fuel_missed=0, endgame_climb=L3, auton_climb=true
+  #       endgame is reserved for climb/review, so endgame fuel stays at 0, endgame_climb=L3, auton_climb=true
 
   test "total_fuel_made for entry_qm2_254" do
     entry = scouting_entries(:entry_qm2_254)
@@ -212,7 +212,7 @@ class ScoutingEntryTest < ActiveSupport::TestCase
 
   # --- Computed Methods: entry_qm2_1678 ---
   # Data: auton_fuel_made=4, auton_fuel_missed=1, teleop_fuel_made=11, teleop_fuel_missed=3,
-  #        endgame_fuel_made=0, endgame_fuel_missed=0, endgame_climb=L2, auton_climb=true
+  #       endgame is reserved for climb/review, so endgame fuel stays at 0, endgame_climb=L2, auton_climb=true
 
   test "total_fuel_made for entry_qm2_1678" do
     entry = scouting_entries(:entry_qm2_1678)

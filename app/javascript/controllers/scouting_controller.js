@@ -12,7 +12,6 @@ export default class extends Controller {
   static targets = [
     "autonMade", "autonMissed",
     "teleopMade", "teleopMissed",
-    "endgameMade", "endgameMissed",
     "autonClimb", "endgameClimb",
     "summaryAccuracy",
     "totalPoints", "totalMade", "totalMissed",
@@ -25,8 +24,6 @@ export default class extends Controller {
     autonMissed:  { type: Number, default: 0 },
     teleopMade:   { type: Number, default: 0 },
     teleopMissed: { type: Number, default: 0 },
-    endgameMade:  { type: Number, default: 0 },
-    endgameMissed:{ type: Number, default: 0 },
     autonClimb:   { type: Boolean, default: false },
     endgameClimb: { type: String, default: "None" },
     defenseRating:{ type: Number, default: 0 },
@@ -228,8 +225,8 @@ export default class extends Controller {
   // --- Private helpers ---
 
   updateDisplay() {
-    const made = this.autonMadeValue + this.teleopMadeValue + this.endgameMadeValue
-    const missed = this.autonMissedValue + this.teleopMissedValue + this.endgameMissedValue
+    const made = this.autonMadeValue + this.teleopMadeValue
+    const missed = this.autonMissedValue + this.teleopMissedValue
     const total = made + missed
     const accuracy = total > 0 ? ((made / total) * 100).toFixed(1) : "0.0"
 
@@ -242,8 +239,6 @@ export default class extends Controller {
     this.#setTargetText("autonMissed", this.autonMissedValue)
     this.#setTargetText("teleopMade", this.teleopMadeValue)
     this.#setTargetText("teleopMissed", this.teleopMissedValue)
-    this.#setTargetText("endgameMade", this.endgameMadeValue)
-    this.#setTargetText("endgameMissed", this.endgameMissedValue)
 
     // Update totals
     this.#setTargetText("totalMade", made)
@@ -267,8 +262,8 @@ export default class extends Controller {
       auton_fuel_missed: this.autonMissedValue,
       teleop_fuel_made: this.teleopMadeValue,
       teleop_fuel_missed: this.teleopMissedValue,
-      endgame_fuel_made: this.endgameMadeValue,
-      endgame_fuel_missed: this.endgameMissedValue,
+      endgame_fuel_made: 0,
+      endgame_fuel_missed: 0,
       auton_climb: this.autonClimbValue,
       endgame_climb: this.endgameClimbValue,
       defense_rating: this.defenseRatingValue,

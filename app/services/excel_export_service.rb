@@ -62,13 +62,13 @@ class ExcelExportService
     workbook.add_worksheet(name: "Raw Scouting Data") do |sheet|
       header_style = sheet.styles.add_style(b: true, bg_color: "333333", fg_color: "FFFFFF", sz: 10)
 
-      sheet.add_row [
-        "ID", "Match", "Team #", "Scout", "Status",
-        "Auton Made", "Auton Missed", "Auton Climb",
-        "Teleop Made", "Teleop Missed",
-        "Endgame Made", "Endgame Missed", "Endgame Climb",
-        "Total Points", "Fuel Accuracy %", "Notes", "Created At"
-      ], style: header_style
+        sheet.add_row [
+          "ID", "Match", "Team #", "Scout", "Status",
+          "Auton Made", "Auton Missed", "Auton Climb",
+          "Teleop Made", "Teleop Missed",
+          "Endgame Climb", "Defense Rating",
+          "Total Points", "Fuel Accuracy %", "Notes", "Created At"
+        ], style: header_style
 
       entries.find_each do |entry|
         sheet.add_row [
@@ -80,11 +80,10 @@ class ExcelExportService
           entry.data&.dig("auton_fuel_made").to_i,
           entry.data&.dig("auton_fuel_missed").to_i,
           entry.data&.dig("auton_climb"),
-          entry.data&.dig("teleop_fuel_made").to_i,
-          entry.data&.dig("teleop_fuel_missed").to_i,
-          entry.data&.dig("endgame_fuel_made").to_i,
-          entry.data&.dig("endgame_fuel_missed").to_i,
+          entry.data&.dig("teleop_fuel_made").to_i + entry.data&.dig("endgame_fuel_made").to_i,
+          entry.data&.dig("teleop_fuel_missed").to_i + entry.data&.dig("endgame_fuel_missed").to_i,
           entry.data&.dig("endgame_climb"),
+          entry.data&.dig("defense_rating").to_i,
           entry.total_points,
           entry.fuel_accuracy,
           entry.notes,

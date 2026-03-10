@@ -14,7 +14,15 @@
     <span class="ml-auto text-xs text-gray-500 uppercase tracking-[0.2em]"><%= current_event.name %></span>
   </div>
 
-  <section class="space-y-6">
+  <section class="space-y-6"
+           data-controller="replay-scouting"
+           data-replay-scouting-auton-made-value="<%= @scouting_entry.data&.dig('auton_fuel_made') || 0 %>"
+           data-replay-scouting-auton-missed-value="<%= @scouting_entry.data&.dig('auton_fuel_missed') || 0 %>"
+           data-replay-scouting-teleop-made-value="<%= @scouting_entry.data&.dig('teleop_fuel_made').to_i + @scouting_entry.data&.dig('endgame_fuel_made').to_i %>"
+           data-replay-scouting-teleop-missed-value="<%= @scouting_entry.data&.dig('teleop_fuel_missed').to_i + @scouting_entry.data&.dig('endgame_fuel_missed').to_i %>"
+           data-replay-scouting-auton-climb-value="<%= @scouting_entry.data&.dig('auton_climb') || false %>"
+           data-replay-scouting-endgame-climb-value="<%= @scouting_entry.data&.dig('endgame_climb') || 'None' %>"
+           data-replay-scouting-defense-rating-value="<%= @scouting_entry.data&.dig('defense_rating') || 0 %>">
     <% if @replay_matches.any? %>
       <div class="scout-card p-4 sm:p-5">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -55,8 +63,9 @@
                   prompt: (@selected_match.present? ? "Select team..." : "Select a match first..."),
                   id: "replay_team_id",
                   class: "input-field text-sm",
+                  data: { replay_scouting_target: "teamSelect", action: "change->replay-scouting#selectTeamFromDropdown" },
                   disabled: @selected_match.blank?,
-                  onchange: "this.form.requestSubmit()" %>
+                  onchange: nil %>
           </div>
 
           <div>
@@ -85,22 +94,72 @@
             <% end %>
           </div>
 
-          <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
-            <% @replay_teams.each do |team| %>
-              <% is_selected = @scouting_entry.frc_team_id.to_i == team[:frc_team].id %>
-              <div class="rounded-xl border px-3 py-2 #{is_selected ? 'border-orange-500 bg-orange-500/15' : team[:covered] ? 'border-emerald-500/20 bg-emerald-500/10' : 'border-gray-700 bg-gray-900'}">
-                <div class="flex items-center justify-between gap-3">
-                  <div>
-                    <p class="text-sm font-semibold text-white">#<%= team[:frc_team].team_number %></p>
-                    <p class="text-[11px] text-gray-400"><%= team[:frc_team].nickname %></p>
+          <% blue_teams = @replay_teams.select { |team| team[:alliance_color] == "blue" }.index_by { |team| team[:station] } %>
+          <% red_teams = @replay_teams.select { |team| team[:alliance_color] == "red" }.index_by { |team| team[:station] } %>
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3" data-replay-team-grid>
+            <div class="space-y-2">
+              <p class="text-[11px] uppercase tracking-[0.2em] text-blue-300">Blue Alliance</p>
+              <% (1..3).each do |station| %>
+                <% team = blue_teams[station] %>
+                <% next if team.blank? %>
+                <% is_selected = @scouting_entry.frc_team_id.to_i == team[:frc_team].id %>
+                <% status_text = team[:covered] ? "#{team[:entry_count]} entries" : "Needs scout" %>
+                <% selected_classes = "border-orange-500 bg-orange-500/15 ring-1 ring-orange-400/60" %>
+                <% unselected_classes = team[:covered] ? "border-emerald-500/20 bg-emerald-500/10" : "border-blue-500/20 bg-blue-500/10" %>
+                <button type="button"
+                        class="block w-full rounded-xl border px-3 py-2 text-left transition-all duration-150 hover:border-blue-400/50 #{is_selected ? selected_classes : unselected_classes}"
+                        data-action="click->replay-scouting#selectTeam"
+                        data-replay-scouting-target="teamCard"
+                        data-replay-team-card="blue-<%= station %>"
+                        data-replay-team-selected="<%= is_selected %>"
+                        data-team-id="<%= team[:frc_team].id %>"
+                        data-selected-classes="<%= selected_classes %>"
+                        data-unselected-classes="<%= unselected_classes %>">
+                  <div class="flex items-center justify-between gap-3">
+                    <div>
+                      <p class="text-sm font-semibold text-white">#<%= team[:frc_team].team_number %></p>
+                      <p class="text-[11px] text-gray-400"><%= team[:frc_team].nickname %></p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-[11px] uppercase tracking-wide text-blue-300">Blue <%= station %></p>
+                      <p class="text-[11px] <%= team[:covered] ? 'text-emerald-300' : 'text-amber-300' %>" data-team-status data-default-label="<%= status_text %>" data-selected-label="<%= "Selected - #{status_text}" %>"><%= is_selected ? "Selected - #{status_text}" : status_text %></p>
+                    </div>
                   </div>
-                  <div class="text-right">
-                    <p class="text-[11px] uppercase tracking-wide <%= team[:alliance_color] == 'red' ? 'text-red-300' : 'text-blue-300' %>"><%= team[:alliance_color] %> <%= team[:station] %></p>
-                    <p class="text-[11px] <%= team[:covered] ? 'text-emerald-300' : 'text-amber-300' %>"><%= team[:covered] ? "#{team[:entry_count]} entries" : 'Needs scout' %></p>
+                </button>
+              <% end %>
+            </div>
+
+            <div class="space-y-2">
+              <p class="text-[11px] uppercase tracking-[0.2em] text-red-300 md:text-right">Red Alliance</p>
+              <% (1..3).each do |station| %>
+                <% team = red_teams[station] %>
+                <% next if team.blank? %>
+                <% is_selected = @scouting_entry.frc_team_id.to_i == team[:frc_team].id %>
+                <% status_text = team[:covered] ? "#{team[:entry_count]} entries" : "Needs scout" %>
+                <% selected_classes = "border-orange-500 bg-orange-500/15 ring-1 ring-orange-400/60" %>
+                <% unselected_classes = team[:covered] ? "border-emerald-500/20 bg-emerald-500/10" : "border-red-500/20 bg-red-500/10" %>
+                <button type="button"
+                        class="block w-full rounded-xl border px-3 py-2 text-left transition-all duration-150 hover:border-red-400/50 #{is_selected ? selected_classes : unselected_classes}"
+                        data-action="click->replay-scouting#selectTeam"
+                        data-replay-scouting-target="teamCard"
+                        data-replay-team-card="red-<%= station %>"
+                        data-replay-team-selected="<%= is_selected %>"
+                        data-team-id="<%= team[:frc_team].id %>"
+                        data-selected-classes="<%= selected_classes %>"
+                        data-unselected-classes="<%= unselected_classes %>">
+                  <div class="flex items-center justify-between gap-3">
+                    <div>
+                      <p class="text-sm font-semibold text-white">#<%= team[:frc_team].team_number %></p>
+                      <p class="text-[11px] text-gray-400"><%= team[:frc_team].nickname %></p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-[11px] uppercase tracking-wide text-red-300">Red <%= station %></p>
+                      <p class="text-[11px] <%= team[:covered] ? 'text-emerald-300' : 'text-amber-300' %>" data-team-status data-default-label="<%= status_text %>" data-selected-label="<%= "Selected - #{status_text}" %>"><%= is_selected ? "Selected - #{status_text}" : status_text %></p>
+                    </div>
                   </div>
-                </div>
-              </div>
-            <% end %>
+                </button>
+              <% end %>
+            </div>
           </div>
         <% end %>
       </div>
@@ -124,25 +183,22 @@
         </div>
       <% end %>
 
-      <% if @selected_video.present? && (@scouting_entry.frc_team_id.present? || @scouting_entry.errors.any?) %>
+      <div class="<%= 'hidden' if @selected_video.present? && (@scouting_entry.frc_team_id.present? || @scouting_entry.errors.any?) %>" data-replay-scouting-target="teamRequiredState">
+        <% if @selected_match.present? %>
+          <div class="scout-card p-8 text-center">
+            <p class="text-lg font-semibold text-white">Choose a team to scout in <%= @selected_match.display_name %>.</p>
+            <p class="text-sm text-gray-400 mt-2">Use the dropdown or tap one of the team bars above.</p>
+          </div>
+        <% end %>
+      </div>
+
+      <% if @selected_video.present? %>
           <%= form_with(model: @scouting_entry, url: @replay_submit_url, method: @replay_submit_method, id: "replay-scouting-form",
-                        data: {
-                          controller: "replay-scouting",
-                          replay_scouting_auton_made_value: @scouting_entry.data&.dig("auton_fuel_made") || 0,
-                          replay_scouting_auton_missed_value: @scouting_entry.data&.dig("auton_fuel_missed") || 0,
-                          replay_scouting_teleop_made_value: @scouting_entry.data&.dig("teleop_fuel_made") || 0,
-                          replay_scouting_teleop_missed_value: @scouting_entry.data&.dig("teleop_fuel_missed") || 0,
-                          replay_scouting_endgame_made_value: @scouting_entry.data&.dig("endgame_fuel_made") || 0,
-                          replay_scouting_endgame_missed_value: @scouting_entry.data&.dig("endgame_fuel_missed") || 0,
-                          replay_scouting_auton_climb_value: @scouting_entry.data&.dig("auton_climb") || false,
-                          replay_scouting_endgame_climb_value: @scouting_entry.data&.dig("endgame_climb") || "None",
-                          replay_scouting_defense_rating_value: @scouting_entry.data&.dig("defense_rating") || 0,
-                          action: "submit->replay-scouting#submitForm"
-                        }) do |f| %>
+                        data: { action: "submit->replay-scouting#submitForm" }) do |f| %>
             <%= f.hidden_field :client_uuid, value: @scouting_entry.client_uuid || SecureRandom.uuid %>
             <%= f.hidden_field :scouting_mode, value: "replay" %>
             <%= f.hidden_field :match_id, value: @selected_match.id %>
-            <%= f.hidden_field :frc_team_id, value: @scouting_entry.frc_team_id %>
+            <%= f.hidden_field :frc_team_id, value: @scouting_entry.frc_team_id, data: { replay_scouting_target: "teamField" } %>
             <%= f.hidden_field :video_key, value: @selected_video["raw_key"] %>
             <%= f.hidden_field :video_type, value: "youtube" %>
             <%= hidden_field_tag "scouting_entry[event_id]", current_event.id %>
@@ -159,91 +215,88 @@
               </div>
             <% end %>
 
-            <div class="grid grid-cols-1 2xl:grid-cols-[minmax(0,1.1fr),minmax(320px,0.9fr)] gap-6">
-              <div class="space-y-4">
-                <div class="scout-card p-4" data-controller="video-overlay" data-video-overlay-step-value="full_match">
-                  <div class="flex items-start justify-between gap-3 mb-3">
-                    <div>
-                      <p class="text-xs uppercase tracking-[0.2em] text-gray-500">Step 1</p>
-                      <h3 class="text-lg font-semibold text-white">Score Make/Miss Over Replay</h3>
-                      <p class="text-sm text-gray-400 mt-1">Keep the replay running and tap the large controls over the video for the whole match.</p>
-                    </div>
-                    <button type="button" class="btn-secondary text-sm" data-action="click->replay-scouting#showQuestions">Go to questions</button>
+            <div class="space-y-4 <%= 'hidden' unless @scouting_entry.frc_team_id.present? || @scouting_entry.errors.any? %>" data-replay-scouting-target="teamFormState">
+              <div class="scout-card p-4" data-controller="video-overlay" data-video-overlay-step-value="full_match">
+                <div class="flex items-start justify-between gap-3 mb-3">
+                  <div>
+                    <p class="text-xs uppercase tracking-[0.2em] text-gray-500">Step 1</p>
+                    <h3 class="text-lg font-semibold text-white">Score Make/Miss Over Replay</h3>
+                    <p class="text-sm text-gray-400 mt-1">Keep the replay running and tap the large controls over the video for the whole match.</p>
                   </div>
+                  <button type="button" class="btn-secondary text-sm" data-action="click->replay-scouting#showQuestions">Go to questions</button>
+                </div>
 
-                  <div class="relative rounded-2xl overflow-hidden border border-gray-800 bg-black aspect-video">
-                    <iframe class="absolute inset-0 w-full h-full"
-                            src="<%= replay_embed_url_for(@selected_match, @selected_video['raw_key']) %>"
-                            title="Replay video for <%= @selected_match.display_name %>"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            referrerpolicy="strict-origin-when-cross-origin"
-                            allowfullscreen></iframe>
-                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent p-3 pointer-events-none">
-                      <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Overlay scoring</p>
-                      <p class="text-sm text-white mt-1">Use the make and miss buttons directly below while the video plays.</p>
-                    </div>
+                <div class="relative rounded-2xl overflow-hidden border border-gray-800 bg-black aspect-video">
+                  <iframe class="absolute inset-0 w-full h-full"
+                          src="<%= replay_embed_url_for(@selected_match, @selected_video['raw_key']) %>"
+                          title="Replay video for <%= @selected_match.display_name %>"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          referrerpolicy="strict-origin-when-cross-origin"
+                          allowfullscreen></iframe>
+                  <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent p-3 pointer-events-none">
+                    <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Overlay scoring</p>
+                    <p class="text-sm text-white mt-1">Use the make and miss buttons below for auton and teleop while the video plays.</p>
                   </div>
+                </div>
 
-                  <div class="mt-4 mb-4 flex rounded-xl bg-gray-900 p-1 gap-1" role="tablist" aria-label="Replay scoring phases">
-                    <% %w[auton teleop endgame].each_with_index do |phase, index| %>
-                      <button type="button"
-                              class="flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 <%= index.zero? ? 'bg-orange-500/15 text-orange-400 shadow-sm' : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/70' %>"
-                              data-action="click->replay-scouting#switchTab"
-                              data-tab-button
-                              data-tab="<%= phase %>"
-                              role="tab"
-                              aria-selected="<%= index.zero? %>">
-                        <%= phase.capitalize %>
-                      </button>
-                    <% end %>
-                  </div>
-
-                  <% [
-                      ["auton", "Auton"],
-                      ["teleop", "Teleop"],
-                      ["endgame", "Endgame"]
-                    ].each_with_index do |(phase, label), index| %>
-                    <div data-replay-scouting-target="tabContent" data-tab-panel="<%= phase %>" class="<%= 'hidden' unless index.zero? %>">
-                      <div class="grid grid-cols-2 gap-3 mb-3">
-                        <button type="button" class="h-20 w-full text-4xl font-black rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white select-none touch-manipulation" data-action="pointerdown->replay-scouting#startCounterHold pointerup->replay-scouting#stopCounterHold pointercancel->replay-scouting#stopCounterHold pointerleave->replay-scouting#stopCounterHold click->replay-scouting#handleCounterClick" data-counter-action="incrementMade" data-phase="<%= phase %>">+MAKE</button>
-                        <button type="button" class="h-20 w-full text-4xl font-black rounded-xl bg-red-600 hover:bg-red-500 active:bg-red-700 text-white select-none touch-manipulation" data-action="pointerdown->replay-scouting#startCounterHold pointerup->replay-scouting#stopCounterHold pointercancel->replay-scouting#stopCounterHold pointerleave->replay-scouting#stopCounterHold click->replay-scouting#handleCounterClick" data-counter-action="incrementMissed" data-phase="<%= phase %>">+MISS</button>
-                      </div>
-
-                      <div class="grid grid-cols-2 gap-3 mb-4">
-                        <button type="button" class="py-2 text-xs font-medium rounded-lg bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-gray-300 transition-all duration-150" data-action="pointerdown->replay-scouting#startCounterHold pointerup->replay-scouting#stopCounterHold pointercancel->replay-scouting#stopCounterHold pointerleave->replay-scouting#stopCounterHold click->replay-scouting#handleCounterClick" data-counter-action="undoMade" data-phase="<%= phase %>">Undo Make</button>
-                        <button type="button" class="py-2 text-xs font-medium rounded-lg bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-gray-300 transition-all duration-150" data-action="pointerdown->replay-scouting#startCounterHold pointerup->replay-scouting#stopCounterHold pointercancel->replay-scouting#stopCounterHold pointerleave->replay-scouting#stopCounterHold click->replay-scouting#handleCounterClick" data-counter-action="undoMissed" data-phase="<%= phase %>">Undo Miss</button>
-                      </div>
-
-                      <div class="grid grid-cols-2 gap-3">
-                        <div class="rounded-xl bg-gray-900 border border-gray-800 p-3 text-center">
-                          <p class="text-xs uppercase tracking-wide text-gray-500"><%= label %> made</p>
-                          <p class="text-3xl font-bold text-emerald-400 font-mono" data-replay-scouting-target="<%= phase %>Made">0</p>
-                        </div>
-                        <div class="rounded-xl bg-gray-900 border border-gray-800 p-3 text-center">
-                          <p class="text-xs uppercase tracking-wide text-gray-500"><%= label %> missed</p>
-                          <p class="text-3xl font-bold text-red-400 font-mono" data-replay-scouting-target="<%= phase %>Missed">0</p>
-                        </div>
-                      </div>
-                    </div>
+                <div class="mt-4 mb-4 flex rounded-xl bg-gray-900 p-1 gap-1" role="tablist" aria-label="Replay scoring phases">
+                  <% %w[auton teleop].each_with_index do |phase, index| %>
+                    <button type="button"
+                            class="flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 <%= index.zero? ? 'bg-orange-500/15 text-orange-400 shadow-sm' : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/70' %>"
+                            data-action="click->replay-scouting#switchTab"
+                            data-tab-button
+                            data-tab="<%= phase %>"
+                            role="tab"
+                            aria-selected="<%= index.zero? %>">
+                      <%= phase.capitalize %>
+                    </button>
                   <% end %>
+                </div>
 
-                  <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                    <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
-                      <p class="text-xs text-gray-500 uppercase tracking-wide">Made</p>
-                      <p class="text-2xl font-bold text-emerald-400 font-mono" data-replay-scouting-target="totalMade">0</p>
+                <% [
+                    ["auton", "Auton"],
+                    ["teleop", "Teleop"]
+                  ].each_with_index do |(phase, label), index| %>
+                  <div data-replay-scouting-target="tabContent" data-tab-panel="<%= phase %>" class="<%= 'hidden' unless index.zero? %>">
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                      <button type="button" class="h-20 w-full text-4xl font-black rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white select-none touch-manipulation" data-action="pointerdown->replay-scouting#startCounterHold pointerup->replay-scouting#stopCounterHold pointercancel->replay-scouting#stopCounterHold pointerleave->replay-scouting#stopCounterHold click->replay-scouting#handleCounterClick" data-counter-action="incrementMade" data-phase="<%= phase %>">+MAKE</button>
+                      <button type="button" class="h-20 w-full text-4xl font-black rounded-xl bg-red-600 hover:bg-red-500 active:bg-red-700 text-white select-none touch-manipulation" data-action="pointerdown->replay-scouting#startCounterHold pointerup->replay-scouting#stopCounterHold pointercancel->replay-scouting#stopCounterHold pointerleave->replay-scouting#stopCounterHold click->replay-scouting#handleCounterClick" data-counter-action="incrementMissed" data-phase="<%= phase %>">+MISS</button>
                     </div>
-                    <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
-                      <p class="text-xs text-gray-500 uppercase tracking-wide">Missed</p>
-                      <p class="text-2xl font-bold text-red-400 font-mono" data-replay-scouting-target="totalMissed">0</p>
+
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                      <button type="button" class="py-2 text-xs font-medium rounded-lg bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-gray-300 transition-all duration-150" data-action="pointerdown->replay-scouting#startCounterHold pointerup->replay-scouting#stopCounterHold pointercancel->replay-scouting#stopCounterHold pointerleave->replay-scouting#stopCounterHold click->replay-scouting#handleCounterClick" data-counter-action="undoMade" data-phase="<%= phase %>">Undo Make</button>
+                      <button type="button" class="py-2 text-xs font-medium rounded-lg bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-gray-300 transition-all duration-150" data-action="pointerdown->replay-scouting#startCounterHold pointerup->replay-scouting#stopCounterHold pointercancel->replay-scouting#stopCounterHold pointerleave->replay-scouting#stopCounterHold click->replay-scouting#handleCounterClick" data-counter-action="undoMissed" data-phase="<%= phase %>">Undo Miss</button>
                     </div>
-                    <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
-                      <p class="text-xs text-gray-500 uppercase tracking-wide">Accuracy</p>
-                      <p class="text-2xl font-bold text-amber-400 font-mono" data-replay-scouting-target="summaryAccuracy">0.0%</p>
+
+                    <div class="grid grid-cols-2 gap-3">
+                      <div class="rounded-xl bg-gray-900 border border-gray-800 p-3 text-center">
+                        <p class="text-xs uppercase tracking-wide text-gray-500"><%= label %> made</p>
+                        <p class="text-3xl font-bold text-emerald-400 font-mono" data-replay-scouting-target="<%= phase %>Made">0</p>
+                      </div>
+                      <div class="rounded-xl bg-gray-900 border border-gray-800 p-3 text-center">
+                        <p class="text-xs uppercase tracking-wide text-gray-500"><%= label %> missed</p>
+                        <p class="text-3xl font-bold text-red-400 font-mono" data-replay-scouting-target="<%= phase %>Missed">0</p>
+                      </div>
                     </div>
-                    <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
-                      <p class="text-xs text-gray-500 uppercase tracking-wide">Points</p>
-                      <p class="text-2xl font-bold text-white font-mono" data-replay-scouting-target="totalPoints">0</p>
-                    </div>
+                  </div>
+                <% end %>
+
+                <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                  <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Made</p>
+                    <p class="text-2xl font-bold text-emerald-400 font-mono" data-replay-scouting-target="totalMade">0</p>
+                  </div>
+                  <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Missed</p>
+                    <p class="text-2xl font-bold text-red-400 font-mono" data-replay-scouting-target="totalMissed">0</p>
+                  </div>
+                  <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Accuracy</p>
+                    <p class="text-2xl font-bold text-amber-400 font-mono" data-replay-scouting-target="summaryAccuracy">0.0%</p>
+                  </div>
+                  <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Points</p>
+                    <p class="text-2xl font-bold text-white font-mono" data-replay-scouting-target="totalPoints">0</p>
                   </div>
                 </div>
               </div>
@@ -253,19 +306,16 @@
                   <div class="flex items-start justify-between gap-3 mb-3">
                     <div>
                       <p class="text-xs uppercase tracking-[0.2em] text-gray-500">Step 2</p>
-                      <h3 class="text-lg font-semibold text-white">Auton Path + Questions</h3>
-                      <p class="text-sm text-gray-400 mt-1">Keep the video available while you add pathing, climb details, defense, and notes.</p>
+                      <h3 class="text-lg font-semibold text-white">Endgame Review</h3>
+                      <p class="text-sm text-gray-400 mt-1">Review pathing, climb details, defense, and final notes after scoring is complete.</p>
                     </div>
                     <button type="button" class="btn-secondary text-sm" data-action="click->replay-scouting#showOverlay">Back to overlay</button>
                   </div>
 
-                  <div class="relative rounded-2xl overflow-hidden border border-gray-800 bg-black aspect-video mb-4">
-                    <iframe class="absolute inset-0 w-full h-full"
-                            src="<%= replay_embed_url_for(@selected_match, @selected_video['raw_key']) %>"
-                            title="Replay reference video for <%= @selected_match.display_name %>"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            referrerpolicy="strict-origin-when-cross-origin"
-                            allowfullscreen></iframe>
+                  <div class="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 mb-4">
+                    <p class="text-xs uppercase tracking-[0.2em] text-amber-300/80">Endgame review</p>
+                    <p class="text-sm text-gray-200 mt-2">Use this section for post-match review only.</p>
+                    <p class="text-sm text-gray-400 mt-1">Any late-match make/miss actions should be counted in Teleop before moving here.</p>
                   </div>
 
                   <div class="mb-4"
@@ -335,8 +385,8 @@
                     </div>
 
                     <div>
-                      <%= f.label :notes, class: "block text-xs text-gray-400 uppercase tracking-wider mb-2 font-medium" %>
-                      <%= f.text_area :notes, rows: 4, class: "input-field text-sm resize-none", placeholder: "Anything worth noting from the replay..." %>
+                      <%= f.label :notes, "Post-match review", class: "block text-xs text-gray-400 uppercase tracking-wider mb-2 font-medium" %>
+                      <%= f.text_area :notes, rows: 4, class: "input-field text-sm resize-none", placeholder: "Climb details, defense quality, robot issues, or final observations..." %>
                     </div>
                   </div>
                 </div>
@@ -348,11 +398,6 @@
               </div>
             </div>
           <% end %>
-        <% elsif @selected_match.present? %>
-          <div class="scout-card p-8 text-center">
-            <p class="text-lg font-semibold text-white">Choose a team to scout in <%= @selected_match.display_name %>.</p>
-            <p class="text-sm text-gray-400 mt-2">Use the team dropdown above to pick the robot you want to replay scout.</p>
-          </div>
         <% else %>
           <div class="scout-card p-8 text-center">
             <svg class="w-12 h-12 text-gray-700 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

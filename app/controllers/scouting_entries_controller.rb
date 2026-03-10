@@ -249,7 +249,12 @@ class ScoutingEntriesController < ApplicationController
     return [] if match.blank?
 
     coverage = @coverage_map[match] || { teams: [] }
-    coverage[:teams].sort_by { |team| [ team[:covered] ? 1 : 0, team[:alliance_color], team[:station] ] }
+    coverage[:teams].sort_by do |team|
+      [
+        team[:station],
+        team[:alliance_color] == "blue" ? 0 : 1
+      ]
+    end
   end
 
   def selected_video_for(match)

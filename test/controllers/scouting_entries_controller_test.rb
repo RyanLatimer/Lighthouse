@@ -69,6 +69,17 @@ class ScoutingEntriesControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Replay Match Picker"
     assert_select "select[name='match_id']"
     assert_select "select[name='frc_team_id']"
+    assert_select "[data-replay-team-grid]"
+    assert_select "button[data-replay-team-card='blue-1']"
+    assert_select "button[data-replay-team-card='red-1']"
+  end
+
+  test "replay page team cards can drive selected team" do
+    get replay_scouting_entries_path(match_id: matches(:qm4).id, frc_team_id: frc_teams(:team_254).id)
+
+    assert_response :success
+    assert_select "option[value='#{frc_teams(:team_254).id}'][selected='selected']"
+    assert_select "button[data-replay-team-card][data-replay-team-selected='true']", count: 1
   end
 
   test "scout can get replay page" do
