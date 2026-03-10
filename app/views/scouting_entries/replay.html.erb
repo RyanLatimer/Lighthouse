@@ -143,7 +143,7 @@
                     <button type="button" class="btn-secondary text-sm" data-action="click->replay-scouting#showQuestions">Go to questions</button>
                   </div>
 
-                  <div class="relative rounded-2xl overflow-hidden border border-gray-800 bg-black aspect-video mb-4">
+                  <div class="relative rounded-2xl overflow-hidden border border-gray-800 bg-black aspect-video">
                     <iframe class="absolute inset-0 w-full h-full"
                             src="<%= replay_embed_url_for(@selected_match, @selected_video['raw_key']) %>"
                             title="Replay video for <%= @selected_match.display_name %>"
@@ -152,30 +152,11 @@
                             allowfullscreen></iframe>
                     <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent p-3 pointer-events-none">
                       <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Overlay scoring</p>
-                      <p class="text-sm text-white mt-1">Tap the buttons below while the video plays. Start with auton, then switch to teleop and endgame.</p>
+                      <p class="text-sm text-white mt-1">Use the make and miss buttons directly below while the video plays.</p>
                     </div>
                   </div>
 
-                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 text-center">
-                    <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
-                      <p class="text-xs text-gray-500 uppercase tracking-wide">Made</p>
-                      <p class="text-2xl font-bold text-emerald-400 font-mono" data-replay-scouting-target="totalMade">0</p>
-                    </div>
-                    <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
-                      <p class="text-xs text-gray-500 uppercase tracking-wide">Missed</p>
-                      <p class="text-2xl font-bold text-red-400 font-mono" data-replay-scouting-target="totalMissed">0</p>
-                    </div>
-                    <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
-                      <p class="text-xs text-gray-500 uppercase tracking-wide">Accuracy</p>
-                      <p class="text-2xl font-bold text-amber-400 font-mono" data-replay-scouting-target="summaryAccuracy">0.0%</p>
-                    </div>
-                    <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
-                      <p class="text-xs text-gray-500 uppercase tracking-wide">Points</p>
-                      <p class="text-2xl font-bold text-white font-mono" data-replay-scouting-target="totalPoints">0</p>
-                    </div>
-                  </div>
-
-                  <div class="flex rounded-xl bg-gray-900 p-1 gap-1 mb-4" role="tablist" aria-label="Replay scoring phases">
+                  <div class="mt-4 mb-4 flex rounded-xl bg-gray-900 p-1 gap-1" role="tablist" aria-label="Replay scoring phases">
                     <% %w[auton teleop endgame].each_with_index do |phase, index| %>
                       <button type="button"
                               class="flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 <%= index.zero? ? 'bg-orange-500/15 text-orange-400 shadow-sm' : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/70' %>"
@@ -196,6 +177,16 @@
                     ].each_with_index do |(phase, label), index| %>
                     <div data-replay-scouting-target="tabContent" data-tab-panel="<%= phase %>" class="<%= 'hidden' unless index.zero? %>">
                       <div class="grid grid-cols-2 gap-3 mb-3">
+                        <button type="button" class="h-20 w-full text-4xl font-black rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white select-none touch-manipulation" data-action="click->replay-scouting#incrementMade" data-phase="<%= phase %>">+MAKE</button>
+                        <button type="button" class="h-20 w-full text-4xl font-black rounded-xl bg-red-600 hover:bg-red-500 active:bg-red-700 text-white select-none touch-manipulation" data-action="click->replay-scouting#incrementMissed" data-phase="<%= phase %>">+MISS</button>
+                      </div>
+
+                      <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button type="button" class="py-2 text-xs font-medium rounded-lg bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-gray-300 transition-all duration-150" data-action="click->replay-scouting#undoMade" data-phase="<%= phase %>">Undo Make</button>
+                        <button type="button" class="py-2 text-xs font-medium rounded-lg bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-gray-300 transition-all duration-150" data-action="click->replay-scouting#undoMissed" data-phase="<%= phase %>">Undo Miss</button>
+                      </div>
+
+                      <div class="grid grid-cols-2 gap-3">
                         <div class="rounded-xl bg-gray-900 border border-gray-800 p-3 text-center">
                           <p class="text-xs uppercase tracking-wide text-gray-500"><%= label %> made</p>
                           <p class="text-3xl font-bold text-emerald-400 font-mono" data-replay-scouting-target="<%= phase %>Made">0</p>
@@ -205,18 +196,27 @@
                           <p class="text-3xl font-bold text-red-400 font-mono" data-replay-scouting-target="<%= phase %>Missed">0</p>
                         </div>
                       </div>
-
-                      <div class="grid grid-cols-2 gap-3 mb-3">
-                        <button type="button" class="h-20 w-full text-4xl font-black rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white select-none touch-manipulation" data-action="click->replay-scouting#incrementMade" data-phase="<%= phase %>">+MAKE</button>
-                        <button type="button" class="h-20 w-full text-4xl font-black rounded-xl bg-red-600 hover:bg-red-500 active:bg-red-700 text-white select-none touch-manipulation" data-action="click->replay-scouting#incrementMissed" data-phase="<%= phase %>">+MISS</button>
-                      </div>
-
-                      <div class="grid grid-cols-2 gap-3">
-                        <button type="button" class="py-2 text-xs font-medium rounded-lg bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-gray-300 transition-all duration-150" data-action="click->replay-scouting#undoMade" data-phase="<%= phase %>">Undo Make</button>
-                        <button type="button" class="py-2 text-xs font-medium rounded-lg bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-gray-300 transition-all duration-150" data-action="click->replay-scouting#undoMissed" data-phase="<%= phase %>">Undo Miss</button>
-                      </div>
                     </div>
                   <% end %>
+
+                  <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                    <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
+                      <p class="text-xs text-gray-500 uppercase tracking-wide">Made</p>
+                      <p class="text-2xl font-bold text-emerald-400 font-mono" data-replay-scouting-target="totalMade">0</p>
+                    </div>
+                    <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
+                      <p class="text-xs text-gray-500 uppercase tracking-wide">Missed</p>
+                      <p class="text-2xl font-bold text-red-400 font-mono" data-replay-scouting-target="totalMissed">0</p>
+                    </div>
+                    <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
+                      <p class="text-xs text-gray-500 uppercase tracking-wide">Accuracy</p>
+                      <p class="text-2xl font-bold text-amber-400 font-mono" data-replay-scouting-target="summaryAccuracy">0.0%</p>
+                    </div>
+                    <div class="rounded-xl bg-gray-900/80 border border-gray-800 p-3">
+                      <p class="text-xs text-gray-500 uppercase tracking-wide">Points</p>
+                      <p class="text-2xl font-bold text-white font-mono" data-replay-scouting-target="totalPoints">0</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 

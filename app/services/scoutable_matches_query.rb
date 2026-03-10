@@ -25,6 +25,6 @@ class ScoutableMatchesQuery
   end
 
   def loaded_matches
-    @loaded_matches ||= @event.matches.includes(match_alliances: :frc_team).ordered.to_a
+    @loaded_matches ||= @event.matches.where(comp_level: "qm").includes(match_alliances: :frc_team).ordered.to_a
   end
 end
