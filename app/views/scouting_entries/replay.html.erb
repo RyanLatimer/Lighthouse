@@ -122,8 +122,9 @@
             </div>
           </div>
         </div>
+      <% end %>
 
-        <% if @selected_video.present? && @scouting_entry.frc_team_id.present? %>
+      <% if @selected_video.present? && (@scouting_entry.frc_team_id.present? || @scouting_entry.errors.any?) %>
           <%= form_with(model: @scouting_entry, url: @replay_submit_url, method: @replay_submit_method, id: "replay-scouting-form",
                         data: {
                           controller: "replay-scouting",
