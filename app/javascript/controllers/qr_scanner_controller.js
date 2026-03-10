@@ -1,5 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
 import jsQR from "jsqr"
+import {
+  cameraErrorMessage,
+  cameraSupported,
+  getCameraPermissionState,
+  requestCameraStream,
+  stopCameraStream,
+} from "lib/camera_access"
 import { decode } from "lib/qr_payload"
 
 /**
@@ -26,6 +33,16 @@ export default class extends Controller {
   connect() {
     this.animationId = null
     this.stream = null
+
+    if (!cameraSupported()) {
+      this.statusTarget.textContent = "Camera access is not supported on this device or browser."
+      this.statusTarget.className = "text-sm text-red-400 mt-3"
+
+      if (this.hasStartBtnTarget) {
+        this.startBtnTarget.disabled = true
+        this.startBtnTarget.classList.add("opacity-60", "cursor-not-allowed")
+      }
+    }
   }
 
   disconnect() {
@@ -36,9 +53,7 @@ export default class extends Controller {
     if (this.scanningValue) return
 
     try {
-      this.stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-      })
+      this.stream = await requestCameraStream()
 
       this.videoTarget.srcObject = this.stream
       this.videoTarget.setAttribute("playsinline", true)
@@ -56,7 +71,7 @@ export default class extends Controller {
       this.tick()
     } catch (err) {
       console.error("Camera access failed:", err)
-      this.statusTarget.textContent = "Camera access denied. Please allow camera permissions and try again."
+      this.statusTarget.textContent = cameraErrorMessage(err, await getCameraPermissionState())
       this.statusTarget.className = "text-sm text-red-400 mt-3"
     }
   }
@@ -80,7 +95,7 @@ export default class extends Controller {
     }
 
     if (this.stream) {
-      this.stream.getTracks().forEach(track => track.stop())
+      stopCameraStream(this.stream)
       this.stream = null
     }
   }

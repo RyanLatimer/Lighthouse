@@ -45,6 +45,10 @@ class PitScoutingEntriesControllerTest < ActionDispatch::IntegrationTest
   test "should get new" do
     get new_pit_scouting_entry_path
     assert_response :success
+    assert_select "button", text: /Upload Photos/
+    assert_select "button", text: /Take Photos/
+    assert_select "video[data-pit-photo-target='video']"
+    assert_select "button", text: /Capture Photo/
   end
 
   test "scout can get new" do
@@ -60,6 +64,7 @@ class PitScoutingEntriesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create pit scouting entry" do
     team = frc_teams(:team_4414)
+    photo = Rack::Test::UploadedFile.new(file_fixture("test_photo.jpg"), "image/jpeg")
 
     assert_difference("PitScoutingEntry.count", 1) do
       post pit_scouting_entries_path, params: {
@@ -67,11 +72,13 @@ class PitScoutingEntriesControllerTest < ActionDispatch::IntegrationTest
           frc_team_id: team.id,
           notes: "Test pit scouting entry",
           client_uuid: "pit-create-test-#{SecureRandom.hex(8)}",
-          data: { drivetrain: "tank", robot_weight: 115 }
+          data: { drivetrain: "tank", robot_weight: 115 },
+          photos: [ photo ]
         }
       }
     end
     assert_redirected_to pit_scouting_entry_path(PitScoutingEntry.last)
+    assert PitScoutingEntry.last.photos.attached?
   end
 
   test "scout can create pit scouting entry" do
