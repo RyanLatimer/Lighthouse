@@ -1,5 +1,5 @@
 class AccuracyFlaggingService
-  FLAG_THRESHOLD = 20
+  FLAG_THRESHOLD = 1000
 
   def initialize(event)
     @event = event
